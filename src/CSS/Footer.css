@@ -1,0 +1,92 @@
+* {
+  padding: 0;
+  margin: 0;
+}
+
+.k_f_bg_image {
+  background-image: url(../Assets/Login_bg.png);
+  background-repeat: no-repeat;
+  background-size: cover;
+  background-position: bottom;
+  height: auto;
+  width: 100%;
+}
+
+.k_footer_bg {
+  background-image: url(../Assets/Mask\ group.png);
+  background-position: center;
+  background-repeat: no-repeat;
+  height: auto;
+  width: 100%;
+  object-fit: cover;
+  background-color: rgba(49, 47, 51, 0.2) !important;
+}
+
+.k_listOf_Company ul li,
+.k_ListOf_Learn ul li {
+  list-style: none;
+  font-weight: 400;
+}
+
+.k_listOf_Company ul,
+.k_ListOf_Learn ul {
+  font-weight: 700;
+}
+
+.k_f_txt p {
+  width: 75%;
+}
+
+.k_circle {
+  height: 35px;
+  width: 35px;
+  background-color: white;
+  border-radius: 50%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-right: 8px;
+}
+
+.k_f_space {
+  padding: 50px 0 !important;
+}
+
+.css-1bz2kwm > :not(style) {
+  margin-left: 0 !important;
+}
+
+.k_listOf_Company .k_ft_Companny,
+.k_ListOf_Learn .k_ft_learn {
+  font-size: 20px;
+}
+
+.k_listOf_Company li,
+.k_ListOf_Learn li {
+  font-size: 18px;
+}
+
+@media only screen and (max-width: 1440px) {
+  .k_f_txt p {
+    width: auto;
+  }
+}
+
+@media only screen and (max-width: 425px) {
+  .k_f_txt {
+    text-align: center;
+  }
+  .k_ft_Icons {
+    justify-content: center;
+    margin-top: 12px !important;
+  }
+  .k_listOf_Company,
+  .k_ListOf_Learn {
+    margin-top: 22px;
+    text-align: center;
+  }
+  .k_ft_email {
+    text-align: center;
+    margin-top: 18px !important;
+  }
+}
