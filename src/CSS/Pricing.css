@@ -1,0 +1,82 @@
+* {
+  padding: 0;
+  margin: 0;
+}
+
+.row {
+  padding: 0;
+  margin: 0;
+}
+
+.k_pricing_txt {
+  padding: 45px 0 !important;
+}
+
+.k_pricing_txt p {
+  width: 35%;
+  margin: auto;
+}
+
+.k_cards_pricing {
+  background-color: rgba(49, 47, 51, 0.25) !important;
+  /* border: 1px solid white !important; */
+  box-shadow: rgba(0, 0, 0, 0.1) 0px 4px 12px !important;
+}
+
+.k_list_grp {
+  height: 250px;
+}
+
+.k_top_bot {
+  margin: 50px 0 !important;
+}
+
+.selected-card {
+  border: 1px solid white !important;
+}
+
+@media only screen and (max-width: 1440px) {
+  .k_cards_pricing {
+    max-width: 100% !important;
+  }
+  .k_pricing_txt p {
+    width: 46%;
+    margin: auto;
+  }
+}
+
+@media only screen and (max-width: 1024px) {
+  .k_pricing_txt p {
+    width: 62%;
+  }
+}
+
+@media only screen and (max-width: 768px) {
+  .k_pricing_txt p {
+    width: 90%;
+  }
+}
+
+@media only screen and (max-width: 375px) {
+  /* .k_cards_pricing {
+   padding: 12px !important;
+  } */
+}
+
+@media (max-width: 768px) {
+  /* Adjust breakpoint according to your needs */
+  .k_top_bot .child:nth-child(3) {
+    margin-top: 25px; /* Apply margin-top of 25px to the 3rd child */
+  }
+}
+@media (max-width: 576px) {
+  /* Adjust breakpoint according to your needs */
+  .k_top_bot .child:nth-child(2) {
+    margin-top: 25px; /* Apply margin-top of 25px to the 3rd child */
+  }
+  .k_top_bot .child:nth-child(3) {
+    margin-top: 25px; /* Apply margin-top of 25px to the 3rd child */
+  }
+}
+
+

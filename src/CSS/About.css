@@ -1,0 +1,45 @@
+* {
+  padding: 0;
+  margin: 0;
+}
+
+.k_about_top_img img {
+  height: 50%;
+  width: 75%;
+}
+
+.k_about_third_img img{
+    width: 70%;
+}
+
+.k_top_bot_padd {
+  padding: 40px 0 !important;
+}
+
+.bg_about_second_img_k {
+  background-image: linear-gradient(
+      0deg,
+      #000000 -8.36%,
+      rgba(0, 0, 0, 0) 188.72%
+    ),
+    url(../Assets/About_2.png);
+  background-position: center;
+  background-repeat: no-repeat;
+  background-size: cover;
+  height: auto;
+  padding: 100px 0;
+}
+
+
+
+@media only screen and (max-width: 425px) {
+  .k_about_top_img img {
+    width: 100%;
+  }
+  .k_about_txt {
+    text-align: center;
+  }
+  .k_top_bot_padd {
+    padding: 20px 0 !important;
+  }
+}

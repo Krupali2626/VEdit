@@ -1,0 +1,48 @@
+* {
+  padding: 0;
+  margin: 0;
+}
+
+.custom-placeholder::placeholder {
+  color: gray !important;
+  opacity: 1 !important; /* Ensure the placeholder text is fully visible */
+}
+
+
+
+.circle {
+  width: 54px;
+  height: 54px;
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 5px;
+}
+
+.circle::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  border-radius: 50%;
+  backdrop-filter: blur(60px);
+  background: linear-gradient(
+      109.46deg,
+      rgba(201, 201, 201, 0.8) 1.57%,
+      rgba(196, 196, 196, 0.1) 100%
+  );
+  opacity: 0.5;
+}
+
+.circle span {
+  position: relative;
+  color: white;
+  font-size: 24px;
+  z-index: 1;
+}
+
+
+
