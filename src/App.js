@@ -6,6 +6,8 @@ import './CSS/Feature.css'
 import './CSS/About.css'
 import './CSS/Pricing.css'
 import './CSS/Help.css'
+import './CSS/Contact.css'
+import './CSS/Payment.css'
 import './CSS/carousel.css'
 import './CSS/Accordian.css'
 import './CSS/Footer.css'
@@ -22,6 +24,9 @@ import AboutUs from './Container/AboutUs';
 import Pricing from './Container/Pricing';
 import Help from './Container/Help';
 import Contect_us from './Container/Contect_us'
+import PrivacyPolicy from './Container/PrivacyPolicy';
+import TndC from './Container/TndC';
+import Payment from './Container/Payment';
 
 function App() {
   return (
@@ -37,6 +42,9 @@ function App() {
           <Route path="/pricing" element={<Pricing />} />
           <Route path="/help" element={<Help />} />
           <Route path="/contact" element={<Contect_us />} />
+          <Route path="/privacy" element={<PrivacyPolicy />} />
+          <Route path="/terms" element={<TndC />} />
+          <Route path="/pricing/payment" element={<Payment />} />
           <Route path="/footer" element={<Footer />} />
           {/* <Route path="/form" element={<ValForm />} /> */}
         </Routes>

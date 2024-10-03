@@ -1,0 +1,25 @@
+* {
+  padding: 0;
+  margin: 0;
+}
+.custom-placeholder,
+.k_custom-textarea::placeholder {
+  color: gray !important;
+  opacity: 1 !important; /* Ensures the placeholder is fully opaque */
+}
+
+.k_contact_btn {
+  width: 80%;
+  margin: auto;
+  margin-top: 30px;
+}
+
+.k_contact_btn button {
+  width: 90%;
+}
+
+.k_privacy_top {
+  width: 30%;
+  margin: auto;
+  padding: 25px 0;
+}

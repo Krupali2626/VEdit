@@ -1,4 +1,4 @@
-.custom-accordion-container {
+.k_custom-accordion-container {
   border: 1px solid rgba(255, 255, 255, 1);
   background: rgba(49, 47, 51, 0.25);
   color: white;
@@ -6,47 +6,47 @@
   margin: auto;
 }
 
-.custom-accordion-container .accordion-item {
+.k_custom-accordion-container .accordion-item {
   background: transparent;
   border: none;
   border-bottom: 1px solid rgba(255, 255, 255, 1);
 }
 
-.custom-accordion-container .accordion-item:last-child {
+.k_custom-accordion-container .accordion-item:last-child {
   border-bottom: none;
 }
 
-.custom-accordion-container .accordion-button {
+.k_custom-accordion-container .accordion-button {
   background-color: transparent;
   color: white;
   padding: 1rem;
 }
 
-.custom-accordion-container .accordion-button:not(.collapsed) {
+.k_custom-accordion-container .accordion-button:not(.collapsed) {
   background-color: transparent;
   color: white;
 }
 
-.custom-accordion-container .accordion-button:hover,
-.custom-accordion-container .accordion-button:focus {
+.k_custom-accordion-container .accordion-button:hover,
+.k_custom-accordion-container .accordion-button:focus {
   color: white;
 }
 
-.custom-accordion-container .accordion-button:focus {
+.k_custom-accordion-container .accordion-button:focus {
   box-shadow: none;
 }
 
-.custom-accordion-container .accordion-button::after {
+.k_custom-accordion-container .accordion-button::after {
   display: none;
 }
 
-.custom-accordion-container .accordion-icon {
+.k_custom-accordion-container .accordion-icon {
   flex-shrink: 0;
   margin-left: auto;
   color: white;
 }
 
-.custom-accordion-container .accordion-body {
+.k_custom-accordion-container .accordion-body {
   background: transparent;
   padding: 1rem;
   color: white;
@@ -54,7 +54,7 @@
 }
 
 @media only screen and (max-width: 1024px) {
-  .custom-accordion-container {
+  .k_custom-accordion-container {
     width: 87%;
   }
   .bg_about_second_img_k{

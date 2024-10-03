@@ -49,8 +49,8 @@ function Footer(props) {
                                 <div className='k_listOf_Company'>
                                     <ul className='px-0 k_ft_Companny'>Company
                                         <li><NavLink className='text-decoration-none text-white' to="/pricing" activeClassName="active">Pricing</NavLink></li>
-                                        <li><NavLink className='text-decoration-none text-white' to="/privacy-policy" activeClassName="active">Privacy Policy</NavLink></li>
-                                        <li><NavLink className='text-decoration-none text-white' to="/terms-of-service" activeClassName="active">Terms of Service</NavLink></li>
+                                        <li><NavLink className='text-decoration-none text-white' to="/privacy" activeClassName="active">Privacy Policy</NavLink></li>
+                                        <li><NavLink className='text-decoration-none text-white' to="/terms" activeClassName="active">Terms of Service</NavLink></li>
                                     </ul>
                                 </div>
                             </div>

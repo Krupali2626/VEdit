@@ -116,7 +116,7 @@ function AboutUs(props) {
                             <div className='k_about__acc_txt'>
                                 <h2>Frequently Asked Questions</h2>
                             </div>
-                            <div className="custom-accordion-container mt-4">
+                            <div className="k_custom-accordion-container mt-4">
                                 <Accordion activeKey={activeKey} onSelect={handleAccordionToggle} flush>
                                     {accordionItems.map((item) => (
                                         <Accordion.Item key={item.eventKey} eventKey={item.eventKey} className="bg-transparent">
@@ -133,7 +133,6 @@ function AboutUs(props) {
                                     ))}
                                 </Accordion>
                             </div>
-
                         </div>
                     </div>
                 </div>
