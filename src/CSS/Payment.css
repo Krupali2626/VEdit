@@ -1,0 +1,90 @@
+*{
+    padding: 0;
+    margin: 0;
+}
+
+.custom-accordion-container_k {
+    background-color: #171717;
+    color: white;
+    padding: 20px;
+    border-radius: 10px;
+}
+
+.payment-title_k {
+    font-size: 1.2rem;
+    margin-bottom: 20px;
+    padding-bottom: 10px;
+    border-bottom: 1px solid #333;
+}
+
+.accordion-item_k {
+    background-color: transparent !important;
+    border: none !important;
+    margin-bottom: 10px;
+}
+
+.accordion-header_k button {
+    background-color: #222 !important;
+    color: white !important;
+    border: none !important;
+    padding: 15px !important;
+    display: flex;
+    align-items: center;
+    width: 100%;
+    text-align: left;
+}
+
+.accordion-header_k button:focus {
+    box-shadow: none !important;
+}
+
+.radio-circle_k {
+    width: 20px;
+    height: 20px;
+    border: 2px solid white;
+    border-radius: 50%;
+    margin-right: 10px;
+    display: inline-block;
+}
+
+.accordion-header_k button[aria-expanded="true"] .radio-circle_k {
+    background-color: white;
+}
+
+.accordion-body_k {
+    background-color: #222;
+    color: white;
+    padding: 20px !important;
+}
+
+.card-inputs_k input {
+    background-color: #333;
+    border: none;
+    color: white;
+    padding: 10px;
+    margin-bottom: 10px;
+    width: 100%;
+}
+
+.card-inputs_k .input-row_k {
+    display: flex;
+    gap: 10px;
+}
+
+.card-inputs_k .input-row_k input {
+    flex: 1;
+}
+
+.pay-button_k {
+    background-color: white;
+    color: black;
+    border: none;
+    padding: 10px 20px;
+    float: right;
+    margin-top: 10px;
+    cursor: pointer;
+}
+
+.full-width_k {
+    width: 100%;
+}

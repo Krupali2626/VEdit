@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Card, Button, ListGroup } from 'react-bootstrap';
 // import { CheckCircle } from 'react-bootstrap-icons';
 import CheckIcon from '@mui/icons-material/Check';
+import { Link } from 'react-router-dom'; 
 
 function Pricing(props) {
     const [selectedCard, setSelectedCard] = useState(null);
@@ -15,7 +16,8 @@ function Pricing(props) {
                 'Free effect and filters',
                 'Easy video editing',
                 'Lorem ipsum dolor sit amet, consectetur'
-            ]
+            ],
+            link: 'payment'
         },
         {
             price: '$29 WEEKLY',
@@ -26,7 +28,8 @@ function Pricing(props) {
                 'Lorem ipsum dolor sit amet, consectetur ',
                 'Lorem ipsum dolor sit amet, consectetur',
                 'Lorem ipsum dolor sit amet, consectetur'
-            ]
+            ],
+            link: 'payment'
         },
         {
             price: '$49 WEEKLY',
@@ -37,7 +40,8 @@ function Pricing(props) {
                 'Lorem ipsum dolor sit amet, consectetur ',
                 'Lorem ipsum dolor sit amet, consectetur',
                 'Lorem ipsum dolor sit amet, consectetur'
-            ]
+            ],
+            link: 'payment'
         }
     ];
 
@@ -73,9 +77,11 @@ function Pricing(props) {
                                                 </ListGroup.Item>
                                             ))}
                                         </ListGroup>
-                                        <Button variant="light" className="w-100 mt-4 fw-bold">
-                                            Get started
-                                        </Button>
+                                        <Link to={card.link} className="w-100 mt-4">
+                                            <Button variant="light" className="w-100 fw-bold">
+                                                Get started
+                                            </Button>
+                                        </Link>
                                     </Card.Body>
                                 </Card>
                             </div>
