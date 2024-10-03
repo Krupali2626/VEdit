@@ -10,7 +10,7 @@ import h6 from "../Assets/denisha_img/h6.svg";
 import h7 from "../Assets/denisha_img/h7.svg";
 import { BsThreeDotsVertical } from 'react-icons/bs';
 
-export default function VEHome() {
+export default function NoProject() {
     return (
         <>
             <div>
@@ -111,30 +111,16 @@ export default function VEHome() {
                     <div className="col-xl-1 d-xl-block d-none"></div>
                 </div>
                 <div className="row mt-5">
-                    <div className="col-12">
+                    <div className="col-12 mb-5">
                         <div>
                             <span className='d_font_quick'>My projects</span>
                         </div>
 
                     </div>
-                    <div className="col-5  mt-4">
-                        <div className='d_prjct_img'>
-                            <div className='text-end me-2 d_dots_icon'>
-                                <BsThreeDotsVertical />
-
-                            </div>
-                            <div className='d-flex justify-content-between' style={{padding:"2px 20px 11px"}}>
-                                <div className='d-flex flex-column'>
-                                    <span className='fw-bold text-white'>Project 01</span>
-                                    <span className='d_prjct_txt1'>29 Jun 2024</span>
-                                </div>
-                                <div>
-                                    <p className='mb-3'></p>
-                                    <span className='d_prjct_txt1'>05:19</span>
-                                </div>
-                            </div>
-                        </div>
-                        {/* <img src={require('../Assets/denisha_img/prjct1.jpg')} alt="" /> */}
+                    <div className="col-12 text-center d_gray_htxt  mt-md-5">
+                            <p>
+                            You have no projects yet
+                            </p>
                     </div>
                 </div>
             </div>

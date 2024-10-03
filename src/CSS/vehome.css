@@ -1,0 +1,56 @@
+* {
+  padding: 0;
+  margin: 0;
+}
+.d_font_quick {
+  font-size: 22px;
+}
+.d_add_new_prjct {
+  background-color: white;
+  color: black;
+  text-align: center;
+  border-radius: 4px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 5px 15px;
+}
+.d_plus_icon svg {
+  font-size: 25px;
+  margin-right: 7px;
+}
+.d_h_img {
+    background: linear-gradient(102deg, rgba(201, 201, 201, 0.23) 3.57%, rgba(196, 196, 196, 0.036) 100%);
+    padding: 15px;
+   
+    border-radius: 4px;
+    margin-right: 15px;
+
+}
+.d_h_img img{
+    color: white;
+}
+.d_white_htxt{
+    font-size: 16px;
+}
+.d_gray_htxt{
+    font-size: 12px;
+    opacity: 0.6;
+}
+.d_prjct_img{
+    background-size: cover;
+    height: 160px;
+    width: 350px;
+    border-radius: 4px;
+    background-image: url("../Assets/denisha_img/prjct1.jpg");
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+}
+.d_dots_icon svg{
+    margin-top: 12px;
+    font-size: 22px;
+}
+.d_prjct_txt1{
+    font-size: 12px;
+}

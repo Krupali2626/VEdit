@@ -6,7 +6,11 @@
   .d_navbar {
     background-color: black;
     color: white;
+    position: fixed; /* Keep navbar at the top */
+    width: 100%; /* Ensure it spans the full width */
+    z-index: 1000; /* Ensure it stays above other content */
   }
+  
   body{
     background-color: black !important;
   }
@@ -30,13 +34,17 @@
   
   .d_main {
     background-color: black;
+    /* margin-top: 86px; Adjust this value based on the height of your navbar */
   }
-  
+  .d_sidebar a{
+    color: white !important;
+  }
   .d_sidebar {
     background-color: #0a0a0a;
-    /* height: 100vh; */
-    color: white;
-    position: absolute;
+    z-index: 11;
+    color: white !important;
+    position: fixed;
+    top: 80px;
     width: 285px; /* Adjust width as needed */
     height: calc(100vh - 86px);
     left: -285px; /* Hide off-screen */
@@ -45,6 +53,7 @@
   
   .d_sidebar.active {
     left: 0; /* Show sidebar */
+
   }
   
   .d_sidebar_menu {
@@ -65,18 +74,19 @@
   
   .d_sidebar_menu.active {
     background-color: white;
-    color: black;
+    color: black !important;
+    font-weight: 500 !important;
   }
   
   .toggle-sidebar {
     display: block; /* Show toggle button */
     cursor: pointer;
     font-size: 24px;
-    color: white;
+    color: white !important;
     border: 1px solid white;
     padding: 0px 5px;
   }
-  
+ 
   @media (min-width: 769px) {
  
     .toggle-sidebar {
@@ -91,6 +101,15 @@
       margin-left: 285px; /* Adjust main content */
     }
   }
+  @media (max-width:992px) and (min-width: 769px) {
+    .d_sidebar{
+      width: 234px;
+    }
+    .d_main {
+          margin-left: 234px;
+      }
+  
+  }
   @media (max-width:576px) {
     .d_sidebar {
         width: 240px;
@@ -100,5 +119,10 @@
     .d_navbar .d_profile_div {
         width: 46px;
         height: 46px;
+    }
+  }
+  @media (max-width:320px) {
+    .d_sidebar {
+      height: calc(100vh - 70px);
     }
   }
