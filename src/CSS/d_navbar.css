@@ -1,0 +1,104 @@
+* {
+    padding: 0;
+    margin: 0;
+  }
+  
+  .d_navbar {
+    background-color: black;
+    color: white;
+  }
+  body{
+    background-color: black !important;
+  }
+  .d_navbar .d_profile_div {
+    width: 54px;
+    height: 54px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 0px;
+    border-radius: 50%;
+    opacity: 0.25px;
+    background: linear-gradient(
+      109.46deg,
+      rgba(201, 201, 201, 0.8) 1.57%,
+      rgba(196, 196, 196, 0.1) 100%
+    );
+    font-size: 22px;
+    backdrop-filter: blur(60px);
+  }
+  
+  .d_main {
+    background-color: black;
+  }
+  
+  .d_sidebar {
+    background-color: #0a0a0a;
+    /* height: 100vh; */
+    color: white;
+    position: absolute;
+    width: 285px; /* Adjust width as needed */
+    height: calc(100vh - 86px);
+    left: -285px; /* Hide off-screen */
+    transition: left 0.3s ease;
+  }
+  
+  .d_sidebar.active {
+    left: 0; /* Show sidebar */
+  }
+  
+  .d_sidebar_menu {
+    padding: 20px 30px;
+    font-size: 20px;
+    text-align: start;
+    display: flex;
+    align-items: center;
+  }
+  
+  .d_sidebar_menu svg {
+    font-size: 28px;
+  }
+  
+  .d_sidebar_menu span {
+    margin-left: 18px;
+  }
+  
+  .d_sidebar_menu.active {
+    background-color: white;
+    color: black;
+  }
+  
+  .toggle-sidebar {
+    display: block; /* Show toggle button */
+    cursor: pointer;
+    font-size: 24px;
+    color: white;
+    border: 1px solid white;
+    padding: 0px 5px;
+  }
+  
+  @media (min-width: 769px) {
+ 
+    .toggle-sidebar {
+      display: none; /* Hide toggle button on larger screens */
+    }
+  
+    .d_sidebar {
+      left: 0; /* Always show sidebar on larger screens */
+    }
+  
+    .d_main {
+      margin-left: 285px; /* Adjust main content */
+    }
+  }
+  @media (max-width:576px) {
+    .d_sidebar {
+        width: 240px;
+    }
+  }
+  @media (max-width:425px) {
+    .d_navbar .d_profile_div {
+        width: 46px;
+        height: 46px;
+    }
+  }

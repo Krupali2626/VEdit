@@ -9,10 +9,11 @@ import './CSS/Help.css'
 import './CSS/carousel.css'
 import './CSS/Accordian.css'
 import './CSS/Footer.css'
+import './CSS/d_navbar.css'
 import Index from './Container/Index';
 import CustomNavbar from './Componant/CustomNavbar';
 import SignIn from './Componant/SignIn';
-import { Route, Router, Routes } from 'react-router-dom';
+import { BrowserRouter, Route, Router, Routes } from 'react-router-dom';
 import { Provider } from 'react-redux';
 import { store } from './Redux/Store';
 import ValForm from './ValForm';
@@ -22,15 +23,21 @@ import AboutUs from './Container/AboutUs';
 import Pricing from './Container/Pricing';
 import Help from './Container/Help';
 import Contect_us from './Container/Contect_us'
+import Sidebar from './Editing/Sidebar';
+import DenishaRoutes from './Editing/Denisha.routes';
 
 function App() {
   return (
     <>
 
-      <CustomNavbar /> 
+      {/* <CustomNavbar />  */}
       <Provider store={store}>
-        <Routes>
-          <Route path="/signin" element={<SignIn />} />
+      <BrowserRouter>
+        <DenishaRoutes /> {/* Include the routing logic */}
+      </BrowserRouter>
+        {/* <Routes> */}
+        {/* <Sidebar /> */}
+          {/* <Route path="/signin" element={<SignIn />} />
           <Route path="/" element={<Index />} />
           <Route path="/feature" element={<Feature />} />
           <Route path="/about" element={<AboutUs />} />
@@ -38,10 +45,11 @@ function App() {
           <Route path="/help" element={<Help />} />
           <Route path="/contact" element={<Contect_us />} />
           <Route path="/footer" element={<Footer />} />
-          {/* <Route path="/form" element={<ValForm />} /> */}
-        </Routes>
+          <Route path="/Sidebar" element={<Sidebar />} /> */}
+           {/* <Route path="/form" element={<ValForm />} />  */}
+        {/* </Routes> */}
       </Provider>
-      <Footer />
+      {/* <Footer /> */}
     </>
   );
 }

@@ -4,6 +4,7 @@ function Contect_us(props) {
     return (
         <>
            <h1>ContactUs</h1>
+           
         </>
     );
 }
