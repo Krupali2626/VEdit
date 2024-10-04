@@ -22,7 +22,6 @@ function Help(props) {
                         />
                     </Form.Group>
                 </div>
-
                 <section>
 
                     <div className='db_container'>

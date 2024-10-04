@@ -1,90 +1,206 @@
-*{
-    padding: 0;
-    margin: 0;
+* {
+  padding: 0;
+  margin: 0;
 }
 
 .custom-accordion-container_k {
-    background-color: #171717;
-    color: white;
-    padding: 20px;
-    border-radius: 10px;
+  /* background-color: #171717; */
+  color: white;
+  /* padding: 20px; */
+  border-radius: 10px;
+  overflow: hidden;
 }
 
 .payment-title_k {
-    font-size: 1.2rem;
-    margin-bottom: 20px;
-    padding-bottom: 10px;
-    border-bottom: 1px solid #333;
+  /* font-size: 1.2rem; */
+  margin-bottom: 20px;
+  padding-bottom: 10px;
+  color: white;
+  /* border-bottom: 1px solid #333; */
 }
 
 .accordion-item_k {
-    background-color: transparent !important;
-    border: none !important;
-    margin-bottom: 10px;
+  background-color: transparent !important;
+  border: none !important;
+  margin-bottom: 10px;
 }
 
 .accordion-header_k button {
-    background-color: #222 !important;
-    color: white !important;
-    border: none !important;
-    padding: 15px !important;
-    display: flex;
-    align-items: center;
-    width: 100%;
-    text-align: left;
+  background: rgba(49, 47, 51, 0.2) !important;
+
+  color: white !important;
+  border: none !important;
+  padding: 25px !important;
+  display: flex;
+  align-items: center;
+  width: 100%;
+  text-align: left;
 }
 
 .accordion-header_k button:focus {
-    box-shadow: none !important;
+  box-shadow: none !important;
+}
+.radio-circle_k {
+    display: inline-block;
+    width: 14px; /* Adjust the size as per the image */
+    height: 14px;
+    background-color: transparent;
+    border-radius: 50%;
+    border: 2px solid #fff; /* Default white border */
+    margin-right: 10px; /* Spacing between the circle and the text */
+    position: relative;
+    transition: background-color 0.3s, border 0.3s;
 }
 
-.radio-circle_k {
-    width: 20px;
-    height: 20px;
-    border: 2px solid white;
-    border-radius: 50%;
-    margin-right: 10px;
-    display: inline-block;
+.radio-circle_k.selected {
+    background-color: #007bff; /* Blue background when selected */
+    border: 4px solid #ffffff; /* Increase border to 4px when selected */
 }
+
+.radio-circle_k.selected::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 8px; /* Inner dot size */
+    height: 8px;
+    background-color: #000000; /* White inner dot */
+    border-radius: 50%;
+}
+
+.radio-circle_k.non-selected {
+    background-color: transparent;
+    border: 2px solid #fff; /* Default white border when not selected */
+}
+
+.radio-circle_k.non-selected::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 0; /* No inner dot when not selected */
+    height: 0;
+}
+
 
 .accordion-header_k button[aria-expanded="true"] .radio-circle_k {
-    background-color: white;
+  background-color: white;
 }
 
 .accordion-body_k {
-    background-color: #222;
-    color: white;
-    padding: 20px !important;
+  background: rgba(49, 47, 51, 0.2) !important;
+  color: white;
+  padding: 35px 20px !important;
 }
 
 .card-inputs_k input {
-    background-color: #333;
-    border: none;
-    color: white;
-    padding: 10px;
-    margin-bottom: 10px;
-    width: 100%;
+  background-color: transparent;
+  border: 1px solid gray;
+  border-radius: 4px;
+  color: white;
+  padding: 10px;
+  margin-bottom: 25px;
+  width: 100%;
 }
 
 .card-inputs_k .input-row_k {
-    display: flex;
-    gap: 10px;
+  display: flex;
+  gap: 10px;
 }
 
 .card-inputs_k .input-row_k input {
-    flex: 1;
+  flex: 1;
 }
 
 .pay-button_k {
-    background-color: white;
-    color: black;
-    border: none;
-    padding: 10px 20px;
-    float: right;
-    margin-top: 10px;
-    cursor: pointer;
+  background-color: white;
+  color: black;
+  border: none;
+  padding: 6px 60px;
+  cursor: pointer;
 }
 
 .full-width_k {
-    width: 100%;
+  width: 100%;
+}
+
+.upi-inputs_k .input-row_k {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 15px;
+}
+
+.upi-inputs_k .upi-input {
+  margin-right: 10px;
+  padding: 10px;
+  border: 1px solid rgba(207, 207, 207, 1);
+  background-color: #1c1c1c;
+  color: white;
+  border-radius: 4px;
+  width: 50%;
+}
+
+.upi-inputs_k .verify-button {
+  padding: 10px 45px;
+  background-color: white;
+  color: black;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-weight: bold;
+}
+
+.accordion-item_k {
+  background-color: #1c1c1c;
+  border: 1px solid #333;
+  margin-bottom: 20px;
+}
+
+.accordion-header_k .accordion-button {
+  background-color: #1c1c1c;
+  color: white;
+}
+
+.accordion-body_k {
+  background-color: #1c1c1c;
+  color: white;
+}
+
+.upi-input_k,
+.bank-input_k {
+  margin-right: 10px;
+  padding: 10px;
+  border: 1px solid rgba(207, 207, 207, 1);
+  background-color: #1c1c1c;
+  color: white;
+  border-radius: 4px;
+  width: 50% !important;
+}
+
+.upi-input_k:focus,
+.bank-input_k:focus {
+  border-bottom-color: #007bff;
+}
+
+.verify-button_k,
+.continue-button_k {
+  padding: 10px 50px;
+  background-color: white;
+  color: black;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-weight: bold;
+}
+
+.verify-button_k:hover,
+.continue-button_k:hover {
+  background-color: #f0f0f0;
+}
+
+.full-width_k {
+  width: 100%;
 }

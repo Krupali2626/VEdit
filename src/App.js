@@ -16,12 +16,14 @@ import { Provider } from 'react-redux';
 import { store } from './Redux/Store';
 import DenishaRoutes from './Editing/Denisha.routes';
 import 'bootstrap/dist/css/bootstrap.min.css';
+import Krupalirouter from './Routing/Krupalirouter';
 function App() {
   return (
     <>
 
 
       <Provider store={store}>
+        <Krupalirouter />
         <DenishaRoutes />
         
       </Provider>
