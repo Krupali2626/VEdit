@@ -4,6 +4,7 @@ import VEHome from './VEHome'; // Import your components here
 import Sidebar from './Sidebar';
 import NoProject from './NoProject';
 import VEPricing from './VEPricing';
+import VESidebar from './VESidebar';
 
 const DenishaRoutes = () => {
   return (
@@ -13,9 +14,11 @@ const DenishaRoutes = () => {
         <Route path="home" element={<VEHome />} />
         <Route path="noproject" element={<NoProject />} />
         <Route path="VEPricing" element={<VEPricing />} />
+       
 
         {/* Add more nested routes as needed */}
       </Route>
+      <Route path="/VESidebar" element={<VESidebar />} />
     </Routes>
   );
 };

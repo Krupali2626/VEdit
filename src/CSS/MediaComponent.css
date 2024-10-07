@@ -1,0 +1,22 @@
+*{
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+.d_upld_bgimg{
+    background-image: url(../Assets/denisha_img/d_media.png);
+    height:500px;
+    width: 380px;
+    background-repeat: no-repeat;
+}
+.d_upld_bgimg .d_overlayer{
+    background-color: rgba(0, 0, 0,0.8);
+    height:500px;
+    width: 380px;
+    border-width: 0.5px; /* Updated border width */
+    border-color: white;
+    border-style: solid; /* Ensure the border is visible */
+}
+.d_gray_imgtxt{
+    opacity: 0.5;
+}

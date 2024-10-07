@@ -12,7 +12,7 @@ export default function VEPricing() {
                 </p>
             </div>
             <div className="row">
-                <div className="col-xxl-4 col-lg-6 col-12 p-3">
+                <div className="col-xxl-4 col-lg-6 col-12 p-md-3 p-2">
                     <div className="d_pricing_card d-flex flex-column justify-content-between p-lg-5 p-4">
                         <div>
                             <div className='mb-lg-5 mb-4'>

@@ -34,6 +34,7 @@
   
   .d_main {
     background-color: black;
+    padding-top: 70px;
     /* margin-top: 86px; Adjust this value based on the height of your navbar */
   }
   .d_sidebar a{
