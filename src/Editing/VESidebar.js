@@ -182,7 +182,7 @@ export default function VESidebar() {
                         )}
                     </div>
                 </div>
-                <div className="col">
+                <div className="col a_main px-0">
                     {/* Render content based on active menu */}
                     {activeMenu === 'Media' && <MediaComponent />}
                     {activeMenu === 'Merge' && <MergeComponent />}

@@ -1,22 +1,145 @@
-*{
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
 }
-.d_upld_bgimg{
-    background-image: url(../Assets/denisha_img/d_media.png);
-    height:500px;
-    width: 380px;
-    background-repeat: no-repeat;
+
+.d_upld_bgimg {
+  background-image: url(../Assets/denisha_img/d_media.png);
+  height: 500px;
+  width: 380px;
+  background-repeat: no-repeat;
+  background-size: cover;
 }
-.d_upld_bgimg .d_overlayer{
-    background-color: rgba(0, 0, 0,0.8);
-    height:500px;
-    width: 380px;
-    border-width: 0.5px; /* Updated border width */
-    border-color: white;
-    border-style: solid; /* Ensure the border is visible */
+
+.d_upld_bgimg .d_overlayer {
+  background-color: rgba(0, 0, 0, 0.8);
+  height: 500px;
+  width: 380px;
+  border-width: 0.5px; /* Updated border width */
+  border-color: white;
+  border-style: solid; /* Ensure the border is visible */
+  border-radius: 5px;
 }
-.d_gray_imgtxt{
-    opacity: 0.5;
+
+.d_gray_imgtxt {
+  opacity: 0.5;
 }
+
+.d_uplded_img {
+  background-color: #5d59621a;
+  height: 90%;
+  width: 60%;
+  display: flex; /* Use flexbox for centering */
+  justify-content: center; /* Center content horizontally */
+  align-items: center; /* Center content vertically */
+}
+
+.d_uplded_img img {
+  height: 500px;
+  /* width: 10; Maintain aspect ratio */
+  object-fit: cover; /* Cover the container */
+}
+.d_uplded_img video {
+  height: 500px;
+  /* width: 10; Maintain aspect ratio */
+  object-fit: cover; /* Cover the container */
+}
+
+.dm_last_bg {
+  height: 350px;
+  background-color: rgb(13, 13, 14);
+}
+
+.d_border {
+  border-bottom: 1px solid #ffffff80;
+}
+
+.d_text-opacity {
+  opacity: 0.4;
+}
+.scale-up {
+  transform: scale(1.1);
+  transition: transform 0.5s;
+}
+
+.timeline {
+  display: flex;
+  justify-content: space-between;
+  width: 100%;
+}
+
+.marker {
+  width: 2px;
+  height: 10px;
+  background-color: white; /* Change as needed */
+  position: relative;
+}
+
+.marker::after {
+  content: attr(data-time);
+  position: absolute;
+  top: 12px; /* Adjust as needed */
+  left: -10px; /* Adjust as needed */
+  color: white; /* Change as needed */
+}
+
+
+
+
+/* aesha */
+/* .timeline {
+    width: 100%;
+    position: relative;
+    margin-top: 20px; Space above the timeline
+}
+
+.timeline-bar {
+    display: flex;
+    align-items: flex-end; Align images to the bottom
+    position: relative;
+}
+
+.timeline-images {
+    display: flex;
+    overflow-x: auto; Allow horizontal scrolling if needed
+}
+
+.image-placeholder {
+    width: 80px; 
+    height: 60px; 
+    background-color: #e0e0e0; 
+    border-radius: 5px; 
+    margin-right: 10px; 
+}
+
+.time-markers {
+    display: flex;
+    justify-content: space-between; 
+    width: 100%;
+    position: absolute;
+    bottom: 0; 
+}
+
+.marker {
+    width: 30px; 
+    text-align: center; 
+    color: gray; 
+    font-size: 12px; 
+} */
+
+@media screen and (max-width: 576px) {
+    .d_upld_bgimg {
+       
+        height: 245px;
+        width: 380px;
+    }
+    .d_upld_bgimg .d_overlayer {       
+        height: 251px;
+        width: 380px;       
+    }
+    .d_uplded_img video {
+        height: 289px;
+        width: 31rem !important;
+    }
+  }
