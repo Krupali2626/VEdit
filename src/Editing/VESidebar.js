@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import { HiOutlinePlus } from 'react-icons/hi';
 import { HiOutlineMenu } from 'react-icons/hi';
 import '../CSS/d_navbar.css';
@@ -33,16 +33,26 @@ import FilterComponent from './FilterComponent';
 import ElementComponent from './ElementComponent';
 import AnimationComponent from './AnimationComponent';
 
-// Import individual components
-
-
 export default function VESidebar() {
     const [isOpen, setIsOpen] = useState(false);
     const [isMobile, setIsMobile] = useState(window.innerWidth <= 768);
-    const [activeMenu, setActiveMenu] = useState('Media'); // State to track active menu
+    const [activeMenu, setActiveMenu] = useState('Media');
+    const [uploadedFile, setUploadedFile] = useState(null); // State to hold the uploaded file
+    const fileInputRef = useRef(null); // Reference for file input
 
     const toggleSidebar = () => {
         setIsOpen(!isOpen);
+    };
+
+    const handlePlusClick = () => {
+        fileInputRef.current.click(); // Trigger file input click
+    };
+
+    const handleFileChange = (event) => {
+        const file = event.target.files[0];
+        if (file) {
+            setUploadedFile(URL.createObjectURL(file)); // Set the uploaded file URL
+        }
     };
 
     const handleResize = () => {
@@ -67,26 +77,28 @@ export default function VESidebar() {
 
     return (
         <>
-            <div className="row text-white">
-                <div className=''>
-                    <div className="row">
-                        <div className="col-12 text-end my-3 d-flex align-items-center justify-content-between">
-                            <div className="d-flex align-items-center">
-                                {isMobile && (
-                                    <div className="hamburger mb-1 me-2" onClick={toggleSidebar}>
-                                        <HiOutlineMenu className='border' />
-                                    </div>
-                                )}
-                                <h4 className="mb-0">LOGO</h4>
-                            </div>
-                            <div className='d-flex'>
-                                <div>
-                                    <img src={ur2} className='me-md-3 me-2' />
-                                    <img src={ur1} className='me-md-3 me-2' />
-                                    <img src={crown} className='me-md-3 me-2' />
+            <div className="fixed-navbar">
+                <div className="row text-white">
+                    <div className=''>
+                        <div className="row">
+                            <div className="col-12 text-end my-3 d-flex align-items-center justify-content-between">
+                                <div className="d-flex align-items-center">
+                                    {isMobile && (
+                                        <div className="hamburger mb-1 me-2" onClick={toggleSidebar}>
+                                            <HiOutlineMenu className='border' />
+                                        </div>
+                                    )}
+                                    <h4 className="mb-0">LOGO</h4>
                                 </div>
-                                <div className='d_dwnld d-flex align-items-center'>
-                                    <img src={d} className='me-md-2' /><span className='d_export'>Export</span>
+                                <div className='d-flex'>
+                                    <div>
+                                        <img src={ur2} className='me-md-3 me-2' />
+                                        <img src={ur1} className='me-md-3 me-2' />
+                                        <img src={crown} className='me-md-3 me-2' />
+                                    </div>
+                                    <div className='d_dwnld d-flex align-items-center'>
+                                        <img src={d} className='me-md-2' /><span className='d_export'>Export</span>
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -95,16 +107,17 @@ export default function VESidebar() {
             </div>
             <div className="row">
                 <div className="col-auto p-0">
-                    <div className={`dE_sidebar d-flex flex-column align-items-center ${isOpen ? 'open' : 'closed'}`}>
+                    <div className={`fixed-sidebar dE_sidebar d-flex flex-column align-items-center ${isOpen ? 'open' : 'closed'}`}>
                         {(isOpen || !isMobile) && (
                             <>
                                 <div className="d-flex justify-content-center align-items-center">
-                                    <div className='bg_round'>
+                                    <div className='bg_round' onClick={handlePlusClick}>
                                         <div className='dE_plus'>
                                             <HiOutlinePlus />
                                         </div>
                                     </div>
                                 </div>
+                                
                                 {/* Menu Items */}
                                 <div className="bg_square mt-3 mb-2" onClick={() => handleMenuClick('Media')}>
                                     <div className={`d-flex flex-column justify-content-center align-items-center ${activeMenu === 'Media' ? 'd_active' : ''}`}>
@@ -182,9 +195,16 @@ export default function VESidebar() {
                         )}
                     </div>
                 </div>
+                <input
+                    type="file"
+                    accept="image/*,video/*"
+                    style={{ display: 'none' }}
+                    ref={fileInputRef} // Reference to the file input
+                    onChange={handleFileChange} // Handle file change
+                />
                 <div className="col a_main px-0">
                     {/* Render content based on active menu */}
-                    {activeMenu === 'Media' && <MediaComponent />}
+                    {activeMenu === 'Media' && <MediaComponent uploadedFile={uploadedFile} />} {/* Pass uploaded file */}
                     {activeMenu === 'Merge' && <MergeComponent />}
                     {activeMenu === 'Ratio' && <RatioComponent />}
                     {activeMenu === 'Text' && <TextComponent />}
