@@ -188,3 +188,39 @@
     height: 270px !important;
   }
 }
+
+
+.timeline-editor {
+  width: 100%;
+  position: relative;
+}
+
+.timeline-container {
+  position: relative;
+  height: 20px;
+  background-color: #444;
+  cursor: pointer;
+  overflow: hidden;
+}
+
+.timeline-tick {
+  position: absolute;
+  top: 0;
+  width: 1px;
+  background-color: white;
+}
+
+.timeline-scrubber {
+  position: absolute;
+  top: 0;
+  height: 20px;
+  width: 2px;
+  background-color: red;
+}
+
+.timeline-controls {
+  display: flex;
+  justify-content: flex-start;
+  gap: 10px;
+  margin-bottom: 10px;
+}

@@ -1,0 +1,44 @@
+/* src/CSS/TimelineEditor.css */
+.timeline-editor {
+    position: relative;
+    width: 100%;
+    height: 200px;
+    background-color: #333;
+    color: white;
+}
+
+.controls {
+    margin-bottom: 10px;
+}
+
+.timeline {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    border-top: 2px solid gray;
+}
+
+.marker {
+    position: absolute;
+    width: 2px;
+    height: 100%;
+    background-color: white;
+}
+
+.clip {
+    position: absolute;
+    bottom: 0;
+    width: 50px;
+    text-align: center;
+}
+
+.clip img {
+    width: 100%;
+    height: auto;
+}
+
+.time-labels {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 10px;
+}
