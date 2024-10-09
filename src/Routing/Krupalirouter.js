@@ -1,4 +1,4 @@
-import { BrowserRouter, Routes, Route } from 'react-router-dom';
+import { Routes, Route } from 'react-router-dom';
 import Feature from '../Container/Feature';
 import AboutUs from '../Container/AboutUs';
 import Pricing from '../Container/Pricing';

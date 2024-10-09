@@ -22,7 +22,7 @@ function App() {
   return (
     <>
       <Provider store={store}>
-         <Krupalirouter />
+        <Krupalirouter />
         <DenishaRoutes />
       </Provider>
     </>

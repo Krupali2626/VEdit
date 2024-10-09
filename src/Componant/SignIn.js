@@ -86,13 +86,25 @@ function SignIn(props, value) {
     });
 
     const handleOtpChange = (index, value) => {
-        // const newOtp = [...otp];
-        // newOtp[index] = value;
-        // setOtp(newOtp);
+        if (isNaN(value)) return; // Ensure only numbers are entered
+        const newOtp = [...otp];
+        newOtp[index] = value;
+        setOtp(newOtp);
 
-        // if (value && index < 5) {
-        //     document.getElementById(`otp-${index + 1}`).focus();
-        // }
+        if (value && index < 3) {
+            document.getElementById(`otp-${index + 1}`).focus();
+        }
+    };
+
+    const handleOtpSubmit = (e) => {
+        e.preventDefault();
+        const enteredOtp = otp.join('');
+        if (enteredOtp === '6666') { // Static OTP for demonstration
+            alert('OTP verified successfully!');
+            // Add logic here to proceed after successful verification
+        } else {
+            alert('Invalid OTP. Please try again.');
+        }
     };
 
     const handleResendOtp = () => {
@@ -102,22 +114,42 @@ function SignIn(props, value) {
 
     const { handleBlur, handleChange, errors, touched, values } = formik
 
-
     const handleSubmit = async (event) => {
         event.preventDefault();
-        try {
-            await dispatch(signUp({ email: values.email, password: values.password })).unwrap();
-            if (userStatus) {
-                alert("Login successful!!");
-                navigate('/');
-            } else {
-                alert("Login failed!!");
+        if (formType === 'forgot' && !otpSent) {
+            // Logic to send OTP
+            setOtpSent(true);
+            alert('OTP sent to ' + values.email); // For demonstration
+        } else {
+            try {
+                await dispatch(signUp({ email: values.email, password: values.password })).unwrap();
+                if (userStatus) {
+                    alert("Login successful!!");
+                    navigate('/');
+                } else {
+                    alert("Login failed!!");
+                }
+            } catch (err) {
+                console.log(err.message)
             }
-        } catch (err) {
-           console.log(err.message)
         }
-
     };
+
+    // const handleSubmit = async (event) => {
+    //     event.preventDefault();
+    //     try {
+    //         await dispatch(signUp({ email: values.email, password: values.password })).unwrap();
+    //         if (userStatus) {
+    //             alert("Login successful!!");
+    //             navigate('/');
+    //         } else {
+    //             alert("Login failed!!");
+    //         }
+    //     } catch (err) {
+    //         console.log(err.message)
+    //     }
+
+    // };
     return (
         <>
             <div className='k_popBg_image'>
@@ -206,26 +238,32 @@ function SignIn(props, value) {
                                     )}
 
                                     {formType === 'forgot' && otpSent && (
-                                        <>
-                                            <p className="text-center mb-5">We've sent an OTP to {values.email}</p>
-                                            <div className="d-flex justify-content-center  mb-3">
-                                                {otp.map((digit, index) => (
-                                                    <Form.Control
-                                                        key={index}
-                                                        id={`otp-${index}`}
-                                                        type="text"
-                                                        maxLength="1"
-                                                        value={digit}
-                                                        onChange={(e) => handleOtpChange(index, e.target.value)}
-                                                        className="mx-1 text-center bg-transparent text-light border-secondary"
-                                                        style={{ width: '40px', height: '40px' }}
-                                                    />
-                                                ))}
-                                            </div>
-                                            <p className="text-center mb-3">
-                                                Didn't receive OTP? <a href="#" onClick={handleResendOtp} className="text-light">Resend</a>
+                                        <div className="bg-dark text-light p-4 rounded" style={{ maxWidth: '300px', margin: 'auto' }}>
+                                            {/* <h4 className="text-center mb-4">OTP Verification</h4> */}
+                                            <p className="text-center mb-4">We've sent an OTP to {values.email}</p>
+                                            <Form onSubmit={handleOtpSubmit}>
+                                                <div className="d-flex justify-content-between mb-3">
+                                                    {otp.map((digit, index) => (
+                                                        <Form.Control
+                                                            key={index}
+                                                            id={`otp-${index}`}
+                                                            type="text"
+                                                            maxLength="1"
+                                                            value={digit}
+                                                            onChange={(e) => handleOtpChange(index, e.target.value)}
+                                                            className="mx-1 text-center bg-dark text-light border-secondary"
+                                                            style={{ width: '40px', height: '40px' }}
+                                                        />
+                                                    ))}
+                                                </div>
+                                                <Button variant="light" type="submit" className="w-100 mb-3">
+                                                    Verify
+                                                </Button>
+                                            </Form>
+                                            <p className="text-center mb-0">
+                                                Didn't receive OTP? <Button variant="link" className="p-0 text-light" onClick={handleResendOtp}>Resend</Button>
                                             </p>
-                                        </>
+                                        </div>
                                     )}
 
                                     {formType === 'signin' && (
@@ -233,7 +271,6 @@ function SignIn(props, value) {
                                             <a href="#" onClick={() => setformType('forgot')} className="text-danger text-decoration-none">Forgot Password?</a>
                                         </div>
                                     )}
-
                                     <Button variant="light" type="submit" className="w-100 mb-3 fw-bold">
                                         {formType === 'signin' ? 'Sign In' :
                                             formType === 'signup' ? 'Sign Up' :
