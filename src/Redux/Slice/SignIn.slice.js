@@ -50,6 +50,31 @@ export const GetUser = createAsyncThunk(
     }
 )
 
+// Async thunk for sign-in
+export const signIn = createAsyncThunk(
+    'signIn/signIn',
+    async (userData, { rejectWithValue }) => {
+        try {
+            const response = await fetch('http://localhost:1726/signup', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(userData),
+            });
+
+            if (!response.ok) {
+                throw new Error('Sign-in failed');
+            }
+
+            const data = await response.json();
+            return data;
+        } catch (error) {
+            return rejectWithValue(error.message);
+        }
+    }
+);
+
 
 const signInSlice = createSlice({
     name: 'user',
@@ -63,6 +88,11 @@ const signInSlice = createSlice({
                 state.error = null;
             })
             .addCase(signUp.fulfilled, (state, action) => {
+                state.isLoading = false;
+                state.user = action.payload;
+                state.error = null;
+            })
+            .addCase(signIn.fulfilled, (state, action) => {
                 state.isLoading = false;
                 state.user = action.payload;
                 state.error = null;

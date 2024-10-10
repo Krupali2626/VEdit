@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Form, Button } from 'react-bootstrap';
+import { Form, Button, Modal } from 'react-bootstrap';
 import { FaEnvelope, FaLock, FaApple, FaEye } from 'react-icons/fa';
 import { FaEyeSlash } from "react-icons/fa6";
 import { MdCall } from "react-icons/md";
@@ -10,6 +10,16 @@ import { useFormik } from 'formik';
 import { GetUser, signIn, signUp } from '../Redux/Slice/SignIn.slice';
 import { useDispatch, useSelector } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
+import {
+    Dialog,
+    DialogTitle,
+    DialogContent,
+    DialogActions,
+    TextField,
+    Button as MuiButton,
+    Typography
+} from '@mui/material';
+
 
 function SignIn(props, value) {
 
@@ -18,6 +28,12 @@ function SignIn(props, value) {
     const [showConfirmPassword, setShowConfirmPassword] = useState(false);
     const [otpSent, setOtpSent] = useState(false);
     const [otp, setOtp] = useState(['', '', '', '']);
+    const [isSignUpSuccessful, setIsSignUpSuccessful] = useState(false); // State to track successful signup
+    const [userName, setUserName] = useState(''); // State to store the user's name
+    const [step, setStep] = useState(1); // State for managing popup steps
+    // Update modal state to use MUI Dialog terminology
+    const [openModal, setOpenModal] = useState(false);
+    const [modalStep, setModalStep] = useState(1);
 
     const dispatch = useDispatch();
     const navigate = useNavigate();
@@ -76,11 +92,21 @@ function SignIn(props, value) {
         validationSchema: authSchema,
         onSubmit: async (values, { resetForm }) => {
             if (formType === 'signup') {
-                dispatch(signUp(values))
+                try {
+                    // Dispatch signUp action and wait for it to complete
+                    const response = await dispatch(signUp(values)).unwrap();
+                    // Check for a successful signup, then show modal
+                    if (response) {
+                        alert("Sign  successful!");
+                        setIsSignUpSuccessful(true); // Open modal
+                        alert("Sign up successful!");
+                    }
+                } catch (error) {
+                    console.log("Signup failed: ", error.message);
+                }
             } else if (formType === 'signin') {
-                // Handle signin logic here
                 console.log('Signin attempt:', values);
-                // dispatch(signIn(values))
+                // dispatch signIn(values) logic here
             }
         },
     });
@@ -116,40 +142,55 @@ function SignIn(props, value) {
 
     const handleSubmit = async (event) => {
         event.preventDefault();
-        if (formType === 'forgot' && !otpSent) {
-            // Logic to send OTP
-            setOtpSent(true);
-            alert('OTP sent to ' + values.email); // For demonstration
-        } else {
+        if (formType === 'signup') {
             try {
-                await dispatch(signUp({ email: values.email, password: values.password })).unwrap();
-                if (userStatus) {
-                    alert("Login successful!!");
-                    navigate('/');
-                } else {
-                    alert("Login failed!!");
+                // Dispatch signUp action and wait for it to complete
+                const response = await dispatch(signUp(values)).unwrap();
+                if (response) {
+                    setOpenModal(true);
+                    // setIsSignUpSuccessful(true); // Set the signup successful flag
+                    alert("Sign up successful!"); // Alert for successful signup
                 }
-            } catch (err) {
-                console.log(err.message)
+            } catch (error) {
+                console.log("Signup failed: ", error.message);
+            }
+        } else if (formType === 'signin') {
+            try {
+                const response = await dispatch(signIn(values)).unwrap();
+                if (response) {
+                    alert("Login successful!"); // Alert for successful login
+                    navigate('/'); // Redirect to the home page
+                } else {
+                    alert("Login failed!"); // Alert for failed login
+                }
+            } catch (error) {
+                console.log("Login failed: ", error.message);
             }
         }
     };
 
-    // const handleSubmit = async (event) => {
-    //     event.preventDefault();
-    //     try {
-    //         await dispatch(signUp({ email: values.email, password: values.password })).unwrap();
-    //         if (userStatus) {
-    //             alert("Login successful!!");
-    //             navigate('/');
-    //         } else {
-    //             alert("Login failed!!");
-    //         }
-    //     } catch (err) {
-    //         console.log(err.message)
-    //     }
+    const handleNameSubmit = () => {
+        // Handle submission of the user's name
+        alert(`Welcome, ${userName}!`);
+        // setIsSignUpSuccessful(false); // Close the popup after submission
+        handleModalClose();
+    };
 
-    // };
+    // Handle modal actions
+    const handleModalClose = () => {
+        setOpenModal(false);
+        setModalStep(1);
+        setUserName('');
+    };
+
+    const handleNextStep = () => {
+        setModalStep(2);
+    };
+
+    const handlePreviousStep = () => {
+        setModalStep(1);
+    };
+
     return (
         <>
             <div className='k_popBg_image'>
@@ -157,11 +198,12 @@ function SignIn(props, value) {
                     <div className="row p-5 k_popup_row ">
                         <div className=" col-md-6">
                             <div className="k_glass_effect text-light rounded k_form-width">
-                                <h3 className={`text-center ${formType === 'forgot' && otpSent ? '' : 'mb-4'} ${formType === 'forgot' && !otpSent ? 'mb-5' : ''}`}>
+                                <h3 className={`text-center ${formType === 'forgot' && otpSent ? 'mb-0' : ''} ${formType === 'forgot' && !otpSent ? 'mb-5' : 'mb-4'}`}>
                                     {formType === 'signin' ? 'Welcome Back User!' :
                                         formType === 'signup' ? 'Welcome User' :
                                             formType === 'forgot' && !otpSent ? 'Forgot Password' :
-                                                formType === 'forgot' && otpSent ? 'OTP Verification' : null}
+                                                formType === 'forgot' && otpSent ? 'OTP Verification' : null
+                                    }
                                 </h3>
                                 <Form onSubmit={handleSubmit}>
                                     {(formType !== 'forgot' || (formType === 'forgot' && !otpSent)) && (
@@ -238,11 +280,10 @@ function SignIn(props, value) {
                                     )}
 
                                     {formType === 'forgot' && otpSent && (
-                                        <div className="bg-dark text-light p-4 rounded" style={{ maxWidth: '300px', margin: 'auto' }}>
-                                            {/* <h4 className="text-center mb-4">OTP Verification</h4> */}
-                                            <p className="text-center mb-4">We've sent an OTP to {values.email}</p>
+                                        <div className="text-light rounded" style={{ maxWidth: '300px', margin: 'auto' }}>
+                                            <p className="text-center mb-5">We've sent an OTP to {values.email}</p>
                                             <Form onSubmit={handleOtpSubmit}>
-                                                <div className="d-flex justify-content-between mb-3">
+                                                <div className="d-flex justify-content-evenly mb-4">
                                                     {otp.map((digit, index) => (
                                                         <Form.Control
                                                             key={index}
@@ -256,13 +297,13 @@ function SignIn(props, value) {
                                                         />
                                                     ))}
                                                 </div>
-                                                <Button variant="light" type="submit" className="w-100 mb-3">
+                                                <Button variant="light" type="submit" className="w-100 mb-3 fw-bold">
                                                     Verify
                                                 </Button>
+                                                <p className="text-center mb-3">
+                                                    Didn't receive OTP? <Button variant="link" className="p-0 text-light" onClick={handleResendOtp}>Resend</Button>
+                                                </p>
                                             </Form>
-                                            <p className="text-center mb-0">
-                                                Didn't receive OTP? <Button variant="link" className="p-0 text-light" onClick={handleResendOtp}>Resend</Button>
-                                            </p>
                                         </div>
                                     )}
 
@@ -271,11 +312,14 @@ function SignIn(props, value) {
                                             <a href="#" onClick={() => setformType('forgot')} className="text-danger text-decoration-none">Forgot Password?</a>
                                         </div>
                                     )}
-                                    <Button variant="light" type="submit" className="w-100 mb-3 fw-bold">
-                                        {formType === 'signin' ? 'Sign In' :
-                                            formType === 'signup' ? 'Sign Up' :
-                                                formType === 'forgot' && !otpSent ? 'Send OTP' : 'Verify'}
-                                    </Button>
+
+                                    {(formType !== 'forgot' || !otpSent) && (
+                                        <Button variant="light" type="submit" className="w-100 mb-3 fw-bold">
+                                            {formType === 'signin' ? 'Sign In' :
+                                                formType === 'signup' ? 'Sign Up' :
+                                                    formType === 'forgot' ? 'Send OTP' : null}
+                                        </Button>
+                                    )}
 
                                     {formType !== 'forgot' && (
                                         <>
@@ -306,12 +350,57 @@ function SignIn(props, value) {
                                                 )}
                                             </div>
                                         </>
-
                                     )}
-
-
+                                    
                                 </Form>
                             </div>
+
+                            {/* Replace Bootstrap Modal with MUI Dialog */}
+                            <Dialog
+                                open={openModal}
+                                onClose={handleModalClose}
+                                fullWidth
+                                maxWidth="sm"
+                            >
+                                <DialogTitle>
+                                    {modalStep === 1 ? "What is your name?" : "Confirmation"}
+                                </DialogTitle>
+                                <DialogContent>
+                                    {modalStep === 1 ? (
+                                        <TextField
+                                            autoFocus
+                                            margin="dense"
+                                            id="name"
+                                            label="Enter your name"
+                                            type="text"
+                                            fullWidth
+                                            variant="outlined"
+                                            value={userName}
+                                            onChange={(e) => setUserName(e.target.value)}
+                                        />
+                                    ) : (
+                                        <Typography>
+                                            Thank you for signing up, {userName}!
+                                        </Typography>
+                                    )}
+                                </DialogContent>
+                                <DialogActions>
+                                    {modalStep > 1 && (
+                                        <MuiButton onClick={handlePreviousStep}>
+                                            Previous
+                                        </MuiButton>
+                                    )}
+                                    {modalStep === 1 ? (
+                                        <MuiButton onClick={handleNextStep}>
+                                            Next
+                                        </MuiButton>
+                                    ) : (
+                                        <MuiButton onClick={handleNameSubmit}>
+                                            Finish
+                                        </MuiButton>
+                                    )}
+                                </DialogActions>
+                            </Dialog>
                         </div>
                         <div className=" col-md-6">
                             <div className='k_popImg'>
@@ -326,3 +415,4 @@ function SignIn(props, value) {
 }
 
 export default SignIn;
+
