@@ -5,6 +5,7 @@ import Sidebar from './Sidebar';
 import NoProject from './NoProject';
 import VEPricing from './VEPricing';
 import VESidebar from './VESidebar';
+import TimelineEditor from './TimelineEditor';
 
 const DenishaRoutes = () => {
   return (
@@ -14,7 +15,7 @@ const DenishaRoutes = () => {
         <Route path="home" element={<VEHome />} />
         <Route path="noproject" element={<NoProject />} />
         <Route path="VEPricing" element={<VEPricing />} />
-       
+        <Route path="timeline" element={<TimelineEditor />} />
 
         {/* Add more nested routes as needed */}
       </Route>
