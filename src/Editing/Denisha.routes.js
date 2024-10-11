@@ -15,7 +15,7 @@ const DenishaRoutes = () => {
         <Route path="home" element={<VEHome />} />
         <Route path="noproject" element={<NoProject />} />
         <Route path="VEPricing" element={<VEPricing />} />
-       
+        <Route path="timeline" element={<TimelineEditor />} />
 
         {/* Add more nested routes as needed */}
       </Route>

@@ -1,6 +1,5 @@
 import React, { useEffect, useState, useRef } from 'react';
-import { HiOutlinePlus } from 'react-icons/hi';
-import { HiOutlineMenu } from 'react-icons/hi';
+import { HiOutlinePlus, HiOutlineMenu } from 'react-icons/hi';
 import '../CSS/d_navbar.css';
 import '../CSS/vesidebar.css';
 import m1 from "../Assets/denisha_img/m1.svg";
