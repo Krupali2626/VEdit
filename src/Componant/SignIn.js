@@ -17,9 +17,143 @@ import {
     DialogActions,
     TextField,
     Button as MuiButton,
-    Typography
+    Typography,
+    styled,
+    LinearProgress,
+    Box,
+    Grid
 } from '@mui/material';
 
+
+// Styled components with updated spacing and styling
+const StyledDialog = styled(Dialog)(({ theme }) => ({
+    '& .MuiDialog-paper': {
+        backgroundColor: '#121212',
+        border: '1px solid white',
+        borderRadius: '12px', // Increased border radius
+        color: 'white',
+        maxWidth: '500px', // Set max width
+        width: '100%',
+        padding: '20px', // Add padding around entire dialog
+    },
+}));
+
+// Add styled progress bar
+const StyledLinearProgress = styled(LinearProgress)({
+    backgroundColor: '#333333', // Dark background for unfilled portion
+    '& .MuiLinearProgress-bar': {
+        backgroundColor: 'white', // White color for filled portion
+    },
+    height: 8, // Increased height for better visibility
+    borderRadius: 4,
+    marginBottom: '40px', // Space below progress bar
+});
+
+const StyledDialogTitle = styled(DialogTitle)({
+    color: 'white',
+    textAlign: 'center',
+    // borderBottom: '1px solid rgba(255, 255, 255, 0.1)',
+});
+
+const StyledDialogContent = styled(DialogContent)({
+    padding: '0 20px 40px', // Increased padding, especially bottom
+});
+
+const StyledTextField = styled(TextField)({
+    '& .MuiOutlinedInput-root': {
+        color: 'white',
+        '& fieldset': {
+            borderColor: 'rgba(255, 255, 255, 0.5)',
+            borderRadius: '8px', // Slightly rounded corners
+        },
+        '&:hover fieldset': {
+            borderColor: 'white',
+        },
+        '&.Mui-focused fieldset': {
+            borderColor: 'white',
+        },
+    },
+    '& .MuiInputLabel-root': {
+        color: 'rgba(255, 255, 255, 0.7)',
+    },
+});
+
+const StyledDialogActions = styled(DialogActions)({
+    padding: '0 20px 20px', // Consistent padding
+    justifyContent: 'space-between', // Space buttons evenly
+});
+
+const StyledButton = styled(Button)(({ theme }) => ({
+    color: 'white',
+    border: '1px solid rgba(255, 255, 255, 0.23)',
+    borderRadius: '20px', // More rounded corners for the buttons
+    padding: '10px 0',
+    width: '100%',
+    fontSize: '16px',
+    textTransform: 'none',
+    marginBottom: '10px',
+
+    '&:hover': {
+        backgroundColor: 'rgba(255, 255, 255, 0.05)',
+        border: '1px solid rgba(255, 255, 255, 0.5)',
+    },
+}));
+
+const NavigationButton = styled(Button)(({ theme }) => ({
+    color: 'white',
+    border: '1px solid rgba(255, 255, 255, 0.23)',
+    borderRadius: '4px',
+    padding: '6px 16px',
+    textTransform: 'none',
+    '&:hover': {
+        backgroundColor: 'rgba(255, 255, 255, 0.05)',
+    },
+    '&.next': {
+        backgroundColor: 'white',
+        color: 'black',
+        '&:hover': {
+            backgroundColor: 'rgba(255, 255, 255, 0.9)',
+        },
+    },
+}));
+
+// Add this line: Define questions for the multi-step form
+const QUESTIONS = [
+    {
+        id: 1,
+        question: "What is your name?",
+        placeholder: "Enter your name",
+        key: "name"
+    },
+    {
+        id: 2,
+        question: "Select Gender",
+        key: "gender",
+        type: "select", // This is important to trigger the gender selection component
+        options: [
+            { label: "Male", value: "male" },
+            { label: "Female", value: "female" }
+        ]
+    },
+    {
+        id: 3,
+        question: "How old are you??",
+        placeholder: "Enter your age",
+        key: "age"
+    },
+    {
+        id: 4,
+        question: "Select Profession",
+        key: "Profession",
+        type: "select",
+        options: [
+            { label: "Student", value: "Student" },
+            { label: "Video Editor", value: "Video Editor" },
+            { label: "Cinematographer", value: "Cinematographer" },
+            { label: "Other", value: "Other" },
+        ]
+    }
+];
 
 function SignIn(props, value) {
 
@@ -34,6 +168,10 @@ function SignIn(props, value) {
     // Update modal state to use MUI Dialog terminology
     const [openModal, setOpenModal] = useState(false);
     const [modalStep, setModalStep] = useState(1);
+    // Add this line: Update state management for multiple questions
+    const [currentStep, setCurrentStep] = useState(0);
+    const [answers, setAnswers] = useState({});
+    const [inputValue, setInputValue] = useState('');
 
     const dispatch = useDispatch();
     const navigate = useNavigate();
@@ -43,12 +181,69 @@ function SignIn(props, value) {
         dispatch(GetUser(value));
     }, [dispatch]);
 
+    const GenderSelection = ({ onSelect, selectedValue }) => {
+        return (
+            <Box sx={{ width: '100%', py: 2 }}>
+                {['Male', 'Female'].map((gender) => (
+                    <StyledButton
+                        key={gender}
+                        onClick={() => onSelect(gender.toLowerCase())}
+                        sx={{
+                            backgroundColor: selectedValue === gender.toLowerCase() ? 'rgba(255, 255, 255, 0.1)' : 'transparent',
+                            width: '100%',
+                            mb: 2, // Add margin bottom for spacing between buttons
+                            display: 'flex',
+                            justifyContent: 'center',
+                            alignItems: 'center',
+                            padding: '10px',
+                        }}
+                    >
+                        {gender}
+                    </StyledButton>
+                ))}
+            </Box>
+        );
+    };
+
+    const SelectionComponent = ({ options, onSelect, selectedValue, title }) => {
+        return (
+            <Box sx={{ width: '100%', py: 2 }}>
+                <Grid container spacing={2}>
+                    {options.map((option) => (
+                        <Grid item xs={6} key={option.value}>
+                            <StyledButton
+                                onClick={() => onSelect(option.value)}
+                                sx={{
+                                    backgroundColor: selectedValue === option.value ? 'rgba(255, 255, 255, 0.1)' : 'transparent',
+                                    width: '100%',
+                                    height: '100%',
+                                    display: 'flex',
+                                    justifyContent: 'center',
+                                    alignItems: 'center',
+                                    textAlign: 'center',
+                                    padding: '10px',
+                                    whiteSpace: 'normal',
+                                    lineHeight: 1.2,
+                                }}
+                            >
+                                {option.label}
+                            </StyledButton>
+                        </Grid>
+                    ))}
+                </Grid>
+            </Box>
+        );
+    };
 
     const userStatus = useSelector((state) => state.signIn.user);
     console.log(userStatus);
 
-    // Validation
+    // Add progress calculation
+    const getProgress = () => {
+        return modalStep === 1 ? 50 : 100;
+    };
 
+    // Validation
     let authSchema = {},
         initialValues = {};
 
@@ -179,8 +374,9 @@ function SignIn(props, value) {
     // Handle modal actions
     const handleModalClose = () => {
         setOpenModal(false);
-        setModalStep(1);
-        setUserName('');
+        setCurrentStep(0);
+        setAnswers({});
+        setInputValue('');
     };
 
     const handleNextStep = () => {
@@ -189,6 +385,48 @@ function SignIn(props, value) {
 
     const handlePreviousStep = () => {
         setModalStep(1);
+    };
+
+    // Add this line: Calculate progress based on current step
+    const calculateProgress = () => {
+        return ((currentStep + 1) / QUESTIONS.length) * 100;
+    };
+
+    // Add this line: Handle input change
+    const handleInputChange = (event) => {
+        setInputValue(event.target.value);
+    };
+
+    // Add this line: Handle next step
+    const handleNext = () => {
+        if (inputValue.trim()) {
+            setAnswers({
+                ...answers,
+                [QUESTIONS[currentStep].key]: inputValue
+            });
+
+            if (currentStep < QUESTIONS.length - 1) {
+                setCurrentStep(currentStep + 1);
+                setInputValue('');
+            } else {
+                handleCompletion();
+            }
+        }
+    };
+
+    // Add this line: Handle previous step
+    const handlePrevious = () => {
+        if (currentStep > 0) {
+            setCurrentStep(currentStep - 1);
+            setInputValue(answers[QUESTIONS[currentStep - 1].key] || '');
+        }
+    };
+
+    // Add this line: Handle form completion
+    const handleCompletion = () => {
+        console.log('Form completed!', answers);
+        // Here you can handle the final submission of all answers
+        handleModalClose();
     };
 
     return (
@@ -351,56 +589,82 @@ function SignIn(props, value) {
                                             </div>
                                         </>
                                     )}
-                                    
+
                                 </Form>
                             </div>
 
                             {/* Replace Bootstrap Modal with MUI Dialog */}
-                            <Dialog
+                            <StyledDialog
                                 open={openModal}
                                 onClose={handleModalClose}
                                 fullWidth
-                                maxWidth="sm"
                             >
-                                <DialogTitle>
-                                    {modalStep === 1 ? "What is your name?" : "Confirmation"}
-                                </DialogTitle>
-                                <DialogContent>
-                                    {modalStep === 1 ? (
-                                        <TextField
-                                            autoFocus
-                                            margin="dense"
-                                            id="name"
-                                            label="Enter your name"
-                                            type="text"
-                                            fullWidth
-                                            variant="outlined"
-                                            value={userName}
-                                            onChange={(e) => setUserName(e.target.value)}
-                                        />
+                                {/* Add this line: Updated progress bar */}
+                                <StyledLinearProgress variant="determinate" value={calculateProgress()} />
+
+                                <StyledDialogTitle>
+                                    {currentStep < QUESTIONS.length ?
+                                        QUESTIONS[currentStep].question :
+                                        "Thank you for your responses!"}
+                                </StyledDialogTitle>
+
+                                <StyledDialogContent>
+                                    {currentStep < QUESTIONS.length ? (
+                                        QUESTIONS[currentStep].key === "gender" ? (
+                                            <GenderSelection
+                                                onSelect={(value) => setInputValue(value)}
+                                                selectedValue={inputValue}
+                                            />
+                                        ) : QUESTIONS[currentStep].type === "select" ? (
+                                            <SelectionComponent
+                                                options={QUESTIONS[currentStep].options}
+                                                onSelect={(value) => setInputValue(value)}
+                                                selectedValue={inputValue}
+                                                title={QUESTIONS[currentStep].question}
+                                            />
+                                        ) : (
+                                            <StyledTextField
+                                                autoFocus
+                                                margin="dense"
+                                                id={QUESTIONS[currentStep].key}
+                                                placeholder={QUESTIONS[currentStep].placeholder}
+                                                type="text"
+                                                fullWidth
+                                                variant="outlined"
+                                                value={inputValue}
+                                                onChange={handleInputChange}
+                                            />
+                                        )
                                     ) : (
-                                        <Typography>
-                                            Thank you for signing up, {userName}!
+                                        <Typography color="white" align="center" style={{ fontSize: '18px' }}>
+                                            All questions completed!
                                         </Typography>
                                     )}
-                                </DialogContent>
-                                <DialogActions>
-                                    {modalStep > 1 && (
-                                        <MuiButton onClick={handlePreviousStep}>
-                                            Previous
-                                        </MuiButton>
-                                    )}
-                                    {modalStep === 1 ? (
-                                        <MuiButton onClick={handleNextStep}>
-                                            Next
-                                        </MuiButton>
-                                    ) : (
-                                        <MuiButton onClick={handleNameSubmit}>
-                                            Finish
-                                        </MuiButton>
-                                    )}
-                                </DialogActions>
-                            </Dialog>
+                                </StyledDialogContent>
+
+
+                                <StyledDialogActions>
+                                    <StyledButton
+                                        onClick={handlePrevious}
+                                        variant="outlined"
+                                        disabled={currentStep === 0}
+                                        style={{ visibility: currentStep === 0 ? 'hidden' : 'visible' }}
+                                    >
+                                        Previous
+                                    </StyledButton>
+                                    <StyledButton
+                                        onClick={handleNext}
+                                        variant="outlined"
+                                        style={{
+                                            backgroundColor: inputValue.trim() ? 'white' : 'transparent',
+                                            color: inputValue.trim() ? 'black' : 'white'
+                                        }}
+                                        disabled={!inputValue.trim()}
+                                    >
+                                        {currentStep < QUESTIONS.length - 1 ? "Next" : "Let’s Start"}
+                                    </StyledButton>
+                                </StyledDialogActions>
+                            </StyledDialog>
                         </div>
                         <div className=" col-md-6">
                             <div className='k_popImg'>
