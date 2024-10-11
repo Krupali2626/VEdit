@@ -1,3 +1,4 @@
+// src/Editing/VESidebar.js
 import React, { useEffect, useState, useRef } from 'react';
 import { HiOutlinePlus, HiOutlineMenu } from 'react-icons/hi';
 import '../CSS/d_navbar.css';
@@ -36,7 +37,7 @@ export default function VESidebar() {
     const [isOpen, setIsOpen] = useState(false);
     const [isMobile, setIsMobile] = useState(window.innerWidth <= 768);
     const [activeMenu, setActiveMenu] = useState('Media');
-    const [uploadedFile, setUploadedFile] = useState(null); // State to hold the uploaded file
+    const [uploadedFiles, setUploadedFiles] = useState([]); // State to hold the uploaded files
     const fileInputRef = useRef(null); // Reference for file input
 
     const toggleSidebar = () => {
@@ -48,10 +49,14 @@ export default function VESidebar() {
     };
 
     const handleFileChange = (event) => {
-        const file = event.target.files[0];
-        if (file) {
-            setUploadedFile(URL.createObjectURL(file)); // Set the uploaded file URL
-        }
+        const selectedFiles = Array.from(event.target.files);
+        const newFiles = selectedFiles.map(file => {
+            return {
+                url: URL.createObjectURL(file), // Create a URL for the file
+                type: file.type // Store the file type
+            };
+        });
+        setUploadedFiles((prevFiles) => [...prevFiles, ...newFiles]); // Add new files to the existing array
     };
 
     const handleResize = () => {
@@ -93,10 +98,6 @@ export default function VESidebar() {
                                     <div>
                                         <img src={ur2} className='me-md-3 me-2' />
                                         <img src={ur1} className='me-md-3 me-2' />
-                                        <img src={crown} className='me-md-3 me-2' />
-                                    </div>
-                                    <div className='d_dwnld d-flex align-items-center'>
-                                        <img src={d} className='me-md-2' /><span className='d_export'>Export</span>
                                     </div>
                                 </div>
                             </div>
@@ -200,10 +201,11 @@ export default function VESidebar() {
                     style={{ display: 'none' }}
                     ref={fileInputRef} // Reference to the file input
                     onChange={handleFileChange} // Handle file change
+                    multiple // Allow multiple file uploads
                 />
                 <div className="col a_main px-0">
                     {/* Render content based on active menu */}
-                    {activeMenu === 'Media' && <MediaComponent uploadedFile={uploadedFile} />} {/* Pass uploaded file */}
+                    {activeMenu === 'Media' && <MediaComponent uploadedFiles={uploadedFiles} onFileChange={handleFileChange} />} {/* Pass uploaded files and file change handler */}
                     {activeMenu === 'Merge' && <MergeComponent />}
                     {activeMenu === 'Ratio' && <RatioComponent />}
                     {activeMenu === 'Text' && <TextComponent />}
