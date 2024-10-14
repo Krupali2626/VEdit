@@ -412,6 +412,7 @@ function SignIn(props, value) {
     };
 
     // Add this line: Handle form completion
+    // Add this line: Handle form completion
     const handleCompletion = async () => {
         const completeSignUpData = {
             id: formik.values.id,
