@@ -129,7 +129,7 @@ const QUESTIONS = [
         id: 2,
         question: "Select Gender",
         key: "gender",
-        type: "select", // This is important to trigger the gender selection component
+        type: "select",
         options: [
             { label: "Male", value: "male" },
             { label: "Female", value: "female" }
@@ -144,7 +144,7 @@ const QUESTIONS = [
     {
         id: 4,
         question: "Select Profession",
-        key: "Profession",
+        key: "profession",
         type: "select",
         options: [
             { label: "Student", value: "Student" },
@@ -162,13 +162,11 @@ function SignIn(props, value) {
     const [showConfirmPassword, setShowConfirmPassword] = useState(false);
     const [otpSent, setOtpSent] = useState(false);
     const [otp, setOtp] = useState(['', '', '', '']);
-    const [isSignUpSuccessful, setIsSignUpSuccessful] = useState(false); // State to track successful signup
-    const [userName, setUserName] = useState(''); // State to store the user's name
-    const [step, setStep] = useState(1); // State for managing popup steps
-    // Update modal state to use MUI Dialog terminology
+    const [isSignUpSuccessful, setIsSignUpSuccessful] = useState(false);
+    const [userName, setUserName] = useState('');
+    const [step, setStep] = useState(1);
     const [openModal, setOpenModal] = useState(false);
     const [modalStep, setModalStep] = useState(1);
-    // Add this line: Update state management for multiple questions
     const [currentStep, setCurrentStep] = useState(0);
     const [answers, setAnswers] = useState({});
     const [inputValue, setInputValue] = useState('');
@@ -338,25 +336,16 @@ function SignIn(props, value) {
     const handleSubmit = async (event) => {
         event.preventDefault();
         if (formType === 'signup') {
-            try {
-                // Dispatch signUp action and wait for it to complete
-                const response = await dispatch(signUp(values)).unwrap();
-                if (response) {
-                    setOpenModal(true);
-                    // setIsSignUpSuccessful(true); // Set the signup successful flag
-                    alert("Sign up successful!"); // Alert for successful signup
-                }
-            } catch (error) {
-                console.log("Signup failed: ", error.message);
-            }
+            // Instead of signing up, open the questionnaire modal
+            setOpenModal(true);
         } else if (formType === 'signin') {
             try {
                 const response = await dispatch(signIn(values)).unwrap();
                 if (response) {
-                    alert("Login successful!"); // Alert for successful login
-                    navigate('/'); // Redirect to the home page
+                    alert("Login successful!");
+                    navigate('/');
                 } else {
-                    alert("Login failed!"); // Alert for failed login
+                    alert("Login failed!");
                 }
             } catch (error) {
                 console.log("Login failed: ", error.message);
@@ -423,9 +412,31 @@ function SignIn(props, value) {
     };
 
     // Add this line: Handle form completion
-    const handleCompletion = () => {
-        console.log('Form completed!', answers);
-        // Here you can handle the final submission of all answers
+    const handleCompletion = async () => {
+        const completeSignUpData = {
+            id: formik.values.id,
+            email: formik.values.email,
+            password: formik.values.password,
+            confirmPassword: formik.values.confirmPassword,
+            Additional: {
+                name: answers.name,
+                gender: answers.gender,
+                age: answers.age,
+                profession: answers.profession
+            }
+        };
+
+        try {
+            const response = await dispatch(signUp(completeSignUpData)).unwrap();
+            if (response) {
+                alert("Sign up successful!");
+                navigate('/');
+            }
+        } catch (error) {
+            console.log("Signup failed: ", error.message);
+            alert("Sign up failed. Please try again.");
+        }
+
         handleModalClose();
     };
 
@@ -442,6 +453,7 @@ function SignIn(props, value) {
                                             formType === 'forgot' && !otpSent ? 'Forgot Password' :
                                                 formType === 'forgot' && otpSent ? 'OTP Verification' : null
                                     }
+
                                 </h3>
                                 <Form onSubmit={handleSubmit}>
                                     {(formType !== 'forgot' || (formType === 'forgot' && !otpSent)) && (
@@ -599,7 +611,6 @@ function SignIn(props, value) {
                                 onClose={handleModalClose}
                                 fullWidth
                             >
-                                {/* Add this line: Updated progress bar */}
                                 <StyledLinearProgress variant="determinate" value={calculateProgress()} />
 
                                 <StyledDialogTitle>
@@ -653,7 +664,7 @@ function SignIn(props, value) {
                                         Previous
                                     </StyledButton>
                                     <StyledButton
-                                        onClick={handleNext}
+                                        onClick={currentStep < QUESTIONS.length - 1 ? handleNext : handleCompletion}
                                         variant="outlined"
                                         style={{
                                             backgroundColor: inputValue.trim() ? 'white' : 'transparent',
@@ -661,7 +672,7 @@ function SignIn(props, value) {
                                         }}
                                         disabled={!inputValue.trim()}
                                     >
-                                        {currentStep < QUESTIONS.length - 1 ? "Next" : "Let’s Start"}
+                                        {currentStep < QUESTIONS.length - 1 ? "Next" : "Let's Start"}
                                     </StyledButton>
                                 </StyledDialogActions>
                             </StyledDialog>

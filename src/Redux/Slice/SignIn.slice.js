@@ -9,12 +9,13 @@ const initialState = {
 // add data in http://localhost:1726/signup api
 export const signUp = createAsyncThunk(
     'auth/signUp',
-    async ({ email, password }) => {
+    async (userData) => {
+        console.log("userData", userData);
         try {
             const response = await fetch('http://localhost:1726/signup', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ email, password }),
+                body: JSON.stringify(userData), // The userData is already in the correct format
             });
 
             const data = await response.json();
@@ -22,7 +23,7 @@ export const signUp = createAsyncThunk(
 
             return data;
         } catch (error) {
-            return ('An error occurred. Please try again.');
+            throw new Error('An error occurred. Please try again.');
         }
     }
 );
