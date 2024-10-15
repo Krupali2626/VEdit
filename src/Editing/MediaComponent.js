@@ -22,11 +22,11 @@ export default function MediaComponent(props) {
   const [currentMedia, setCurrentMedia] = useState(null); // State to hold the currently playing media
 
   useEffect(() => {
-    if (uploadedFile) {
+    if (uploadedFiles) {
       // Add uploaded file to the files array
-      setFiles((prevFiles) => [...prevFiles, uploadedFile]);
+      setFiles((prevFiles) => [...prevFiles, uploadedFiles]);
     }
-  }, [uploadedFile]);
+  }, [uploadedFiles]);
 
   const handleFileChange = (event) => {
     const selectedFiles = Array.from(event.target.files);
