@@ -53,7 +53,8 @@ export default function VESidebar() {
         const newFiles = selectedFiles.map(file => {
             return {
                 url: URL.createObjectURL(file), // Create a URL for the file
-                type: file.type // Store the file type
+                type: file.type, // Store the file type
+                name: file.name 
             };
         });
         setUploadedFiles((prevFiles) => [...prevFiles, ...newFiles]); // Add new files to the existing array
@@ -209,7 +210,7 @@ export default function VESidebar() {
                 />
                 <div className="col a_main px-0">
                     {/* Render content based on active menu */}
-                    {activeMenu === 'Media' && <MediaComponent uploadedFiles={uploadedFiles} onFileChange={handleFileChange} />} {/* Pass uploaded files and file change handler */}
+                    {activeMenu === 'Media' && <MediaComponent uploadedFiles={uploadedFiles} onFileChange={handleFileChange} />} 
                     {activeMenu === 'Merge' && <MergeComponent />}
                     {activeMenu === 'Ratio' && <RatioComponent />}
                     {activeMenu === 'Text' && <TextComponent />}

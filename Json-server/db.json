@@ -1,77 +1,26 @@
 {
   "signup": [
     {
-      "id": "5bed",
-      "email": "aesha.kalathiyainfotech@gmail.com",
-      "password": "Aesha@123",
-      "confirmPassword": "Aesha@123",
-      "Additional": {
-        "name": "Aesha",
-        "gender": "female",
-        "age": "22"
-      }
-    },
-    {
-      "id": "c545",
-      "email": "tokyo@gmail.com",
-      "password": "Tokyo@123",
-      "confirmPassword": "Tokyo@123",
-      "Additional": {
-        "name": "gg",
-        "gender": "female",
-        "age": "23",
-        "profession": ""
-      }
-    },
-    {
-      "id": "f5b3",
-      "email": "denver@gmail.com",
-      "password": "den@123D",
-      "confirmPassword": "den@123D",
-      "Additional": {}
-    },
-    {
-      "id": "b058",
+      "id": "1728882767648",
       "email": "krupali.kalathiyainfotech@gmail.com",
       "password": "Krupali@123",
       "confirmPassword": "Krupali@123",
       "Additional": {
-        "name": "gg",
+        "name": "kk",
         "gender": "female",
         "age": "22"
       }
     },
     {
-      "id": "ffd9",
+      "id": "5af8",
       "email": "krupali.kalathiyainfotech@gmail.com",
-      "password": "@nikhil123",
-      "confirmPassword": "@nikhil123",
-      "Additional": {
-        "name": "krups",
-        "gender": "female",
-        "age": "20"
-      }
+      "password": "Krupali@123",
+      "confirmPassword": "Krupali@123"
     },
     {
-      "id": "ab98",
+      "id": "153f",
       "email": "krupali.kalathiyainfotech@gmail.com",
-      "password": "@asdf123",
-      "confirmPassword": "@asdf123",
-      "Additional": {
-        "name": "rtju",
-        "gender": "female",
-        "age": "65"
-      }
-    },
-    {
-      "id": "e4cd",
-      "email": "krupali.kalathiyainfotech@gmail.com",
-      "password": "@qwer123",
-      "Additional": {
-        "name": "sdrg",
-        "gender": "female",
-        "age": "56"
-      }
+      "password": "Krupali@123"
     }
   ]
 }

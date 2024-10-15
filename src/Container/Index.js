@@ -15,12 +15,13 @@ import playstore from '../Assets/image 503.svg';
 import CustomNavbar from '../Componant/CustomNavbar';
 import AppleIcon from '@mui/icons-material/Apple';
 import { FaStar } from "react-icons/fa";
-import OwlCarousel from "react-owl-carousel";
+
 import user from '../Assets/user.png'
 import $ from 'jquery';
 import '../CSS/owl.theme.default.css'
 import '../CSS/Navbar.css'
 import Footer from '../Componant/Footer'
+import OwlCarousel from 'react-owl-carousel';
 import 'owl.carousel/dist/assets/owl.carousel.css';
 import 'owl.carousel/dist/assets/owl.theme.default.css';
 

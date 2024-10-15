@@ -9,7 +9,7 @@ import { object, string, number, ref } from 'yup';
 import { useFormik } from 'formik';
 import { GetUser, signIn, signUp } from '../Redux/Slice/SignIn.slice';
 import { useDispatch, useSelector } from 'react-redux';
-import { useNavigate } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import {
     Dialog,
     DialogTitle,
@@ -156,7 +156,6 @@ const QUESTIONS = [
 ];
 
 function SignIn(props, value) {
-
     const [formType, setformType] = useState('signin');
     const [showPassword, setShowPassword] = useState(false);
     const [showConfirmPassword, setShowConfirmPassword] = useState(false);
@@ -170,10 +169,23 @@ function SignIn(props, value) {
     const [currentStep, setCurrentStep] = useState(0);
     const [answers, setAnswers] = useState({});
     const [inputValue, setInputValue] = useState('');
-
+    const [registeredUsers, setRegisteredUsers] = useState([]);
+    const location = useLocation();
     const dispatch = useDispatch();
     const navigate = useNavigate();
 
+    useEffect(() => {
+        const params = new URLSearchParams(location.search);
+        const formParam = params.get('form');
+        if (formParam === 'signup') {
+            setformType('signup');
+        }
+    }, [location]);
+
+    useEffect(() => {
+        const storedUsers = JSON.parse(localStorage.getItem('registeredUsers') || '[]');
+        setRegisteredUsers(storedUsers);
+    }, []);
 
     useEffect(() => {
         dispatch(GetUser(value));
@@ -336,19 +348,25 @@ function SignIn(props, value) {
     const handleSubmit = async (event) => {
         event.preventDefault();
         if (formType === 'signup') {
-            // Instead of signing up, open the questionnaire modal
             setOpenModal(true);
         } else if (formType === 'signin') {
-            try {
-                const response = await dispatch(signIn(values)).unwrap();
-                if (response) {
-                    alert("Login successful!");
-                    navigate('/');
-                } else {
-                    alert("Login failed!");
+            const user = registeredUsers.find(user => user.email === formik.values.email);
+
+            if (user && user.password === formik.values.password) {
+                try {
+                    const response = await dispatch(signIn(formik.values)).unwrap();
+                    if (response) {
+                        alert("Login successful!");
+                        navigate('/');
+                    } else {
+                        alert("Login failed!");
+                    }
+                } catch (error) {
+                    console.log("Login failed: ", error.message);
+                    alert("Login failed. Please try again.");
                 }
-            } catch (error) {
-                console.log("Login failed: ", error.message);
+            } else {
+                alert("Invalid email or password. Please try again or sign up if you don't have an account.");
             }
         }
     };
@@ -412,10 +430,9 @@ function SignIn(props, value) {
     };
 
     // Add this line: Handle form completion
-    // Add this line: Handle form completion
     const handleCompletion = async () => {
         const completeSignUpData = {
-            id: formik.values.id,
+            id: Date.now().toString(), // Generate a unique ID
             email: formik.values.email,
             password: formik.values.password,
             confirmPassword: formik.values.confirmPassword,
@@ -430,15 +447,24 @@ function SignIn(props, value) {
         try {
             const response = await dispatch(signUp(completeSignUpData)).unwrap();
             if (response) {
-                alert("Sign up successful!");
-                navigate('/');
+                // Remove any existing user with the same email
+                const updatedUsers = registeredUsers.filter(user => user.email !== completeSignUpData.email);
+
+                // Add the new user data
+                updatedUsers.push(completeSignUpData);
+
+                // Update state and localStorage
+                setRegisteredUsers(updatedUsers);
+                localStorage.setItem('registeredUsers', JSON.stringify(updatedUsers));
+
+                alert("Sign up successful! You can now sign in with your new account.");
+                setformType('signin');
+                handleModalClose();
             }
         } catch (error) {
             console.log("Signup failed: ", error.message);
             alert("Sign up failed. Please try again.");
         }
-
-        handleModalClose();
     };
 
     return (

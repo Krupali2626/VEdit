@@ -13,8 +13,10 @@ import Typography from '@mui/material/Typography';
 import CloseIcon from '@mui/icons-material/Close';
 import { Link } from 'react-router-dom';  // Import Link
 
+
 function CustomNavbar(props) {
     const [open, setOpen] = useState(false);
+    
     const isMobile = useMediaQuery('(max-width:991px)');
 
     const toggleDrawer = (newOpen) => () => {
@@ -131,7 +133,13 @@ function CustomNavbar(props) {
                                             </Button>
                                         </Link>
                                         <Link to="/signup" style={{ textDecoration: 'none', color: 'white' }}>
-                                            <Button variant="outlined" color="inherit" size={isMobile ? "small" : "medium"}>
+                                            <Button
+                                                variant="outlined"
+                                                color="inherit"
+                                                size={isMobile ? "small" : "medium"}
+                                                component={Link}
+                                                to="/signin?form=signup"
+                                            >
                                                 Sign Up
                                             </Button>
                                         </Link>
