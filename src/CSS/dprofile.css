@@ -1,0 +1,58 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+.d_pgray_txt {
+    color: #CFCFCF;
+    opacity: 0.75;
+}
+
+.d_profile_bg {
+    background-color: #0a0a0a;
+}
+
+.d_p_row_border {
+    border-bottom: 1px solid #FFFFFF4D;
+}
+
+.d_changepass input::placeholder {
+    color: #CFCFCF;
+    opacity: 0.4;
+}
+
+.d_pmyprjct_bg {
+    background-image: url('../Assets/denisha_img/prjct1.jpg');
+    height: 140px;
+    width: 330px;
+    background-size: cover;
+    position: relative; /* Ensure relative positioning for child elements */
+}
+
+.d_pmyprjct_bg .d_overlayer {
+    background-color: rgba(0, 0, 0, 0.4);
+    height: 100%;
+    width: 100%;
+    display: flex; /* Use flexbox for layout */
+    flex-direction: column; /* Stack elements vertically */
+    justify-content: space-between; /* Distribute space evenly */
+}
+
+.d_overlayer h5, 
+.d_overlayer p {
+    margin: 0;
+}
+
+.d_overlayer span {
+    white-space: nowrap;
+}
+
+/* Dots icon styling */
+.d_overlayer .d-flex {
+    padding: 0 15px; /* Add padding for inner elements */
+}
+
+.d-flex.justify-content-end {
+    align-items: flex-start; /* Align the dots to the top */
+}

@@ -18,12 +18,13 @@ import DenishaRoutes from './Editing/Denisha.routes';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import Krupalirouter from './Routing/Krupalirouter';
 import TimelineEditor from './Editing/TimelineEditor';
+
 function App() {
   const showKrupalirouter = false;
   return (
     <>
       <Provider store={store}>
-        <Krupalirouter />
+        {/* <Krupalirouter /> */}
         <DenishaRoutes />
       
       </Provider>

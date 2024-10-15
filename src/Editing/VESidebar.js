@@ -95,11 +95,15 @@ export default function VESidebar() {
                                     <h4 className="mb-0">LOGO</h4>
                                 </div>
                                 <div className='d-flex'>
-                                    <div>
-                                        <img src={ur2} className='me-md-3 me-2' />
-                                        <img src={ur1} className='me-md-3 me-2' />
-                                    </div>
+                                <div>
+                                    <img src={ur2} className='me-md-3 me-2' />
+                                    <img src={ur1} className='me-md-3 me-2' />
+                                    <img src={crown} className='me-md-3 me-2' />
                                 </div>
+                                <div className='d_dwnld d-flex align-items-center'>
+                                    <img src={d} className='me-md-2' /><span className='d_export'>Export</span>
+                                </div>
+                            </div>
                             </div>
                         </div>
                     </div>
