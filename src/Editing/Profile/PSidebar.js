@@ -9,6 +9,7 @@ import ChangePass from './ChangePass';
 import MyProject from './MyProject';
 import Logout from './Logout';
 import '../../CSS/dprofile.css'; // Ensure to import your CSS file
+import Empty from './Empty';
 
 export default function PSidebar() {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
@@ -62,6 +63,7 @@ export default function PSidebar() {
               <Route path="ChangePass" element={<ChangePass />} />
               <Route path="MyProject" element={<MyProject />} />
               <Route path="Logout" element={<Logout />} />
+              <Route path="empty" element={<Empty />} />
               {/* Add more routes as needed */}
             </Routes>
           </div>

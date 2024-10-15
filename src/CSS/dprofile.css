@@ -1,58 +1,183 @@
 * {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
 }
+/* .d_navbar,.d_sidebar{
+    z-index: 1052 !important;
+} */
 
 .d_pgray_txt {
-    color: #CFCFCF;
-    opacity: 0.75;
+  color: #cfcfcf;
+  opacity: 0.75;
 }
 
 .d_profile_bg {
-    background-color: #0a0a0a;
+  background-color: #0a0a0a;
 }
 
 .d_p_row_border {
-    border-bottom: 1px solid #FFFFFF4D;
+  border-bottom: 1px solid #ffffff4d;
 }
 
 .d_changepass input::placeholder {
-    color: #CFCFCF;
-    opacity: 0.4;
+  color: #cfcfcf;
+  opacity: 0.4;
 }
 
 .d_pmyprjct_bg {
-    background-image: url('../Assets/denisha_img/prjct1.jpg');
-    height: 140px;
-    width: 330px;
-    background-size: cover;
-    position: relative; /* Ensure relative positioning for child elements */
+  background-image: url("../Assets/denisha_img/prjct1.jpg");
+  height: 140px;
+  width: 330px;
+  background-size: cover;
+  position: relative; /* Ensure relative positioning for child elements */
 }
 
 .d_pmyprjct_bg .d_overlayer {
-    background-color: rgba(0, 0, 0, 0.4);
-    height: 100%;
-    width: 100%;
-    display: flex; /* Use flexbox for layout */
-    flex-direction: column; /* Stack elements vertically */
-    justify-content: space-between; /* Distribute space evenly */
+  background-color: rgba(0, 0, 0, 0.4);
+  height: 100%;
+  width: 100%;
+  display: flex; /* Use flexbox for layout */
+  flex-direction: column; /* Stack elements vertically */
+  justify-content: space-between; /* Distribute space evenly */
 }
 
-.d_overlayer h5, 
+.d_overlayer h5,
 .d_overlayer p {
-    margin: 0;
+  margin: 0;
 }
 
 .d_overlayer span {
-    white-space: nowrap;
+  white-space: nowrap;
 }
 
 /* Dots icon styling */
 .d_overlayer .d-flex {
-    padding: 0 15px; /* Add padding for inner elements */
+  padding: 0 15px; /* Add padding for inner elements */
 }
 
 .d-flex.justify-content-end {
-    align-items: flex-start; /* Align the dots to the top */
+  align-items: flex-start; /* Align the dots to the top */
+}
+.btn:first-child:active {
+  border-color: transparent !important;
+}
+.dropdown-menu {
+  background-color: white;
+  border: 1px solid rgba(0, 0, 0, 0.15);
+  border-radius: 0.25rem;
+  box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.175);
+}
+.dropdown-item img {
+  height: 18px;
+  width: 18px;
+}
+.dropdown-item:hover,
+.dropdown-item:focus {
+  color: black !important;
+  background-color: #e9e9e9 !important;
+}
+
+.d_dwnld_model .modal-content {
+  border: 1px solid white;
+  background-color: black !important;
+}
+.d_dwnld_model .modal-header {
+  display: flex;
+  border-bottom: 1px solid #ffffff5e !important;
+}
+.d_dwnld_model .btn-close {
+  color: white !important;
+  opacity: 1 !important;
+}
+/* .d_dwnld_model .btn-close:focus{ */
+/* box-shadow: black !important;
+} */
+.d_dwnld_model .btn-close:focus {
+  outline: 0;
+  box-shadow: 0 0 0 0rem rgb(13 110 253 / 0%) !important;
+}
+.d_dwnld_model .d_dwnld1_img {
+  opacity: 0.7;
+  height: 113px;
+  width: 113px;
+  border-radius: 4px;
+  object-fit: cover;
+}
+.d_dwnld_fs {
+  font-size: 18px;
+}
+.d_dwnld_pipe {
+  color: #cfcfcf;
+  opacity: 0.7;
+}
+
+/* empty  */
+.d_empty_img {
+  height: 150px;
+  width: 150px;
+  object-fit: cover;
+}
+
+.d-flex.ddd {
+  justify-content: center;
+  align-items: center !important;
+  height: 60vh;
+  /* align-self: center; */
+}
+.d_pmyprjct_bg {
+  display: flex;
+  border-radius: 4px;
+}
+@media (min-width: 1650px) {
+  .d_pcol {
+    width: 23%;
+  }
+}
+
+@media (min-width: 1440px) and (max-width: 1650px) {
+  .d_pcol {
+    width: 32%;
+  }
+}
+
+@media (min-width: 1024px) and (max-width: 1440px) {
+  .d_pcol {
+    width: 49.2%;
+  }
+}
+
+@media (min-width: 992px) and (max-width: 1024px) {
+  .d_pcol {
+    width: 49.2%;
+  }
+  .d_pmyprjct_bg {
+    width: 311px;
+  }
+}
+@media (min-width: 768px) and (max-width: 992px) {
+  .d_pcol {
+    width: 100%;
+  }
+  .d_pmyprjct_bg {
+    width: 400px;
+  }
+}
+@media (min-width: 575px) and (max-width: 768px) {
+  .d_pcol {
+    width: 47%;
+  }
+  .d_pmyprjct_bg {
+    width: 260px;
+  }
+}
+
+@media (max-width: 575px) {
+  .d_pcol {
+    width: 100%;
+  }
+  .d_pmyprjct_bg {
+    height: 152px;
+    width: 100%;
+  }
 }

@@ -11,6 +11,7 @@ import PHome from './Profile/PHome';
 import ChangePass from './Profile/ChangePass';
 import MyProject from './Profile/MyProject';
 import Logout from './Profile/Logout';
+import Empty from './Profile/Empty';
 
 
 const DenishaRoutes = () => {
@@ -26,7 +27,9 @@ const DenishaRoutes = () => {
       <Route path="/VESidebar" element={<VESidebar />} />
       <Route path="/TimelineEditor" element={<TimelineEditor />} />
       <Route path="/PSidebar" element={<PSidebar />} >
+        <Route path="empty" element={<Empty />} />
         <Route path="Phome" element={<PHome />} />
+      
         <Route path="MyProject" element={<MyProject />} />
         <Route path="ChangePass" element={<ChangePass />} />
         <Route path="Logout" element={<Logout/>} />
