@@ -7,7 +7,7 @@ import { FcGoogle } from "react-icons/fc";
 import PopUpImg from '../Assets/PopUp.png'
 import { object, string, number, ref } from 'yup';
 import { useFormik } from 'formik';
-import { GetUser, signIn, signUp } from '../Redux/Slice/SignIn.slice';
+import { GetUser, setUserInfo, signIn, signUp } from '../Redux/Slice/SignIn.slice';
 import { useDispatch, useSelector } from 'react-redux';
 import { useLocation, useNavigate } from 'react-router-dom';
 import {
@@ -187,9 +187,9 @@ function SignIn(props, value) {
         setRegisteredUsers(storedUsers);
     }, []);
 
-    useEffect(() => {
-        dispatch(GetUser(value));
-    }, [dispatch]);
+    // useEffect(() => {
+    //     dispatch(GetUser(value));
+    // }, [dispatch]);
 
     const GenderSelection = ({ onSelect, selectedValue }) => {
         return (
@@ -349,22 +349,16 @@ function SignIn(props, value) {
         event.preventDefault();
         if (formType === 'signup') {
             setOpenModal(true);
+            localStorage.setItem('email', values.email);
+
         } else if (formType === 'signin') {
             const user = registeredUsers.find(user => user.email === formik.values.email);
 
             if (user && user.password === formik.values.password) {
-                try {
-                    const response = await dispatch(signIn(formik.values)).unwrap();
-                    if (response) {
-                        alert("Login successful!");
-                        navigate('/');
-                    } else {
-                        alert("Login failed!");
-                    }
-                } catch (error) {
-                    console.log("Login failed: ", error.message);
-                    alert("Login failed. Please try again.");
-                }
+                // Store user info in Redux store
+                dispatch(setUserInfo({ email: user.email }));
+                alert("Login successful!");
+                navigate('/');
             } else {
                 alert("Invalid email or password. Please try again or sign up if you don't have an account.");
             }
@@ -432,7 +426,7 @@ function SignIn(props, value) {
     // Add this line: Handle form completion
     const handleCompletion = async () => {
         const completeSignUpData = {
-            id: Date.now().toString(), // Generate a unique ID
+            id: formik.values.id || "5bed", // Assuming you have an id field, otherwise hardcode it
             email: formik.values.email,
             password: formik.values.password,
             confirmPassword: formik.values.confirmPassword,
@@ -440,32 +434,25 @@ function SignIn(props, value) {
                 name: answers.name,
                 gender: answers.gender,
                 age: answers.age,
-                profession: answers.profession
+                professions: answers.profession // Change 'Profession' to 'profession' to match the key
             }
         };
+        console.log("Complete sign up data:", completeSignUpData);
 
         try {
             const response = await dispatch(signUp(completeSignUpData)).unwrap();
             if (response) {
-                // Remove any existing user with the same email
-                const updatedUsers = registeredUsers.filter(user => user.email !== completeSignUpData.email);
-
-                // Add the new user data
-                updatedUsers.push(completeSignUpData);
-
-                // Update state and localStorage
-                setRegisteredUsers(updatedUsers);
-                localStorage.setItem('registeredUsers', JSON.stringify(updatedUsers));
-
-                alert("Sign up successful! You can now sign in with your new account.");
-                setformType('signin');
-                handleModalClose();
+                alert("Sign up successful!");
+                navigate('/');
             }
         } catch (error) {
             console.log("Signup failed: ", error.message);
             alert("Sign up failed. Please try again.");
         }
+
+        handleModalClose();
     };
+
 
     return (
         <>
@@ -718,3 +705,148 @@ function SignIn(props, value) {
 
 export default SignIn;
 
+// import React from 'react';
+// import { useSelector } from 'react-redux';
+// import Box from '@mui/material/Box';
+// import Drawer from '@mui/material/Drawer';
+// import Button from '@mui/material/Button';
+// import List from '@mui/material/List';
+// import ListItem from '@mui/material/ListItem';
+// import ListItemButton from '@mui/material/ListItemButton';
+// import ListItemText from '@mui/material/ListItemText';
+// import MenuIcon from '@mui/icons-material/Menu';
+// import useMediaQuery from '@mui/material/useMediaQuery';
+// import IconButton from '@mui/material/IconButton';
+// import Typography from '@mui/material/Typography';
+// import CloseIcon from '@mui/icons-material/Close';
+// import Avatar from '@mui/material/Avatar';
+// import { Link } from 'react-router-dom';
+
+// function CustomNavbar(props) {
+//     const [open, setOpen] = React.useState(false);
+//     const isMobile = useMediaQuery('(max-width:991px)');
+
+//     // Get user info from Redux store
+//     const user = useSelector((state) => state.signIn.user);
+
+//     const toggleDrawer = (newOpen) => () => {
+//         setOpen(newOpen);
+//     };
+
+//     // Define navItems with corresponding routes
+//     const navItems = [
+//         { label: 'Home', path: '/' },
+//         { label: 'Features', path: '/feature' },
+//         { label: 'Pricing', path: '/pricing' },
+//         { label: 'About Us', path: '/about' }
+//     ];
+
+//     // Function to get the first letter of the email
+//     const getEmailInitial = (email) => {
+//         return email ? email.charAt(0).toUpperCase() : '';
+//     };
+
+//     const DrawerList = (
+//         <Box
+//             sx={{
+//                 width: 250,
+//                 height: '100%',
+//                 backgroundColor: 'black',
+//                 color: 'white'
+//             }}
+//             role="presentation"
+//         >
+//             {/* ... (DrawerList content remains the same) ... */}
+//         </Box>
+//     );
+
+//     return (
+//         <>
+//             <section>
+//                 <nav>
+//                     <div className='k_nav_img'>
+//                         <div className="db_container">
+//                             <div className="row align-items-center text-white Nav_top_padd">
+//                                 <div className="col-3 col-lg-1">
+//                                     {isMobile ? (
+//                                         <IconButton
+//                                             color="inherit"
+//                                             aria-label="open drawer"
+//                                             edge="start"
+//                                             onClick={toggleDrawer(true)}
+//                                             sx={{
+//                                                 background: 'black',
+//                                                 '&:hover': { background: 'black' }
+//                                             }}
+//                                         >
+//                                             <MenuIcon style={{ color: 'white' }} />
+//                                         </IconButton>
+//                                     ) : (
+//                                         <h4 className='mb-0'>LOGO</h4>
+//                                     )}
+//                                 </div>
+//                                 {!isMobile && (
+//                                     <div className="col-lg-8">
+//                                         <div>
+//                                             <ul className='k_nav_options d-flex mb-0'>
+//                                                 {navItems.map(({ label, path }) => (
+//                                                     <li key={label}>
+//                                                         <Link to={path} style={{ textDecoration: 'none', color: 'white' }}>
+//                                                             {label}
+//                                                         </Link>
+//                                                     </li>
+//                                                 ))}
+//                                             </ul>
+//                                         </div>
+//                                     </div>
+//                                 )}
+//                                 <div className="col-9 col-lg-3">
+//                                     <div className='k_Both_btn d-flex justify-content-end align-items-center'>
+//                                         {user && user.email ? (
+//                                             // Display user's email initial when logged in
+//                                             <Avatar sx={{ bgcolor: 'primary.main', width: 40, height: 40 }}>
+//                                                 {getEmailInitial(user.email)}
+//                                             </Avatar>
+//                                         ) : (
+//                                             // Display Sign In and Sign Up buttons when not logged in
+//                                             <>
+//                                                 <Link to="/signin" style={{ textDecoration: 'none', color: 'white' }}>
+//                                                     <Button
+//                                                         variant="outlined"
+//                                                         color="inherit"
+//                                                         size={isMobile ? "small" : "medium"}
+//                                                         sx={{ mr: 1 }}
+//                                                     >
+//                                                         Sign In
+//                                                     </Button>
+//                                                 </Link>
+//                                                 <Link to="/signup" style={{ textDecoration: 'none', color: 'white' }}>
+//                                                     <Button
+//                                                         variant="outlined"
+//                                                         color="inherit"
+//                                                         size={isMobile ? "small" : "medium"}
+//                                                     >
+//                                                         Sign Up
+//                                                     </Button>
+//                                                 </Link>
+//                                             </>
+//                                         )}
+//                                     </div>
+//                                 </div>
+//                             </div>
+//                         </div>
+//                     </div>
+//                     <Drawer
+//                         anchor="left"
+//                         open={open}
+//                         onClose={toggleDrawer(false)}
+//                     >
+//                         {DrawerList}
+//                     </Drawer>
+//                 </nav>
+//             </section>
+//         </>
+//     );
+// }
+
+// export default CustomNavbar;

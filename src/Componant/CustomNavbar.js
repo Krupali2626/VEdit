@@ -11,8 +11,7 @@ import useMediaQuery from '@mui/material/useMediaQuery';
 import IconButton from '@mui/material/IconButton';
 import Typography from '@mui/material/Typography';
 import CloseIcon from '@mui/icons-material/Close';
-import { Link } from 'react-router-dom';  // Import Link
-
+import { Link } from 'react-router-dom';  
 
 function CustomNavbar(props) {
     const [open, setOpen] = useState(false);

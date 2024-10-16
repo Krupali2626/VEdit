@@ -4,6 +4,7 @@ const initialState = {
     isLoading: false,
     user: [],
     error: null,
+    userInfo: null,
 };
 
 // add data in http://localhost:1726/signup api
@@ -80,6 +81,12 @@ export const signIn = createAsyncThunk(
 const signInSlice = createSlice({
     name: 'user',
     initialState,
+    reducers: {
+        // Add this reducer to handle setting user info
+        setUserInfo: (state, action) => {
+            state.userInfo = action.payload;
+        },
+    },
     extraReducers: (builder) => {
         builder
             .addCase(GetUser.fulfilled, (state, action) => {
@@ -100,5 +107,7 @@ const signInSlice = createSlice({
             })
     }
 })
+
+export const { setUserInfo } = signInSlice.actions;
 
 export default signInSlice.reducer
