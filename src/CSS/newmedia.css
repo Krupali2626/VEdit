@@ -1,0 +1,41 @@
+*{
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+.d_bg_media{
+    background-image: url('../Assets/denisha_img/d_media.png');
+    background-repeat: no-repeat;
+    height: 487px;
+    width: 380px;
+}
+.d_bg_overlayer{
+    background-color: rgba(0, 0, 0, 0.8);
+    height: 487px;
+    width: 380px;
+    border: 1px solid rgba(175, 175, 175, 0.8);
+    border-radius: 4px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+.d_bg_preview{
+    height: 460px;
+    width: 70%;
+    text-align: center;
+    background-color: #3c3b3d38;
+}
+.d_timeline_bg_icon{
+    background-color:  #312f3338;
+    height: 340px;
+}
+.d_timeline_icon_row{
+    border-bottom: 1px solid rgba(175, 175, 175, 0.8);
+}
+@media  (max-width:768px) {
+    .a_main {
+      margin-left: 0rem;
+      margin-top: 4rem !important;
+  }
+}
