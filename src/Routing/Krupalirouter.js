@@ -11,6 +11,7 @@ import Footer from '../Componant/Footer';
 import SignIn from '../Componant/SignIn';
 import Index from '../Container/Index';
 import CustomNavbar from '../Componant/CustomNavbar';
+import MobileSignIn from '../Componant/MobileSignIn';
 
 function Krupalirouter(props) {
     return (
@@ -21,6 +22,7 @@ function Krupalirouter(props) {
                
                 {/* <Route path="/" element={<><CustomNavbar /><Index /></>} /> */}
                 <Route path="/signin" element={<SignIn />} />
+                <Route path="/mobile" element={<MobileSignIn />} />
                 <Route path="/" element={<Index />} />
                 <Route path="/feature" element={<Feature />} />
                 <Route path="/about" element={<AboutUs />} />

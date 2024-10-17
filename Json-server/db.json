@@ -1,180 +1,62 @@
 {
   "signup": [
     {
-      "id": "1728968574543",
-      "email": "kumbhanikrupali30@gmail.com",
-      "password": "Akshay@1234",
-      "confirmPassword": "Akshay@1234",
-      "Additional": {
-        "name": "sfAS",
-        "gender": "male",
-        "age": "22"
-      }
-    },
-    {
-      "id": "1728969285783",
-      "email": "helsinki@gmail.com",
-      "password": "Aksh@1234",
-      "confirmPassword": "Aksh@1234",
-      "Additional": {
-        "name": "sf",
-        "gender": "male",
-        "age": "22"
-      }
-    },
-    {
-      "id": "1728969364135",
-      "email": "helsinki@gmail.com",
-      "password": "Aksh@1234",
-      "confirmPassword": "Aksh@1234",
-      "Additional": {
-        "name": "sf",
-        "gender": "female",
-        "age": "32"
-      }
-    },
-    {
-      "id": "1728969436071",
-      "email": "helsinki@gmail.com",
-      "password": "Aksh@1234",
-      "confirmPassword": "Aksh@1234",
-      "Additional": {
-        "name": "sdhgfsjd",
-        "gender": "male",
-        "age": "22"
-      }
-    },
-    {
-      "id": "1728969567567",
-      "email": "helsinki@gmail.com",
-      "password": "Aksh@1234",
-      "confirmPassword": "Aksh@1234",
-      "Additional": {
-        "name": "aswdf",
-        "gender": "male",
-        "age": "42"
-      }
-    },
-    {
-      "id": "5bed",
-      "email": "helsinki@gmail.com",
-      "password": "Aksh@1234",
-      "confirmPassword": "Aksh@1234",
-      "Additional": {
-        "name": "df",
-        "gender": "male",
-        "age": "32"
-      }
-    },
-    {
-      "id": "5bed",
-      "email": "krupali.kalathiyainfotech@gmail.com",
-      "password": "Krupali@789",
-      "confirmPassword": "Krupali@789",
-      "Additional": {
-        "name": "Apple",
-        "gender": "female",
-        "age": "22"
-      }
-    },
-    {
-      "id": "5bed",
-      "email": "helsinki@gmail.com",
-      "password": "Hell@34579",
-      "confirmPassword": "Hell@34579",
-      "Additional": {
-        "name": "ff",
-        "gender": "female",
-        "age": "22"
-      }
-    },
-    {
-      "id": "5bed",
+      "id": "b9e5",
       "email": "tokyo@gmail.com",
-      "password": "Tokyo@345678",
-      "confirmPassword": "Tokyo@345678",
-      "Additional": {
-        "name": "dd",
+      "password": "Admin@123",
+      "additional": {
+        "name": "ttt",
         "gender": "female",
-        "age": "22"
+        "age": "22",
+        "profession": "Video Editor"
       }
     },
     {
-      "id": "5bed",
-      "email": "krupali.kalathiyainfotech@gmail.com",
-      "password": "Krupali@123",
-      "confirmPassword": "Krupali@123",
-      "Additional": {
-        "name": "kk",
-        "gender": "female",
-        "age": "22"
-      }
-    },
-    {
-      "id": "5bed",
-      "email": "kumbhanikrupali30@gmail.com",
-      "password": "Krups@3444",
-      "confirmPassword": "Krups@3444",
-      "Additional": {
-        "name": "sf",
-        "gender": "female",
-        "age": "22"
-      }
-    },
-    {
-      "id": "5bed",
-      "email": "krupali.kalathiyainfotech@gmail.com",
-      "password": "Krupali@9876",
-      "confirmPassword": "Krupali@9876",
-      "Additional": {
-        "name": "qq",
-        "gender": "female",
-        "age": "45"
-      }
-    },
-    {
-      "id": "5bed",
-      "email": "tokyo@gmail.com",
-      "password": "Tokyo@678954321",
-      "confirmPassword": "Tokyo@678954321",
-      "Additional": {
-        "name": "zz",
-        "gender": "female",
-        "age": "22"
-      }
-    },
-    {
-      "id": "5bed",
-      "email": "krupali.kalathiyainfotech@gmail.com",
-      "password": "Krups@123",
-      "confirmPassword": "Krups@123",
-      "Additional": {
+      "id": "14d2",
+      "email": "helsinki@gmail.com",
+      "password": "Hellsinki@123",
+      "additional": {
         "name": "hh",
-        "gender": "female",
-        "age": "22"
+        "gender": "male",
+        "age": "32",
+        "profession": "Student"
       }
     },
     {
-      "id": "5bed",
+      "id": "e3b9",
       "email": "krupali.kalathiyainfotech@gmail.com",
-      "password": "Krups@1234",
-      "confirmPassword": "Krups@1234",
-      "Additional": {
-        "name": "kk",
+      "password": "dsfS@123",
+      "additional": {
+        "name": "sdfssdf",
         "gender": "female",
-        "age": "22"
+        "age": "23",
+        "profession": "Video Editor"
       }
     },
     {
-      "id": "5bed",
-      "email": "aeshagodhani@gmail.com",
-      "password": "aesha@123A",
-      "confirmPassword": "aesha@123A",
-      "Additional": {
-        "name": "aesha",
+      "id": "8a2e",
+      "email": "ak@gmail.com",
+      "password": "XYZzz@123",
+      "additional": {
+        "name": "xdd",
         "gender": "female",
-        "age": "22"
+        "age": "1",
+        "profession": "female"
+      }
+    },
+    {
+      "id": "f9c6",
+      "email": "ak@gmail.com",
+      "password": "sdsfSD@13223",
+      "additional": {
+        "name": "dsd",
+        "gender": "female",
+        "age": "43",
+        "profession": "Video Editor"
       }
     }
+  ],
+  "mobile": [
+    
   ]
 }
