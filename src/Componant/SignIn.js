@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { useDispatch } from 'react-redux';
 import { useFormik } from 'formik';
 import * as Yup from 'yup';
-import { signUp, signIn } from '../Redux/Slice/SignIn.slice';
+import { signUp, signIn, mobileSignIn } from '../Redux/Slice/SignIn.slice';
 import { useNavigate } from 'react-router-dom';
 import { Form, Button } from 'react-bootstrap';
 import { FaEnvelope, FaLock, FaApple, FaEye, FaEyeSlash } from 'react-icons/fa';
@@ -16,7 +16,8 @@ function SignIn(props, value) {
     const [formType, setFormType] = useState('signin');
     const [showPassword, setShowPassword] = useState(false);
     const [showConfirmPassword, setShowConfirmPassword] = useState(false);
-    const [otpSent, setOtpSent] = useState(false);
+    const [otpSent, setOtpSent] = useState(['', '', '', '']);
+    const [signInMethod, setSignInMethod] = useState('email');
     const dispatch = useDispatch();
     const navigate = useNavigate();
 
@@ -32,6 +33,7 @@ function SignIn(props, value) {
         confirmPassword: formType === 'signup' ?
             Yup.string().oneOf([Yup.ref('password'), null], 'Passwords must match').required('Confirm password is required') :
             Yup.string(),
+        mobile: signInMethod === 'mobile' ? Yup.string().matches(/^[0-9]{10}$/, 'Invalid mobile number').required('Mobile number is required') : Yup.string(),
     });
 
     const formik = useFormik({
@@ -39,6 +41,7 @@ function SignIn(props, value) {
             email: '',
             password: '',
             confirmPassword: '',
+            mobile: '',
         },
         validationSchema: validationSchema,
         onSubmit: async (values) => {
@@ -46,7 +49,13 @@ function SignIn(props, value) {
                 setOpenModal(true);
             } else if (formType === 'signin') {
                 try {
-                    const response = await dispatch(signIn(values)).unwrap();
+                    let response;
+                    if (signInMethod === 'email') {
+                        response = await dispatch(signIn(values)).unwrap();
+                    } else {
+                        // Add this for mobile sign in
+                        response = await dispatch(mobileSignIn(values)).unwrap();
+                    }
                     if (response) {
                         alert("Sign in successful!");
                         navigate('/');
@@ -56,7 +65,7 @@ function SignIn(props, value) {
                     alert("Sign in failed. Please try again.");
                 }
             } else if (formType === 'forgot') {
-                console.log("Forgot password for:", values.email);
+                console.log("Forgot password for:", signInMethod === 'email' ? values.email : values.mobile);
                 setOtpSent(true);
             }
         },
@@ -126,6 +135,11 @@ function SignIn(props, value) {
 
     const calculateProgress = () => ((currentStep + 1) / QUESTIONS.length) * 100;
 
+    const toggleSignInMethod = () => {
+        setSignInMethod(prevMethod => prevMethod === 'email' ? 'mobile' : 'email');
+        formik.setErrors({});
+        formik.setTouched({});
+    };
 
     return (
         <>
@@ -133,85 +147,91 @@ function SignIn(props, value) {
                 <div className="row p-5 k_popup_row">
                     <div className="col-md-6">
                         <div className="k_glass_effect text-light rounded k_form-width">
+
                             <h3 className="text-center mb-4">
                                 {formType === 'signin' ? 'Welcome Back User!' :
                                     formType === 'signup' ? 'Welcome User' :
                                         formType === 'forgot' && !otpSent ? 'Forgot Password' :
                                             formType === 'forgot' && otpSent ? 'OTP Verification' : null}
                             </h3>
+
                             <Form onSubmit={formik.handleSubmit}>
+
                                 {(formType !== 'forgot' || (formType === 'forgot' && !otpSent)) && (
-                                    <Form.Group className="mb-3" controlId="formBasicEmail">
+                                    <Form.Group className="mb-3" controlId={signInMethod === 'email' ? "formBasicEmail" : "formBasicMobile"}>
                                         <div className="input-group">
                                             <span className="input-group-text bg-transparent text-secondary border-end-0 border-secondary">
-                                                <FaEnvelope />
+                                                {signInMethod === 'email' ? <FaEnvelope /> : <MdCall />}
                                             </span>
                                             <Form.Control
-                                                type="email"
-                                                name="email"
-                                                placeholder="Enter your email"
+                                                type={signInMethod === 'email' ? "email" : "tel"}
+                                                name={signInMethod === 'email' ? "email" : "mobile"}
+                                                placeholder={signInMethod === 'email' ? "Enter your email" : "Enter your mobile number"}
                                                 className="border-start-0 border-secondary inputStyle"
                                                 onChange={formik.handleChange}
                                                 onBlur={formik.handleBlur}
-                                                value={formik.values.email}
+                                                value={signInMethod === 'email' ? formik.values.email : formik.values.mobile}
+
                                             />
                                         </div>
-                                        {formik.touched.email && formik.errors.email ? (
-                                            <div className="text-danger">{formik.errors.email}</div>
+                                        {formik.touched[signInMethod] && formik.errors[signInMethod] ? (
+                                            <div className="text-danger">{formik.errors[signInMethod]}</div>
                                         ) : null}
                                     </Form.Group>
                                 )}
 
-                                {formType !== 'forgot' && (
-                                    <Form.Group className="mb-3" controlId="formBasicPassword">
-                                        <div className="input-group">
-                                            <span className="input-group-text bg-transparent text-secondary border-end-0 border-secondary">
-                                                <FaLock />
-                                            </span>
-                                            <Form.Control
-                                                type={showPassword ? "text" : "password"}
-                                                name="password"
-                                                placeholder="Enter your password"
-                                                className="border-start-0 border-end-0 border-secondary inputStyle"
-                                                onChange={formik.handleChange}
-                                                onBlur={formik.handleBlur}
-                                                value={formik.values.password}
-                                            />
-                                            <span className="input-group-text bg-transparent text-secondary border-start-0 border-secondary"
-                                                onClick={() => setShowPassword(!showPassword)}>
-                                                {showPassword ? <FaEye size={20} /> : <FaEyeSlash size={20} />}
-                                            </span>
-                                        </div>
-                                        {formik.touched.password && formik.errors.password ? (
-                                            <div className="text-danger">{formik.errors.password}</div>
-                                        ) : null}
-                                    </Form.Group>
-                                )}
+                                {signInMethod === 'email' && formType !== 'forgot' && (
+                                    <>
+                                        <Form.Group className="mb-3" controlId="formBasicPassword">
+                                            <div className="input-group">
+                                                <span className="input-group-text bg-transparent text-secondary border-end-0 border-secondary">
+                                                    <FaLock />
+                                                </span>
+                                                <Form.Control
+                                                    type={showPassword ? "text" : "password"}
+                                                    name="password"
+                                                    placeholder="Enter your password"
+                                                    className="border-start-0 border-end-0 border-secondary inputStyle"
+                                                    onChange={formik.handleChange}
+                                                    onBlur={formik.handleBlur}
+                                                    value={formik.values.password}
+                                                />
+                                                <span className="input-group-text bg-transparent text-secondary border-start-0 border-secondary"
+                                                    onClick={() => setShowPassword(!showPassword)}>
+                                                    {showPassword ? <FaEye size={20} /> : <FaEyeSlash size={20} />}
+                                                </span>
+                                            </div>
+                                            {formik.touched.password && formik.errors.password ? (
+                                                <div className="text-danger">{formik.errors.password}</div>
+                                            ) : null}
+                                        </Form.Group>
 
-                                {formType === 'signup' && (
-                                    <Form.Group className="mb-3" controlId="formConfirmPassword">
-                                        <div className="input-group">
-                                            <span className="input-group-text bg-transparent text-secondary border-end-0 border-secondary">
-                                                <FaLock />
-                                            </span>
-                                            <Form.Control
-                                                type={showConfirmPassword ? "text" : "password"}
-                                                name="confirmPassword"
-                                                placeholder="Confirm your password"
-                                                className="border-start-0 border-end-0 border-secondary inputStyle"
-                                                onChange={formik.handleChange}
-                                                onBlur={formik.handleBlur}
-                                                value={formik.values.confirmPassword}
-                                            />
-                                            <span className="input-group-text bg-transparent text-secondary border-start-0 border-secondary"
-                                                onClick={() => setShowConfirmPassword(!showConfirmPassword)}>
-                                                {showConfirmPassword ? <FaEye size={20} /> : <FaEyeSlash size={20} />}
-                                            </span>
-                                        </div>
-                                        {formik.touched.confirmPassword && formik.errors.confirmPassword ? (
-                                            <div className="text-danger">{formik.errors.confirmPassword}</div>
-                                        ) : null}
-                                    </Form.Group>
+                                        {formType === 'signup' && (
+                                            <Form.Group className="mb-3" controlId="formConfirmPassword">
+                                                <div className="input-group">
+                                                    <span className="input-group-text bg-transparent text-secondary border-end-0 border-secondary">
+                                                        <FaLock />
+                                                    </span>
+                                                    <Form.Control
+                                                        type={showConfirmPassword ? "text" : "password"}
+                                                        name="confirmPassword"
+                                                        placeholder="Confirm your password"
+                                                        className="border-start-0 border-end-0 border-secondary inputStyle"
+                                                        onChange={formik.handleChange}
+                                                        onBlur={formik.handleBlur}
+                                                        value={formik.values.confirmPassword}
+                                                    />
+                                                    <span className="input-group-text bg-transparent text-secondary border-start-0 border-secondary"
+                                                        onClick={() => setShowConfirmPassword(!showConfirmPassword)}>
+                                                        {showConfirmPassword ? <FaEye size={20} /> : <FaEyeSlash size={20} />}
+                                                    </span>
+                                                </div>
+                                                {formik.touched.confirmPassword && formik.errors.confirmPassword ? (
+                                                    <div className="text-danger">{formik.errors.confirmPassword}</div>
+                                                ) : null}
+                                            </Form.Group>
+                                        )}
+                                    </>
                                 )}
 
                                 {formType === 'forgot' && otpSent && (
@@ -263,8 +283,20 @@ function SignIn(props, value) {
                                             <Button variant="outline-light" className="w-100 mb-3 text-start border-secondary p-2 px-3">
                                                 <FaApple className="me-2" size={20} /> Continue with Apple
                                             </Button>
-                                            <Button variant="outline-light" className="w-100 mb-5 text-start border-secondary p-2 px-3">
-                                                <MdCall className="me-2" size={20} /> Continue with Mobile
+                                            <Button
+                                                variant="outline-light"
+                                                className="w-100 mb-5 text-start border-secondary p-2 px-3"
+                                                onClick={toggleSignInMethod}
+                                            >
+                                                {signInMethod === 'email' ? (
+                                                    <>
+                                                        <MdCall className="me-2" size={20} /> Continue with Mobile
+                                                    </>
+                                                ) : (
+                                                    <>
+                                                        <FaEnvelope className="me-2" size={20} /> Continue with Email
+                                                    </>
+                                                )}
                                             </Button>
                                         </div>
 
@@ -283,7 +315,9 @@ function SignIn(props, value) {
                                         </div>
                                     </>
                                 )}
+
                             </Form>
+                            
                         </div>
                     </div>
                     <div className="col-md-6">
