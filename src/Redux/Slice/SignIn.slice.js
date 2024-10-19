@@ -4,7 +4,8 @@ const initialState = {
     isLoading: false,
     user: [],
     error: null,
-    userInfo: null,
+    currentUser: null,
+    mobile: []
 };
 
 // Add data in http://localhost:1726/signup api during sign-up
@@ -79,53 +80,29 @@ export const signIn = createAsyncThunk(
     }
 );
 
-export const mobileSignUp = createAsyncThunk(
-    'auth/mobileSignUp',
-    async (userData) => {
-        try {
-            const response = await fetch('http://localhost:1726/mobile', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(userData),
-            });
+// export const mobileSignUp = createAsyncThunk(
+//     'mobileSignUp/mobileSignUp',
+//     async (userData, { rejectWithValue }) => {
+//         try {
+//             const response = await fetch('http://localhost:1726/mobile', {
+//                 method: 'POST',
+//                 headers: {
+//                     'Content-Type': 'application/json',
+//                 },
+//                 body: JSON.stringify(userData),
+//             });
 
-            const data = await response.json();
-            console.log(data);
+//             if (!response.ok) {
+//                 throw new Error('Mobile signup failed');
+//             }
 
-            return data;
-        } catch (error) {
-            throw new Error('An error occurred during mobile sign up. Please try again.');
-        }
-    }
-);
+//             return await response.json();
+//         } catch (error) {
+//             return rejectWithValue(error.message);
+//         }
+//     }
+// );
 
-export const mobileSignIn = createAsyncThunk(
-    'signIn/mobileSignIn',
-    async (userData, { rejectWithValue }) => {
-        try {
-            const response = await fetch('http://localhost:1726/mobile', {
-                method: 'GET',
-                headers: { 'Content-Type': 'application/json' },
-            });
-
-            if (!response.ok) {
-                throw new Error('Failed to fetch mobile user data');
-            }
-
-            const users = await response.json();
-
-            const user = users.find(u => u.mobile === userData.mobile && u.password === userData.password);
-
-            if (user) {
-                return user;
-            } else {
-                return rejectWithValue('Invalid mobile number or password');
-            }
-        } catch (error) {
-            return rejectWithValue(error.message);
-        }
-    }
-);
 
 const signInSlice = createSlice({
     name: 'user',
@@ -149,20 +126,14 @@ const signInSlice = createSlice({
             })
             .addCase(signIn.fulfilled, (state, action) => {
                 state.isLoading = false;
-                state.userInfo = action.payload;
+                state.currentUser = action.payload;
                 state.error = null;
             })
-            .addCase(mobileSignIn.fulfilled, (state, action) => {
-                state.isLoading = false;
-                state.userInfo = action.payload;
-                state.error = null;
-            })
-            .addCase(mobileSignUp.fulfilled, (state, action) => {
-                state.isLoading = false;
-                state.userInfo = action.payload;
-                state.error = null;
-            })
-
+            // .addCase(mobileSignUp.fulfilled, (state, action) => {
+            //     state.isLoading = false;
+            //     state.currentUser = action.payload;
+            //     state.error = null;
+            // })
     }
 });
 
