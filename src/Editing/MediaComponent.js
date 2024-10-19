@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect, useRef } from 'react';
 import '../CSS/newmedia.css';
 import d_m1 from "../Assets/denisha_img/cloud.svg";
@@ -14,91 +13,99 @@ import mp1 from "../Assets/denisha_img/mp1.svg";
 import mp3 from "../Assets/denisha_img/mp3.svg";
 import { FaPlay } from "react-icons/fa6";
 import { FaPause } from 'react-icons/fa';
-export default function MediaComponent({ uploadedMedia, onMediaUpload }) {
-  const [media, setMedia] = useState(null); // State to store currently displayed media
-  const [mediaType, setMediaType] = useState(''); // State to store the type of media (image or video)
-  const [allMedia, setAllMedia] = useState([]); // State to store all uploaded media
-  const videoRef = useRef(null); // Ref for video element
-  const [isPlaying, setIsPlaying] = useState(false); // State to control play/pause
-  const [mediaBlobUrl, setMediaBlobUrl] = useState(null); // State to handle the blob URL
-  const [currentMediaIndex, setCurrentMediaIndex] = useState(null); // State to track the current media index
 
-  // Handle file upload
+export default function MediaComponent({ uploadedMedia, onMediaUpload }) {
+  const [media, setMedia] = useState(null);
+  const [mediaType, setMediaType] = useState('');
+  const [allMedia, setAllMedia] = useState([]);
+  const videoRef = useRef(null);
+  const [isPlaying, setIsPlaying] = useState(false);
+  const [mediaBlobUrl, setMediaBlobUrl] = useState(null);
+  const [currentMediaIndex, setCurrentMediaIndex] = useState(null);
+  const [zoomOut, setZoomOut] = useState(false); // State for zoom effect
+  const [displayTime, setDisplayTime] = useState(0); // State to manage displayed time
+
   const handleUpload = (event) => {
     const file = event.target.files[0];
     if (file) {
-      const fileType = file.type.split('/')[0]; // Get the type of the file (image or video)
+      const fileType = file.type.split('/')[0];
       const fileURL = URL.createObjectURL(file);
-      setMedia(file); // Store the file instead of the URL
-      setMediaType(fileType); // Set the media type
-      setMediaBlobUrl(fileURL); // Set the blob URL for the media
-      setCurrentMediaIndex(allMedia.length); // Set the index for the current media
-      setAllMedia((prev) => [...prev, file]); // Store all uploaded media
-      onMediaUpload(file); // Notify parent component about the upload
+      setMedia(file);
+      setMediaType(fileType);
+      setMediaBlobUrl(fileURL);
+      setCurrentMediaIndex(allMedia.length);
+      setAllMedia((prev) => [...prev, file]);
+      onMediaUpload(file);
     }
   };
 
-  // Effect to set media from the sidebar
   useEffect(() => {
     if (uploadedMedia.length > 0) {
-      setAllMedia(uploadedMedia); // Store all uploaded media
-      setCurrentMediaIndex(0); // Start with the first media
+      setAllMedia(uploadedMedia);
+      setCurrentMediaIndex(0);
       const file = uploadedMedia[0];
-      setMedia(file); // Set the first media
-      setMediaType(file.type.split('/')[0]); // Set the media type
-      const fileURL = URL.createObjectURL(file); // Create blob URL for the first media
+      setMedia(file);
+      setMediaType(file.type.split('/')[0]);
+      const fileURL = URL.createObjectURL(file);
       setMediaBlobUrl(fileURL);
     }
   }, [uploadedMedia]);
 
-  // Function to handle media selection
   const handleMediaSelect = (index) => {
-    if (index < 0 || index >= allMedia.length) return; // Prevent out-of-bounds access
-    const file = allMedia[index]; // Get the media file at the given index
-    setMedia(file); // Set the selected media
-    setMediaType(file.type.split('/')[0]); // Set the media type
-    setIsPlaying(false); // Reset the play state when selecting a new media
-    const fileURL = URL.createObjectURL(file); // Generate new blob URL
-    setMediaBlobUrl(fileURL); // Update blob URL
-    setCurrentMediaIndex(index); // Update current media index
-
-    // Reset video playback if switching from one video to another
+    if (index < 0 || index >= allMedia.length) return;
+    const file = allMedia[index];
+    setMedia(file);
+    setMediaType(file.type.split('/')[0]);
+    setIsPlaying(false);
+    const fileURL = URL.createObjectURL(file);
+    setMediaBlobUrl(fileURL);
+    setCurrentMediaIndex(index);
     if (videoRef.current) {
-      videoRef.current.load(); // Reset the video element
+      videoRef.current.load();
     }
   };
 
-  // Function to handle left button click
   const handleLeftClick = () => {
     if (currentMediaIndex > 0) {
-      handleMediaSelect(currentMediaIndex - 1); // Select the previous media
+      handleMediaSelect(currentMediaIndex - 1);
     }
   };
 
-  // Function to handle right button click
   const handleRightClick = () => {
     if (currentMediaIndex < allMedia.length - 1) {
-      handleMediaSelect(currentMediaIndex + 1); // Select the next media
+      handleMediaSelect(currentMediaIndex + 1);
     }
   };
 
-  // Function to handle play/pause toggle
   const handlePlayPause = () => {
     if (videoRef.current) {
       if (isPlaying) {
-        videoRef.current.pause(); // Pause the video
+        videoRef.current.pause();
       } else {
-        videoRef.current.play(); // Play the video
+        videoRef.current.play();
       }
-      setIsPlaying(!isPlaying); // Toggle play/pause state
+      setIsPlaying(!isPlaying);
     }
+  };
+
+  const handleZoomOut = () => {
+    setZoomOut(true);
+    setDisplayTime(prev => prev + 0.5); // Increase displayed time by 0.5 seconds
+    setTimeout(() => {
+      setZoomOut(false);
+    }, 300); // Reset zoom after 300ms
+  };
+
+  // New function to handle the t4 click event
+  const handleReduceTime = () => {
+    setDisplayTime(prev => Math.max(0, prev / 2)); // Halve the displayed time, ensuring it doesn't go below 0
   };
 
   return (
     <div>
       <div className="row">
         <div className="col-xl-3 d-xl-block d-none px-0">
-          {!media ? ( // Check if media is uploaded
+          {!media ? (
             <div>
               <div
                 className="d_bg_media"
@@ -111,47 +118,14 @@ export default function MediaComponent({ uploadedMedia, onMediaUpload }) {
                   <input
                     type="file"
                     id="fileInput"
-                    style={{ display: 'none' }} // Hide the default file input
-                    accept="image/*,video/*" // Accept both images and videos
+                    style={{ display: 'none' }}
+                    accept="image/*,video/*"
                     onChange={handleUpload}
                   />
                 </div>
               </div>
             </div>
           ) : (
-            // <div className="d_uploaded_media border p-2 overflow-auto" style={{height:'487px'}}>
-
-            //   <div className="row">
-            //     {allMedia.map((file, index) => (
-            //       <div
-            //         className="col-4 d-flex justify-content-center" // Ensures each media item takes 1/3rd of the row and is centered
-            //         key={index}
-            //         style={{ marginBottom: '15px' }} // Adds space between rows
-            //         onClick={() => handleMediaSelect(index)} // Select media on click
-            //       >
-            //         {file.type.startsWith('image/') ? (
-            //           <img
-            //             src={URL.createObjectURL(file)}
-            //             alt="Uploaded"
-            //             style={{ width: '132px', height: '150px', objectFit: 'cover' }} // Ensures all images have the same width and height
-            //           />
-            //         ) : file.type.startsWith('video/') ? (
-            //           <video
-            //             controls={false}
-            //             style={{ width: '132px', height: '150px', objectFit: 'cover' }} // Ensures all videos have the same width and height
-            //           >
-            //             <source src={URL.createObjectURL(file)} type={file.type} />
-            //             Your browser does not support the video tag.
-            //           </video>
-            //         ) : (
-            //           <p>Unsupported media type</p>
-            //         )}
-            //       </div>
-            //     ))}
-            //   </div>
-
-
-            // </div>
             <div className="d_uploaded_media border p-2 overflow-auto" style={{ height: '487px' }}>
               <div className="row">
                 {allMedia.map((file, index) => (
@@ -182,20 +156,19 @@ export default function MediaComponent({ uploadedMedia, onMediaUpload }) {
                 ))}
               </div>
             </div>
-
           )}
         </div>
         <div className="col-xl-9 col-12 text-center">
           <div className="d-flex justify-content-center">
             <div className="d_bg_preview">
-              {media && ( // Display the selected media in d_bg_preview
+              {media && (
                 mediaType === 'image' ? (
                   <img src={mediaBlobUrl} alt="Selected Media" style={{ width: '100%', height: '100%' }} />
                 ) : mediaType === 'video' ? (
                   <video
                     id="videoPreview"
                     ref={videoRef}
-                    key={mediaBlobUrl} // Force re-render by setting key to blob URL
+                    key={mediaBlobUrl}
                     controls={false}
                     style={{ width: '100%', height: '100%' }}
                   >
@@ -210,63 +183,66 @@ export default function MediaComponent({ uploadedMedia, onMediaUpload }) {
           </div>
 
           <div className="mt-2">
-            {/* Left Button */}
             <img
               className="d_control_img mx-2"
               src={mp1}
               alt="Previous"
-              onClick={handleLeftClick} // Navigate to the previous media
+              onClick={handleLeftClick}
               style={{ cursor: currentMediaIndex > 0 ? 'pointer' : 'not-allowed', filter: currentMediaIndex > 0 ? 'none' : 'grayscale(100%)' }}
             />
-
-            {/* Play/Pause Button */}
             <span onClick={handlePlayPause} style={{ cursor: 'pointer' }}>
               {isPlaying ? <FaPause /> : <FaPlay />}
             </span>
-
-            {/* Right Button */}
             <img
               className="d_control_img mx-2"
               src={mp3}
               alt="Next"
-              onClick={handleRightClick} // Navigate to the next media
+              onClick={handleRightClick}
               style={{ cursor: currentMediaIndex < allMedia.length - 1 ? 'pointer' : 'not-allowed', filter: currentMediaIndex < allMedia.length - 1 ? 'none' : 'grayscale(100%)' }}
             />
           </div>
         </div>
       </div>
-   
+
       <div className="row mt-3">
         <div className="d_timeline_bg_icon px-0">
           <div className="d_timeline_icon_row p-2 d-flex justify-content-between align-items-center">
-
-            {/* Left side icons */}
             <div className="d_timeline_left_icons d-flex align-items-center">
               <img className="mx-2" src={t11} alt="Icon 1" />
               <img className="mx-2" src={t1} alt="Icon 2" />
               <img className="mx-2" src={t2} alt="Icon 3" />
             </div>
-
-            {/* Time display in the center */}
             <div className="d_timeline_time_display">
-              <span>0:00:00 / 0:08:20</span> {/* Update the time dynamically */}
+              <span>{`${Math.floor(displayTime / 3600)}:${Math.floor((displayTime % 3600) / 60).toString().padStart(2, '0')}:${(displayTime % 60).toString().padStart(2, '0')} / 0:08:20`}</span>
             </div>
-
-            {/* Right side icons */}
             <div className="d_timeline_right_icons d-flex align-items-center">
-              <img className="mx-2" src={t3} alt="Icon 4" />
-              <img className="mx-2" src={t4} alt="Icon 5" />
+              <img src={t3} alt="Icon 4" onClick={handleZoomOut} className={`zoom-icon mx-2 ${zoomOut ? 'zoom-out' : ''}`} />
+              <img className="mx-2" src={t4} alt="Icon 5" onClick={handleReduceTime} />
               <img className="ms-2" src={t5} alt="Icon 6" />
               <img className="me-2" src={t6} alt="Icon 6" />
               <img className="mx-2" src={t7} alt="Icon 6" />
             </div>
           </div>
           <div className='d_timeline_clip'>
-
+            <div className="d_timeline_scale">
+              {/* Calculate the number of markers based on the displayTime */}
+              {Array.from({ length: Math.ceil(displayTime / 2) }).map((_, index) => {
+                // Calculate the time for each marker based on the displayTime
+                const time = `${Math.floor((index * 2) / 60)}:${(index * 2) % 60 < 10 ? '0' : ''}${(index * 2) % 60}`; // 2 seconds difference
+                return (
+                  <div className="d_timeline_marker" key={index} style={{ left: `${(index * 100) / Math.ceil(displayTime / 2)}%` }}>
+                    <span className="d_timeline_time" style={{ fontSize: '12px', color: '#FFFFFF80', marginLeft: '4px' }}>{time}</span>
+                  </div>
+                );
+              })}
+              {/* New small markers between existing markers */}
+              {Array.from({ length: Math.ceil(displayTime / 2) - 1 }).map((_, index) => (
+                <div className="d_timeline_small_marker" key={index} style={{ left: `${((index + 0.5) * 100) / Math.ceil(displayTime / 2)}%` }} />
+              ))}
+            </div>
           </div>
         </div>
       </div>
-
     </div>
   );
 }
