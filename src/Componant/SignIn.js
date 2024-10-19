@@ -9,7 +9,7 @@ import { FaEnvelope, FaLock, FaApple, FaEye, FaEyeSlash } from 'react-icons/fa';
 import { FcGoogle } from "react-icons/fc";
 import { MdCall } from "react-icons/md";
 import PopUpImg from '../Assets/PopUp.png';
-import { Dialog, DialogTitle, DialogContent, DialogActions, TextField, Button as MuiButton, Typography, LinearProgress, Box } from '@mui/material';
+import { Dialog, DialogTitle, DialogContent, DialogActions, TextField, Button as MuiButton, Typography, LinearProgress, Box, Select, MenuItem } from '@mui/material';
 
 
 function SignIn(props, value) {
@@ -26,6 +26,14 @@ function SignIn(props, value) {
     const [currentStep, setCurrentStep] = useState(0);
     const [answers, setAnswers] = useState({});
     const [inputValue, setInputValue] = useState('');
+    
+
+    const [openSecurityModal, setOpenSecurityModal] = useState(false);
+    const [securityQuestions, setSecurityQuestions] = useState([
+        { question: '', answer: '' },
+        { question: '', answer: '' },
+        { question: '', answer: '' }
+    ]);
 
     const validationSchema = Yup.object().shape({
         email: Yup.string().email('Invalid email address').required('Email is required'),
@@ -54,7 +62,7 @@ function SignIn(props, value) {
                         response = await dispatch(signIn(values)).unwrap();
                     } else {
                         // Add this for mobile sign in
-                        response = await dispatch(mobileSignIn(values)).unwrap();
+                        // response = await dispatch(mobileSignIn(values)).unwrap();
                     }
                     if (response) {
                         alert("Sign in successful!");
@@ -103,25 +111,7 @@ function SignIn(props, value) {
                 setCurrentStep(currentStep + 1);
                 setInputValue('');
             } else {
-                try {
-                    const signUpData = {
-                        email: formik.values.email,
-                        password: formik.values.password,
-                        additional: {
-                            ...answers,
-                            [QUESTIONS[currentStep].key]: inputValue
-                        }
-                    };
-                    const response = await dispatch(signUp(signUpData)).unwrap();
-                    if (response) {
-                        alert("Sign up successful!");
-                        navigate('/');
-                    }
-                } catch (error) {
-                    console.log("Signup failed: ", error);
-                    alert("Sign up failed. Please try again.");
-                }
-                handleModalClose();
+                setOpenSecurityModal(true); // Open security question modal instead of submitting
             }
         }
     };
@@ -139,6 +129,35 @@ function SignIn(props, value) {
         setSignInMethod(prevMethod => prevMethod === 'email' ? 'mobile' : 'email');
         formik.setErrors({});
         formik.setTouched({});
+    };
+
+    const handleSecurityQuestionChange = (index, field, value) => {
+        const updatedQuestions = [...securityQuestions];
+        updatedQuestions[index][field] = value;
+        setSecurityQuestions(updatedQuestions);
+    };
+
+    const handleSecuritySubmit = async () => {
+        try {
+            const signUpData = {
+                email: formik.values.email,
+                password: formik.values.password,
+                additional: {
+                    ...answers,
+                    securityQuestions
+                }
+            };
+            const response = await dispatch(signUp(signUpData)).unwrap();
+            if (response) {
+                alert("Sign up successful!");
+                navigate('/');
+            }
+        } catch (error) {
+            console.log("Signup failed: ", error);
+            alert("Sign up failed. Please try again.");
+        }
+        setOpenSecurityModal(false);
+        handleModalClose();
     };
 
     return (
@@ -463,7 +482,81 @@ function SignIn(props, value) {
                         className="btn btn-light"
                         style={{ borderRadius: '5px', padding: '10px 20px', marginLeft: '10px' }}
                     >
-                        {currentStep < QUESTIONS.length - 1 ? "Next" : "Finish"}
+                        {currentStep < QUESTIONS.length - 1 ? "Next" : "Let's Start"}
+                    </button>
+                </DialogActions>
+            </Dialog>
+
+            {/* Security Question Modal */}
+            <Dialog
+                open={openSecurityModal}
+                onClose={() => setOpenSecurityModal(false)}
+                fullWidth
+                sx={{
+                    '& .MuiDialog-paper': {
+                        backgroundColor: 'black',
+                        borderRadius: '10px',
+                        padding: '20px',
+                        border: '2px solid white',
+                    },
+                }}
+            >
+                <DialogTitle sx={{ color: 'white', textAlign: 'center', fontSize: '18px', fontWeight: 'bold' }}>
+                    Security Questions
+                </DialogTitle>
+                <DialogContent>
+                    {securityQuestions.map((q, index) => (
+                        <Box key={index} sx={{ mb: 3 }}>
+                            <Select
+                                value={q.question}
+                                onChange={(e) => handleSecurityQuestionChange(index, 'question', e.target.value)}
+                                fullWidth
+                                sx={{
+                                    color: 'white',
+                                    mb: 1,
+                                    '& .MuiOutlinedInput-notchedOutline': {
+                                        borderColor: 'rgba(255, 255, 255, 0.5)',
+                                    },
+                                    '&:hover .MuiOutlinedInput-notchedOutline': {
+                                        borderColor: 'white',
+                                    },
+                                    '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
+                                        borderColor: 'white',
+                                    },
+                                    '& .MuiSelect-icon': {
+                                        color: 'white',
+                                    },
+                                }}
+                            >
+                                <MenuItem value="">Select Question</MenuItem>
+                                <MenuItem value="What is your mother's maiden name?">What is your mother's maiden name?</MenuItem>
+                                <MenuItem value="What was the name of your first pet?">What was the name of your first pet?</MenuItem>
+                                <MenuItem value="In what city were you born?">In what city were you born?</MenuItem>
+                            </Select>
+                            <TextField
+                                value={q.answer}
+                                onChange={(e) => handleSecurityQuestionChange(index, 'answer', e.target.value)}
+                                fullWidth
+                                placeholder="Your Answer"
+                                sx={{
+                                    input: { color: 'white' },
+                                    '& .MuiOutlinedInput-root': {
+                                        '& fieldset': { borderColor: 'rgba(255, 255, 255, 0.5)' },
+                                        '&:hover fieldset': { borderColor: 'white' },
+                                        '&.Mui-focused fieldset': { borderColor: 'white' },
+                                    },
+                                }}
+                            />
+                        </Box>
+                    ))}
+                </DialogContent>
+                <DialogActions sx={{ justifyContent: 'center', pb: 2 }}>
+                    <button
+                        onClick={handleSecuritySubmit}
+                        className="btn btn-light"
+                        style={{ borderRadius: '5px', padding: '10px 20px' }}
+                    >
+                        Submit
                     </button>
                 </DialogActions>
             </Dialog>
