@@ -10,22 +10,28 @@ const initialState = {
 
 // Add data in http://localhost:1726/signup api during sign-up
 export const signUp = createAsyncThunk(
-    'auth/signUp',
-    async (userData) => {
-        console.log("userData", userData);
+    'auth/signUp', 
+    async (signUpData, { rejectWithValue }) => {
         try {
+            console.log("Sending sign-up data:", signUpData);  // Debugging to ensure data is correct
             const response = await fetch('http://localhost:1726/signup', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(userData),
+                method: 'POST',  // POST method is essential for data submission
+                headers: {
+                    'Content-Type': 'application/json'  // Ensure JSON data is sent
+                },
+                body: JSON.stringify(signUpData)  // Convert signUpData to JSON for the request body
             });
 
-            const data = await response.json();
-            console.log(data);
+            if (!response.ok) {
+                // If response status is not 200-299, throw an error
+                throw new Error(`Failed to sign up: ${response.status}`);
+            }
 
-            return data;
+            const data = await response.json();  // Parse response JSON data
+            return data;  // Return parsed data as the payload
         } catch (error) {
-            throw new Error('An error occurred. Please try again.');
+            console.error('Sign-up error:', error);  // Log errors for debugging
+            return rejectWithValue(error.message);  // Handle error with rejection
         }
     }
 );
@@ -49,30 +55,51 @@ export const GetUser = createAsyncThunk(
     }
 );
 
-// Async thunk for sign-in (now only validates credentials)
+// Updated signIn thunk
 export const signIn = createAsyncThunk(
     'signIn/signIn',
     async (userData, { rejectWithValue }) => {
         try {
-            // First, get all users
-            const response = await fetch('http://localhost:1726/signup', {
-                method: 'GET',
-                headers: { 'Content-Type': 'application/json' },
-            });
-
+            const response = await fetch('http://localhost:1726/signup');
             if (!response.ok) {
                 throw new Error('Failed to fetch user data');
             }
-
             const users = await response.json();
 
-            // Find the user with matching email and password
             const user = users.find(u => u.email === userData.email && u.password === userData.password);
+            console.log(user)
 
             if (user) {
-                return user; // Return the user if found
+                return {
+                    ...user,
+                    requireSecurityQuestions: true
+                };
             } else {
                 return rejectWithValue('Invalid email or password');
+            }
+        } catch (error) {
+            return rejectWithValue(error.message);
+        }
+    }
+);
+
+// New thunk for verifying security questions
+export const verifySecurityQuestions = createAsyncThunk(
+    'signIn/verifySecurityQuestions',
+    async ({ user, answers }, { rejectWithValue }) => {
+        try {
+            // We already have the user data, so no need to fetch it again
+            const userData = user;
+
+            // Verify the answers
+            const isCorrect = userData.additional.securityQuestions.every((question, index) =>
+                question.answer.toLowerCase() === answers[index].toLowerCase()
+            );
+
+            if (isCorrect) {
+                return userData; // Return full user data if answers are correct
+            } else {
+                return rejectWithValue('Incorrect answers to security questions');
             }
         } catch (error) {
             return rejectWithValue(error.message);
@@ -120,20 +147,34 @@ const signInSlice = createSlice({
                 state.error = null;
             })
             .addCase(signUp.fulfilled, (state, action) => {
-                state.isLoading = false;
-                state.user = action.payload;
-                state.error = null;
+                state.isLoading = false;  // Stop loading when fulfilled
+                state.user = action.payload;  // Store user data from the response
+                state.error = null;  // Clear any errors
             })
+            // .addCase(signUp.fulfilled, (state, action) => {
+            //     state.isLoading = false;
+            //     state.user = action.payload;
+            //     state.error = null;
+            // })
             .addCase(signIn.fulfilled, (state, action) => {
                 state.isLoading = false;
                 state.currentUser = action.payload;
                 state.error = null;
             })
-            // .addCase(mobileSignUp.fulfilled, (state, action) => {
-            //     state.isLoading = false;
-            //     state.currentUser = action.payload;
-            //     state.error = null;
-            // })
+            .addCase(verifySecurityQuestions.fulfilled, (state, action) => {
+                state.isLoading = false;
+                state.currentUser = action.payload;
+                state.error = null;
+            })
+            .addCase(verifySecurityQuestions.rejected, (state, action) => {
+                state.isLoading = false;
+                state.error = action.payload;
+            })
+        // .addCase(mobileSignUp.fulfilled, (state, action) => {
+        //     state.isLoading = false;
+        //     state.currentUser = action.payload;
+        //     state.error = null;
+        // })
     }
 });
 

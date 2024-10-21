@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Box from '@mui/material/Box';
 import Drawer from '@mui/material/Drawer';
 import Button from '@mui/material/Button';
@@ -15,11 +15,23 @@ import { Link } from 'react-router-dom';
 
 function CustomNavbar(props) {
     const [open, setOpen] = useState(false);
+    const [user, setUser] = useState(null);
     
     const isMobile = useMediaQuery('(max-width:991px)');
 
+    useEffect(() => {
+        const storedUser = JSON.parse(localStorage.getItem('user'));
+        setUser(storedUser);
+    }, []);
+
     const toggleDrawer = (newOpen) => () => {
         setOpen(newOpen);
+    };
+
+    const handleLogout = () => {
+        localStorage.removeItem('user');
+        setUser(null);
+        // Redirect to home or login page if needed
     };
 
     // Define navItems with corresponding routes
@@ -119,31 +131,49 @@ function CustomNavbar(props) {
                                         </div>
                                     </div>
                                 )}
-                                <div className="col-9 col-lg-3">
-                                    <div className='k_Both_btn d-flex justify-content-end align-items-center'>
-                                        <Link to="/signin" style={{ textDecoration: 'none', color: 'white' }}>
-                                            <Button
-                                                variant="outlined"
-                                                color="inherit"
-                                                size={isMobile ? "small" : "medium"}
-                                                sx={{ mr: 1 }}
-                                            >
-                                                Sign In
-                                            </Button>
-                                        </Link>
-                                        <Link to="/signup" style={{ textDecoration: 'none', color: 'white' }}>
-                                            <Button
-                                                variant="outlined"
-                                                color="inherit"
-                                                size={isMobile ? "small" : "medium"}
-                                                component={Link}
-                                                to="/signin?form=signup"
-                                            >
-                                                Sign Up
-                                            </Button>
-                                        </Link>
-                                    </div>
-                                </div>
+                              
+                                {
+                                    user ? (
+                                        <div className='col-9 col-lg-3 d-flex justify-content-end align-items-center'>
+                                            <div className='text-white'>
+                                                <p className='mb-0'>{user.additional?.name || 'User'}</p>
+                                                <Button
+                                                    variant="outlined"
+                                                    color="inherit"
+                                                    size={isMobile ? "small" : "medium"}
+                                                    onClick={handleLogout}
+                                                >
+                                                    Log Out
+                                                </Button>
+                                            </div>
+                                        </div>
+                                    ) : (
+                                        <div className="col-9 col-lg-3">
+                                            <div className='k_Both_btn d-flex justify-content-end align-items-center'>
+                                                <Link to="/signin" style={{ textDecoration: 'none', color: 'white' }}>
+                                                    <Button
+                                                        variant="outlined"
+                                                        color="inherit"
+                                                        size={isMobile ? "small" : "medium"}
+                                                        sx={{ mr: 1 }}
+                                                    >
+                                                        Sign In
+                                                    </Button>
+                                                </Link>
+                                                <Link to="/signup" style={{ textDecoration: 'none', color: 'white' }}>
+                                                    <Button
+                                                        variant="outlined"
+                                                        color="inherit"
+                                                        size={isMobile ? "small" : "medium"}
+                                                    >
+                                                        Sign Up
+                                                    </Button>
+                                                </Link>
+                                            </div>
+                                        </div>
+                                    )
+                                }
+                               
                             </div>
                         </div>
                     </div>
