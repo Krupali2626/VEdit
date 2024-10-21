@@ -99,6 +99,11 @@
   }
 }
 
+@media only screen and (max-width: 320px) {
+  .k_glass_effect {
+    padding: 15px !important;
+  }
+}
 
 
 /* For COntainer  */

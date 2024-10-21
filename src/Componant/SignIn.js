@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { useDispatch } from 'react-redux';
 import { useFormik } from 'formik';
 import * as Yup from 'yup';
-import { signUp, signIn, mobileSignIn } from '../Redux/Slice/SignIn.slice';
+import { signUp, signIn, mobileSignIn, verifySecurityQuestions } from '../Redux/Slice/SignIn.slice';
 import { useNavigate } from 'react-router-dom';
 import { Form, Button } from 'react-bootstrap';
 import { FaEnvelope, FaLock, FaApple, FaEye, FaEyeSlash } from 'react-icons/fa';
@@ -26,14 +26,16 @@ function SignIn(props, value) {
     const [currentStep, setCurrentStep] = useState(0);
     const [answers, setAnswers] = useState({});
     const [inputValue, setInputValue] = useState('');
-    
+
 
     const [openSecurityModal, setOpenSecurityModal] = useState(false);
     const [securityQuestions, setSecurityQuestions] = useState([
-        { question: '', answer: '' },
-        { question: '', answer: '' },
-        { question: '', answer: '' }
+        { question: "What is your mother's maiden name?", answer: "" },
+        { question: "What was the name of your first pet?", answer: "" },
+        { question: "In what city were you born?", answer: "" }
     ]);
+    const [securityAnswers, setSecurityAnswers] = useState(['', '', '']);
+    const [currentUser, setCurrentUser] = useState(null);
 
     const validationSchema = Yup.object().shape({
         email: Yup.string().email('Invalid email address').required('Email is required'),
@@ -60,17 +62,23 @@ function SignIn(props, value) {
                     let response;
                     if (signInMethod === 'email') {
                         response = await dispatch(signIn(values)).unwrap();
+                        if (response.requireSecurityQuestions) {
+                            setSecurityQuestions(response.additional.securityQuestions);
+                            setOpenSecurityModal(true);
+                            setCurrentUser(response);
+                        } else {
+                            // Store all user data in local storage
+                            localStorage.setItem('user', JSON.stringify(response));
+                            alert("Sign in successful!");
+                            navigate('/');
+                        }
                     } else {
-                        // Add this for mobile sign in
-                        // response = await dispatch(mobileSignIn(values)).unwrap();
-                    }
-                    if (response) {
-                        alert("Sign in successful!");
-                        navigate('/');
+                        // Handle mobile sign in if implemented
                     }
                 } catch (error) {
                     console.log("Signin failed: ", error);
                     alert("Sign in failed. Please try again.");
+                    
                 }
             } else if (formType === 'forgot') {
                 console.log("Forgot password for:", signInMethod === 'email' ? values.email : values.mobile);
@@ -78,6 +86,7 @@ function SignIn(props, value) {
             }
         },
     });
+    console.log(currentUser);
 
     const QUESTIONS = [
         { id: 1, question: "What is your name?", placeholder: "Enter your name", key: "name" },
@@ -139,23 +148,48 @@ function SignIn(props, value) {
 
     const handleSecuritySubmit = async () => {
         try {
-            const signUpData = {
-                email: formik.values.email,
-                password: formik.values.password,
-                additional: {
-                    ...answers,
-                    securityQuestions
+            if (formType === 'signup') {
+                const signUpData = {
+                    email: formik.values.email,
+                    password: formik.values.password,
+                    additional: {
+                        ...answers,
+                        securityQuestions: securityQuestions.map((q) => ({
+                            question: q.question,
+                            answer: q.answer
+                        }))
+                    }
+                };
+
+                const response = await dispatch(signUp(signUpData)).unwrap();
+                if (response) {
+                    // Store all user data in local storage after successful sign up
+                    localStorage.setItem('user', JSON.stringify(response));
+                    alert("Sign up successful!");
+                    navigate('/');
                 }
-            };
-            const response = await dispatch(signUp(signUpData)).unwrap();
-            if (response) {
-                alert("Sign up successful!");
-                navigate('/');
+            } else if (formType === 'signin') {
+                if (!currentUser) {
+                    throw new Error("User data not found");
+                }
+
+                const response = await dispatch(verifySecurityQuestions({
+                    user: currentUser,
+                    answers: securityAnswers
+                })).unwrap();
+
+                if (response) {
+                    // Store all user data in local storage after successful security verification
+                    localStorage.setItem('user', JSON.stringify(response));
+                    alert("Sign in successful!");
+                    navigate('/');
+                }
             }
         } catch (error) {
-            console.log("Signup failed: ", error);
-            alert("Sign up failed. Please try again.");
+            console.error("Security verification failed: ", error);
+            alert(error.message || "Security verification failed. Please try again.");
         }
+
         setOpenSecurityModal(false);
         handleModalClose();
     };
@@ -163,7 +197,7 @@ function SignIn(props, value) {
     return (
         <>
             <div className='k_popBg_image'>
-                <div className="row p-5 k_popup_row">
+                <div className="row p-md-5 p-3 k_popup_row">
                     <div className="col-md-6">
                         <div className="k_glass_effect text-light rounded k_form-width">
 
@@ -336,11 +370,11 @@ function SignIn(props, value) {
                                 )}
 
                             </Form>
-                            
+
                         </div>
                     </div>
                     <div className="col-md-6">
-                        <div className='k_popImg'>
+                        <div className='k_popImg d-md-block d-none '>
                             <img src={PopUpImg} alt="" />
                         </div>
                     </div>
@@ -502,40 +536,22 @@ function SignIn(props, value) {
                 }}
             >
                 <DialogTitle sx={{ color: 'white', textAlign: 'center', fontSize: '18px', fontWeight: 'bold' }}>
-                    Security Questions
+                    {formType === 'signup' ? 'Set Security Questions' : 'Answer Security Questions'}
                 </DialogTitle>
                 <DialogContent>
                     {securityQuestions.map((q, index) => (
                         <Box key={index} sx={{ mb: 3 }}>
-                            <Select
-                                value={q.question}
-                                onChange={(e) => handleSecurityQuestionChange(index, 'question', e.target.value)}
-                                fullWidth
-                                sx={{
-                                    color: 'white',
-                                    mb: 1,
-                                    '& .MuiOutlinedInput-notchedOutline': {
-                                        borderColor: 'rgba(255, 255, 255, 0.5)',
-                                    },
-                                    '&:hover .MuiOutlinedInput-notchedOutline': {
-                                        borderColor: 'white',
-                                    },
-                                    '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
-                                        borderColor: 'white',
-                                    },
-                                    '& .MuiSelect-icon': {
-                                        color: 'white',
-                                    },
-                                }}
-                            >
-                                <MenuItem value="">Select Question</MenuItem>
-                                <MenuItem value="What is your mother's maiden name?">What is your mother's maiden name?</MenuItem>
-                                <MenuItem value="What was the name of your first pet?">What was the name of your first pet?</MenuItem>
-                                <MenuItem value="In what city were you born?">In what city were you born?</MenuItem>
-                            </Select>
+                            <Typography color="white">{q.question}</Typography>
                             <TextField
-                                value={q.answer}
-                                onChange={(e) => handleSecurityQuestionChange(index, 'answer', e.target.value)}
+                                value={formType === 'signup' ? q.answer : securityAnswers[index]}
+                                onChange={(e) => formType === 'signup'
+                                    ? handleSecurityQuestionChange(index, 'answer', e.target.value)
+                                    : setSecurityAnswers(prev => {
+                                        const newAnswers = [...prev];
+                                        newAnswers[index] = e.target.value;
+                                        return newAnswers;
+                                    })
+                                }
                                 fullWidth
                                 placeholder="Your Answer"
                                 sx={{
@@ -556,7 +572,7 @@ function SignIn(props, value) {
                         className="btn btn-light"
                         style={{ borderRadius: '5px', padding: '10px 20px' }}
                     >
-                        Submit
+                        {formType === 'signup' ? 'Sign Up' : 'Verify'}
                     </button>
                 </DialogActions>
             </Dialog>

@@ -3,6 +3,7 @@ import Feature from '../Container/Feature';
 import AboutUs from '../Container/AboutUs';
 import Pricing from '../Container/Pricing';
 import Help from '../Container/Help';
+import VideoTimeline from '../Container/VideoTimeline';
 import Contect_us from '../Container/Contect_us';
 import PrivacyPolicy from '../Container/PrivacyPolicy';
 import TndC from '../Container/TndC';
@@ -11,18 +12,16 @@ import Footer from '../Componant/Footer';
 import SignIn from '../Componant/SignIn';
 import Index from '../Container/Index';
 import CustomNavbar from '../Componant/CustomNavbar';
-import MobileSignIn from '../Componant/MobileSignIn';
 
 function Krupalirouter(props) {
     return (
         <>
-         <CustomNavbar />
+            <CustomNavbar />
             <Routes>
                 {/* Define the routes here */}
-               
                 {/* <Route path="/" element={<><CustomNavbar /><Index /></>} /> */}
                 <Route path="/signin" element={<SignIn />} />
-                <Route path="/mobile" element={<MobileSignIn />} />
+                <Route path="/timeline" element={<VideoTimeline />} />
                 <Route path="/" element={<Index />} />
                 <Route path="/feature" element={<Feature />} />
                 <Route path="/about" element={<AboutUs />} />
