@@ -5,7 +5,7 @@ import t11 from "../Assets/denisha_img/t11.svg";
 import t1 from "../Assets/denisha_img/t1.svg";
 import t2 from "../Assets/denisha_img/t2.svg";
 import t3 from "../Assets/denisha_img/t3.svg";
-import t4 from "../Assets/denisha_img/t4.svg";
+import t4 from "../Assets/denisha_img/t4.svg"; // Kept for design
 import t5 from "../Assets/denisha_img/t5.svg";
 import t6 from "../Assets/denisha_img/t6.svg";
 import t7 from "../Assets/denisha_img/t7.svg";
@@ -22,8 +22,8 @@ export default function MediaComponent({ uploadedMedia, onMediaUpload }) {
   const [isPlaying, setIsPlaying] = useState(false);
   const [mediaBlobUrl, setMediaBlobUrl] = useState(null);
   const [currentMediaIndex, setCurrentMediaIndex] = useState(null);
-  const [zoomOut, setZoomOut] = useState(false); // State for zoom effect
-  const [displayTime, setDisplayTime] = useState(0); // State to manage displayed time
+  const [videoDurations, setVideoDurations] = useState({}); // State to store video durations
+  const [displayTime, setDisplayTime] = useState(30); // State to manage displayed time
 
   const handleUpload = (event) => {
     const file = event.target.files[0];
@@ -36,6 +36,9 @@ export default function MediaComponent({ uploadedMedia, onMediaUpload }) {
       setCurrentMediaIndex(allMedia.length);
       setAllMedia((prev) => [...prev, file]);
       onMediaUpload(file);
+      console.log("Uploaded file:", file); // Debugging line
+      const clipDuration = file.type.startsWith('video/') ? videoDurations[allMedia.length] || 0 : 0; // Get duration for video clips
+      setVideoDurations((prev) => ({ ...prev, [allMedia.length]: clipDuration })); // Store clip duration
     }
   };
 
@@ -50,6 +53,21 @@ export default function MediaComponent({ uploadedMedia, onMediaUpload }) {
       setMediaBlobUrl(fileURL);
     }
   }, [uploadedMedia]);
+
+  useEffect(() => {
+    const durations = {};
+    allMedia.forEach((file, index) => {
+      if (file.type.startsWith('video/')) {
+        const videoUrl = URL.createObjectURL(file);
+        const videoElement = document.createElement('video');
+        videoElement.src = videoUrl;
+        videoElement.onloadedmetadata = () => {
+          durations[index] = videoElement.duration;
+          setVideoDurations((prev) => ({ ...prev, ...durations }));
+        };
+      }
+    });
+  }, [allMedia]);
 
   const handleMediaSelect = (index) => {
     if (index < 0 || index >= allMedia.length) return;
@@ -88,17 +106,40 @@ export default function MediaComponent({ uploadedMedia, onMediaUpload }) {
     }
   };
 
-  const handleZoomOut = () => {
-    setZoomOut(true);
-    setDisplayTime(prev => prev + 0.5); // Increase displayed time by 0.5 seconds
-    setTimeout(() => {
-      setZoomOut(false);
-    }, 300); // Reset zoom after 300ms
+  const timelineStyles = {
+    width: '100%',
+    height: '30px',
+    position: 'relative',
   };
 
-  // New function to handle the t4 click event
-  const handleReduceTime = () => {
-    setDisplayTime(prev => Math.max(0, prev / 2)); // Halve the displayed time, ensuring it doesn't go below 0
+  const scaleStyles = {
+    width: '100%',
+    height: '100%',
+    position: 'relative'
+  };
+
+  const markerStyles = {
+    position: 'absolute',
+    width: '1px',
+    height: '12px',
+    backgroundColor: '#FFFFFF40',
+    top: '0'
+  };
+
+  const smallMarkerStyles = {
+    position: 'absolute',
+    width: '1px',
+    height: '8px',
+    backgroundColor: '#FFFFFF20',
+    top: '0'
+  };
+
+  const timeStyles = {
+    position: 'absolute',
+    fontSize: '12px',
+    color: '#FFFFFF80',
+    marginLeft: '4px',
+    top: '14px'
   };
 
   return (
@@ -216,30 +257,94 @@ export default function MediaComponent({ uploadedMedia, onMediaUpload }) {
               <span>{`${Math.floor(displayTime / 3600)}:${Math.floor((displayTime % 3600) / 60).toString().padStart(2, '0')}:${(displayTime % 60).toString().padStart(2, '0')} / 0:08:20`}</span>
             </div>
             <div className="d_timeline_right_icons d-flex align-items-center">
-              <img src={t3} alt="Icon 4" onClick={handleZoomOut} className={`zoom-icon mx-2 ${zoomOut ? 'zoom-out' : ''}`} />
-              <img className="mx-2" src={t4} alt="Icon 5" onClick={handleReduceTime} />
+              <img src={t3} alt="Icon 4" className={`zoom-icon mx-2`} />
+              <img className="mx-2" src={t4} alt="Icon 5"/>
               <img className="ms-2" src={t5} alt="Icon 6" />
               <img className="me-2" src={t6} alt="Icon 6" />
               <img className="mx-2" src={t7} alt="Icon 6" />
             </div>
           </div>
-          <div className='d_timeline_clip'>
-            <div className="d_timeline_scale">
-              {/* Calculate the number of markers based on the displayTime */}
+          <div style={timelineStyles}>
+            <div style={scaleStyles}>
               {Array.from({ length: Math.ceil(displayTime / 2) }).map((_, index) => {
-                // Calculate the time for each marker based on the displayTime
-                const time = `${Math.floor((index * 2) / 60)}:${(index * 2) % 60 < 10 ? '0' : ''}${(index * 2) % 60}`; // 2 seconds difference
+                const totalSeconds = index * 2;
+                const minutes = Math.floor(totalSeconds / 60);
+                const seconds = totalSeconds % 60;
+                const time = `${minutes}:${seconds.toString().padStart(2, '0')}`;
+
                 return (
-                  <div className="d_timeline_marker" key={index} style={{ left: `${(index * 100) / Math.ceil(displayTime / 2)}%` }}>
-                    <span className="d_timeline_time" style={{ fontSize: '12px', color: '#FFFFFF80', marginLeft: '4px' }}>{time}</span>
+                  <div key={`marker-${index}`}>
+                    <div
+                      style={{
+                        ...markerStyles,
+                        left: `${(index * 100) / Math.ceil(displayTime / 2)}%`
+                      }}
+                    />
+                    <span
+                      style={{
+                        ...timeStyles,
+                        left: `${(index * 100) / Math.ceil(displayTime / 2)}%`
+                      }}
+                    >
+                      {time}
+                    </span>
                   </div>
                 );
               })}
-              {/* New small markers between existing markers */}
+
               {Array.from({ length: Math.ceil(displayTime / 2) - 1 }).map((_, index) => (
-                <div className="d_timeline_small_marker" key={index} style={{ left: `${((index + 0.5) * 100) / Math.ceil(displayTime / 2)}%` }} />
+                <div
+                  key={`small-marker-${index}`}
+                  style={{
+                    ...smallMarkerStyles,
+                    left: `${((index + 0.5) * 100) / Math.ceil(displayTime / 2)}%`
+                  }}
+                />
               ))}
             </div>
+          </div>
+          <div className='d_clip_main d-flex flex-column'>
+            {/* Display clips of uploaded images and videos */}
+            {allMedia.length > 0 ? (
+              allMedia.map((file, index) => {
+                if (file.type.startsWith('video/')) {
+                  return (
+                    <div key={index} style={{ width: '50px', height: '50px', margin: '2px', position: 'relative' }}>
+                      <video
+                        src={URL.createObjectURL(file)}
+                        alt={`Video Clip ${index}`}
+                        style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                        muted
+                        loop
+                        playsInline
+                        onLoadedMetadata={(e) => {
+                          const duration = e.target.duration;
+                          const minutes = Math.floor(duration / 60);
+                          const seconds = Math.floor(duration % 60);
+                          const durationText = `${minutes}:${seconds.toString().padStart(2, '0')}`;
+                          e.target.setAttribute('data-duration', durationText);
+                        }}
+                      />
+                      <span style={{ position: 'absolute', bottom: '0', left: '0', right: '0', textAlign: 'center', color: 'white', backgroundColor: 'rgba(0, 0, 0, 0.5)' }}>
+                        {videoDurations[index] ? `${Math.floor(videoDurations[index] / 60)}:${(videoDurations[index] % 60).toString().padStart(2, '0')}` : 'Loading...'}
+                      </span>
+                    </div>
+                  );
+                } else if (file.type.startsWith('image/')) {
+                  return (
+                    <img
+                      key={index}
+                      src={URL.createObjectURL(file)}
+                      alt={`Image Clip ${index}`}
+                      style={{ width: '50px', height: '50px', objectFit: 'cover', margin: '2px' }}
+                    />
+                  );
+                }
+                return null;
+              })
+            ) : (
+              <p>No clips available</p>
+            )}
           </div>
         </div>
       </div>
