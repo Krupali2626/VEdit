@@ -124,6 +124,31 @@
           }
         ]
       }
+    },
+    {
+      "id": "c624",
+      "email": "Bheem@gmail.com",
+      "password": "Bheem@123",
+      "additional": {
+        "name": "Bheem",
+        "gender": "male",
+        "age": "11",
+        "profession": "Other",
+        "securityQuestions": [
+          {
+            "question": "What is your mother's maiden name?",
+            "answer": "Bheem"
+          },
+          {
+            "question": "What was the name of your first pet?",
+            "answer": "Bheem"
+          },
+          {
+            "question": "In what city were you born?",
+            "answer": "Bheem"
+          }
+        ]
+      }
     }
   ],
   "Mobile": []

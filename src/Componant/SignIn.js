@@ -21,7 +21,6 @@ function SignIn(props, value) {
     const dispatch = useDispatch();
     const navigate = useNavigate();
 
-
     const [openModal, setOpenModal] = useState(false);
     const [currentStep, setCurrentStep] = useState(0);
     const [answers, setAnswers] = useState({});
@@ -46,6 +45,7 @@ function SignIn(props, value) {
         mobile: signInMethod === 'mobile' ? Yup.string().matches(/^[0-9]{10}$/, 'Invalid mobile number').required('Mobile number is required') : Yup.string(),
     });
 
+    // Initialize formik for form handling
     const formik = useFormik({
         initialValues: {
             email: '',
@@ -55,6 +55,7 @@ function SignIn(props, value) {
         },
         validationSchema: validationSchema,
         onSubmit: async (values) => {
+            // Handle form submission based on form type
             if (formType === 'signup') {
                 setOpenModal(true);
             } else if (formType === 'signin') {
@@ -78,7 +79,7 @@ function SignIn(props, value) {
                 } catch (error) {
                     console.log("Signin failed: ", error);
                     alert("Sign in failed. Please try again.");
-                    
+
                 }
             } else if (formType === 'forgot') {
                 console.log("Forgot password for:", signInMethod === 'email' ? values.email : values.mobile);
@@ -88,6 +89,7 @@ function SignIn(props, value) {
     });
     console.log(currentUser);
 
+    // Registration flow questions
     const QUESTIONS = [
         { id: 1, question: "What is your name?", placeholder: "Enter your name", key: "name" },
         { id: 2, question: "Select Gender", key: "gender", type: "select", options: [{ label: "Male", value: "male" }, { label: "Female", value: "female" }] },
