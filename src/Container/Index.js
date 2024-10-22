@@ -15,7 +15,6 @@ import playstore from '../Assets/image 503.svg';
 import CustomNavbar from '../Componant/CustomNavbar';
 import AppleIcon from '@mui/icons-material/Apple';
 import { FaStar } from "react-icons/fa";
-
 import user from '../Assets/user.png'
 import $ from 'jquery';
 import '../CSS/owl.theme.default.css'

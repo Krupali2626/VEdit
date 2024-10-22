@@ -4,7 +4,7 @@
 }
 
 .k_nav_img {
-  background-image: url(../Assets/Login_bg.png);
+  /* background-image: url(../Assets/Login_bg.png); */
   background-repeat: no-repeat;
   background-size: cover;
   background-position: top;

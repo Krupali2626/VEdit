@@ -11,16 +11,18 @@ import useMediaQuery from '@mui/material/useMediaQuery';
 import IconButton from '@mui/material/IconButton';
 import Typography from '@mui/material/Typography';
 import CloseIcon from '@mui/icons-material/Close';
-import { Link } from 'react-router-dom';  
+import { Link } from 'react-router-dom';
+import Avatar from '@mui/material/Avatar';
 
 function CustomNavbar(props) {
     const [open, setOpen] = useState(false);
     const [user, setUser] = useState(null);
-    
+
     const isMobile = useMediaQuery('(max-width:991px)');
 
     useEffect(() => {
         const storedUser = JSON.parse(localStorage.getItem('user'));
+        console.log("storedUser", storedUser)
         setUser(storedUser);
     }, []);
 
@@ -41,6 +43,7 @@ function CustomNavbar(props) {
         { label: 'Pricing', path: '/pricing' },
         { label: 'About Us', path: '/about' }
     ];
+
 
     const DrawerList = (
         <Box
@@ -91,6 +94,22 @@ function CustomNavbar(props) {
         </Box>
     );
 
+    const getNameInitial = (name) => {
+        return name ? name.charAt(0).toUpperCase() : 'U';
+    };
+
+    const profileStyle = {
+        background: 'linear-gradient(109.46deg, rgba(201, 201, 201, 0.8) 1.57%, rgba(196, 196, 196, 0.1) 100%)',
+        padding: '2px',
+        borderRadius: '50%',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        width: '40px',
+        height: '40px',
+        marginRight: '10px'
+    };
+
     return (
         <>
             <section>
@@ -131,12 +150,15 @@ function CustomNavbar(props) {
                                         </div>
                                     </div>
                                 )}
-                              
+
                                 {
                                     user ? (
+                                        // User is signed in, show avatar and logout button
                                         <div className='col-9 col-lg-3 d-flex justify-content-end align-items-center'>
-                                            <div className='text-white'>
-                                                <p className='mb-0'>{user.additional?.name || 'User'}</p>
+                                            <div >
+                                                <Avatar sx={{ bgcolor: 'primary.main', marginRight: 2 }} style={profileStyle}>
+                                                    {getNameInitial(user.additional?.name)}
+                                                </Avatar>
                                                 <Button
                                                     variant="outlined"
                                                     color="inherit"
@@ -173,7 +195,7 @@ function CustomNavbar(props) {
                                         </div>
                                     )
                                 }
-                               
+
                             </div>
                         </div>
                     </div>
