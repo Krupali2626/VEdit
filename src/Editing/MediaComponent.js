@@ -169,32 +169,36 @@ export default function MediaComponent({ uploadedMedia, onMediaUpload }) {
           ) : (
             <div className="d_uploaded_media border p-2 overflow-auto" style={{ height: '487px' }}>
               <div className="row">
-                {allMedia.map((file, index) => (
-                  <div
-                    className="col-4 d-flex justify-content-center"
-                    key={index}
-                    style={{ marginBottom: '15px' }}
-                    onClick={() => handleMediaSelect(index)}
-                  >
-                    {file.type.startsWith('image/') ? (
-                      <img
-                        src={URL.createObjectURL(file)}
-                        alt="Uploaded"
-                        style={{ width: '132px', height: '150px', objectFit: 'cover' }}
-                      />
-                    ) : file.type.startsWith('video/') ? (
-                      <video
-                        controls={false}
-                        style={{ width: '132px', height: '150px', objectFit: 'cover' }}
-                      >
-                        <source src={URL.createObjectURL(file)} type={file.type} />
-                        Your browser does not support the video tag.
-                      </video>
-                    ) : (
-                      <p>Unsupported media type</p>
-                    )}
-                  </div>
-                ))}
+
+                {allMedia.slice().reverse().map((file, index) => {
+                  const reversedIndex = allMedia.length - 1 - index; // To get the actual index of the media item
+                  return (
+                    <div
+                      className="col-4 d-flex justify-content-center"
+                      key={reversedIndex} // Use the reversed index for unique keys
+                      style={{ marginBottom: '15px' }}
+                      onClick={() => handleMediaSelect(reversedIndex)} // Handle media selection with reversed index
+                    >
+                      {file.type.startsWith('image/') ? (
+                        <img
+                          src={URL.createObjectURL(file)}
+                          alt="Uploaded"
+                          style={{ width: '132px', height: '150px', objectFit: 'cover' }}
+                        />
+                      ) : file.type.startsWith('video/') ? (
+                        <video
+                          controls={false}
+                          style={{ width: '132px', height: '150px', objectFit: 'cover' }}
+                        >
+                          <source src={URL.createObjectURL(file)} type={file.type} />
+                          Your browser does not support the video tag.
+                        </video>
+                      ) : (
+                        <p>Unsupported media type</p>
+                      )}
+                    </div>
+                  );
+                })}
               </div>
             </div>
           )}
@@ -258,7 +262,7 @@ export default function MediaComponent({ uploadedMedia, onMediaUpload }) {
             </div>
             <div className="d_timeline_right_icons d-flex align-items-center">
               <img src={t3} alt="Icon 4" className={`zoom-icon mx-2`} />
-              <img className="mx-2" src={t4} alt="Icon 5"/>
+              <img className="mx-2" src={t4} alt="Icon 5" />
               <img className="ms-2" src={t5} alt="Icon 6" />
               <img className="me-2" src={t6} alt="Icon 6" />
               <img className="mx-2" src={t7} alt="Icon 6" />
@@ -303,47 +307,81 @@ export default function MediaComponent({ uploadedMedia, onMediaUpload }) {
               ))}
             </div>
           </div>
-          <div className='d_clip_main d-flex flex-column'>
-            {/* Display clips of uploaded images and videos */}
+          <div className='d_clip_main d-flex flex-column'>           
             {allMedia.length > 0 ? (
-              allMedia.map((file, index) => {
+              allMedia.slice().reverse().map((file, index) => {
+                // Reverse the order of media and calculate the reversed index for correct display
+                const reversedIndex = allMedia.length - 1 - index;
+
+                // Check if the file is a video or image and handle accordingly
                 if (file.type.startsWith('video/')) {
                   return (
-                    <div key={index} style={{ width: '50px', height: '50px', margin: '2px', position: 'relative' }}>
+                    <div
+                      key={reversedIndex}  // Use the reversed index as the key for rendering optimization
+                      style={{
+                        width: '50px',
+                        height: '50px',
+                        margin: '2px',
+                        position: 'relative'
+                      }}
+                    >
                       <video
-                        src={URL.createObjectURL(file)}
-                        alt={`Video Clip ${index}`}
-                        style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                        src={URL.createObjectURL(file)}  // Create object URL for video file
+                        alt={`Video Clip ${reversedIndex}`}  // Use reversed index for alt text
+                        style={{
+                          width: '100%',
+                          height: '100%',
+                          objectFit: 'cover'  // Ensure proper scaling of the video
+                        }}
                         muted
                         loop
-                        playsInline
+                        playsInline  // Prevents default fullscreen on mobile devices
                         onLoadedMetadata={(e) => {
                           const duration = e.target.duration;
                           const minutes = Math.floor(duration / 60);
                           const seconds = Math.floor(duration % 60);
                           const durationText = `${minutes}:${seconds.toString().padStart(2, '0')}`;
-                          e.target.setAttribute('data-duration', durationText);
+                          e.target.setAttribute('data-duration', durationText);  // Store the duration as an attribute
                         }}
                       />
-                      <span style={{ position: 'absolute', bottom: '0', left: '0', right: '0', textAlign: 'center', color: 'white', backgroundColor: 'rgba(0, 0, 0, 0.5)' }}>
-                        {videoDurations[index] ? `${Math.floor(videoDurations[index] / 60)}:${(videoDurations[index] % 60).toString().padStart(2, '0')}` : 'Loading...'}
+                      {/* Display video duration in a styled span at the bottom of the video */}
+                      <span
+                        style={{
+                          position: 'absolute',
+                          bottom: '0',
+                          left: '0',
+                          right: '0',
+                          textAlign: 'center',
+                          color: 'white',
+                          backgroundColor: 'rgba(0, 0, 0, 0.5)'
+                        }}
+                      >
+                        {/* Show video duration from the state or 'Loading...' if it's still being calculated */}
+                        {videoDurations[reversedIndex]
+                          ? `${Math.floor(videoDurations[reversedIndex] / 60)}:${(videoDurations[reversedIndex] % 60).toString().padStart(2, '0')}`
+                          : 'Loading...'}
                       </span>
                     </div>
                   );
                 } else if (file.type.startsWith('image/')) {
                   return (
                     <img
-                      key={index}
-                      src={URL.createObjectURL(file)}
-                      alt={`Image Clip ${index}`}
-                      style={{ width: '50px', height: '50px', objectFit: 'cover', margin: '2px' }}
+                      key={reversedIndex}  // Use the reversed index for the image key
+                      src={URL.createObjectURL(file)}  // Create object URL for image file
+                      alt={`Image Clip ${reversedIndex}`}  // Use reversed index for alt text
+                      style={{
+                        width: '50px',
+                        height: '50px',
+                        objectFit: 'cover',  // Ensure proper scaling of the image
+                        margin: '2px'
+                      }}
                     />
                   );
                 }
-                return null;
+                return null;  // Return null if the file is not an image or video
               })
             ) : (
-              <p>No clips available</p>
+              <p>No clips available</p>  // Display message if no media files are uploaded
             )}
           </div>
         </div>
