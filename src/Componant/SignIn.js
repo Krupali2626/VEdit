@@ -1,9 +1,9 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useDispatch } from 'react-redux';
 import { useFormik } from 'formik';
 import * as Yup from 'yup';
 import { signUp, signIn, mobileSignIn, verifySecurityQuestions } from '../Redux/Slice/SignIn.slice';
-import { useNavigate } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import { Form, Button } from 'react-bootstrap';
 import { FaEnvelope, FaLock, FaApple, FaEye, FaEyeSlash } from 'react-icons/fa';
 import { FcGoogle } from "react-icons/fc";
@@ -13,7 +13,8 @@ import { Dialog, DialogTitle, DialogContent, DialogActions, TextField, Button as
 
 
 function SignIn(props, value) {
-    const [formType, setFormType] = useState('signin');
+    const location = useLocation();
+    const [formType, setFormType] = useState(location.pathname === '/signup' ? 'signup' : 'signin');
     const [showPassword, setShowPassword] = useState(false);
     const [showConfirmPassword, setShowConfirmPassword] = useState(false);
     const [otpSent, setOtpSent] = useState(['', '', '', '']);
@@ -26,7 +27,6 @@ function SignIn(props, value) {
     const [answers, setAnswers] = useState({});
     const [inputValue, setInputValue] = useState('');
 
-
     const [openSecurityModal, setOpenSecurityModal] = useState(false);
     const [securityQuestions, setSecurityQuestions] = useState([
         { question: "What is your mother's maiden name?", answer: "" },
@@ -35,6 +35,14 @@ function SignIn(props, value) {
     ]);
     const [securityAnswers, setSecurityAnswers] = useState(['', '', '']);
     const [currentUser, setCurrentUser] = useState(null);
+    const [signupEmail, setSignupEmail] = useState('');
+
+
+
+    // Update useEffect to handle route changes
+    useEffect(() => {
+        setFormType(location.pathname === '/signup' ? 'signup' : 'signin');
+    }, [location]);
 
     const validationSchema = Yup.object().shape({
         email: Yup.string().email('Invalid email address').required('Email is required'),
@@ -48,7 +56,7 @@ function SignIn(props, value) {
     // Initialize formik for form handling
     const formik = useFormik({
         initialValues: {
-            email: '',
+            email: signupEmail || '',
             password: '',
             confirmPassword: '',
             mobile: '',
@@ -58,6 +66,8 @@ function SignIn(props, value) {
             // Handle form submission based on form type
             if (formType === 'signup') {
                 setOpenModal(true);
+                // Store email for auto-fill
+                setSignupEmail(values.email);
             } else if (formType === 'signin') {
                 try {
                     let response;
@@ -68,7 +78,6 @@ function SignIn(props, value) {
                             setOpenSecurityModal(true);
                             setCurrentUser(response);
                         } else {
-                            // Store all user data in local storage
                             localStorage.setItem('user', JSON.stringify(response));
                             alert("Sign in successful!");
                             navigate('/');
@@ -86,6 +95,7 @@ function SignIn(props, value) {
                 setOtpSent(true);
             }
         },
+        enableReinitialize: true, // Enable reinitializing form when signupEmail changes
     });
     console.log(currentUser);
 
@@ -122,7 +132,7 @@ function SignIn(props, value) {
                 setCurrentStep(currentStep + 1);
                 setInputValue('');
             } else {
-                setOpenSecurityModal(true); // Open security question modal instead of submitting
+                setOpenSecurityModal(true);
             }
         }
     };
@@ -165,10 +175,13 @@ function SignIn(props, value) {
 
                 const response = await dispatch(signUp(signUpData)).unwrap();
                 if (response) {
-                    // Store all user data in local storage after successful sign up
-                    localStorage.setItem('user', JSON.stringify(response));
-                    alert("Sign up successful!");
-                    navigate('/');
+                    alert("Sign up successful! Please sign in to continue.");
+                    setFormType('signin');
+                    setOpenSecurityModal(false);
+                    handleModalClose();
+                    // Clear password fields but keep email
+                    formik.setFieldValue('password', '');
+                    formik.setFieldValue('confirmPassword', '');
                 }
             } else if (formType === 'signin') {
                 if (!currentUser) {
@@ -314,7 +327,7 @@ function SignIn(props, value) {
                                     </div>
                                 )}
 
-                                {formType === 'signin' && (
+                                {formType === 'signin' && signInMethod === 'email' && (
                                     <div className="text-end mb-3">
                                         <a href="#" onClick={() => setFormType('forgot')} className="text-danger text-decoration-none">Forgot Password?</a>
                                     </div>

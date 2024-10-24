@@ -59,7 +59,7 @@
   position: absolute;
   width: 2px; /* Width of the marker */
   height: 15px; /* Height of the marker */
-  background-color: #FFFFFF80; /* Color of the marker */
+  background-color: #ffffff80; /* Color of the marker */
 }
 
 .d_uploaded_media::-webkit-scrollbar {
@@ -79,14 +79,12 @@
   background-color: #555;
 }
 .d_timeline_small_marker {
-  color: #FFFFFF80;
+  color: #ffffff80;
   position: absolute;
   margin-top: -5px;
   width: 2px; /* Width of the small marker */
   height: 8px; /* Height of the small marker */
-  background-color: #FFFFFF80; /* Color of the small marker */
-
-
+  background-color: #ffffff80; /* Color of the small marker */
 }
 /* path/to/newmedia.css */
 .zoom-icon {
@@ -95,6 +93,18 @@
 
 .zoom-out {
   transform: scale(0.8); /* Scale down to 80% */
+}
+
+.d_clip_main {
+  /* display: flex; */
+  flex-wrap: wrap;
+  gap: 5px;
+}
+
+.selected-clip {
+  border: 2px solid #FFD700;
+  border-left: 8px solid #FFD700;
+  transition: width 0.3s, height 0.3s;
 }
 
 @media (max-width: 768px) {

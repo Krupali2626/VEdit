@@ -21,6 +21,7 @@ function Krupalirouter(props) {
                 {/* Define the routes here */}
                 {/* <Route path="/" element={<><CustomNavbar /><Index /></>} /> */}
                 <Route path="/signin" element={<SignIn />} />
+                <Route path="/signup" element={<SignIn />} />
                 <Route path="/timeline" element={<VideoTimeline />} />
                 <Route path="/" element={<Index />} />
                 <Route path="/feature" element={<Feature />} />

@@ -1,151 +1,101 @@
 {
   "signup": [
     {
-      "id": "ba16",
-      "email": "helsinki@gmail.com",
-      "password": "hELL@123",
+      "id": "9fcf",
+      "email": "doraemon@gmail.com",
+      "password": "Doraemon@123",
       "additional": {
-        "name": "ff",
-        "gender": "female",
-        "age": "32",
-        "profession": "Student",
-        "securityQuestions": [
-          {
-            "question": "What is your mother's maiden name?",
-            "answer": "qq"
-          },
-          {
-            "question": "What was the name of your first pet?",
-            "answer": "qq"
-          },
-          {
-            "question": "In what city were you born?",
-            "answer": "qq"
-          }
-        ]
-      }
-    },
-    {
-      "id": "3a21",
-      "email": "jiaan@gmail.com",
-      "password": "Jiaan@123",
-      "additional": {
-        "name": "jj",
-        "gender": "female",
-        "age": "32",
-        "profession": "Student",
-        "securityQuestions": [
-          {
-            "question": "What is your mother's maiden name?",
-            "answer": "jj"
-          },
-          {
-            "question": "What was the name of your first pet?",
-            "answer": "jj"
-          },
-          {
-            "question": "In what city were you born?",
-            "answer": "jj"
-          }
-        ]
-      }
-    },
-    {
-      "id": "4517",
-      "email": "krupali.kalathiyainfotech@gmail.com",
-      "password": "Aksh@1234",
-      "additional": {
-        "name": "sdhfgw",
-        "gender": "female",
-        "age": "32",
-        "profession": "Video Editor",
-        "securityQuestions": [
-          {
-            "question": "What is your mother's maiden name?",
-            "answer": "a"
-          },
-          {
-            "question": "What was the name of your first pet?",
-            "answer": "a"
-          },
-          {
-            "question": "In what city were you born?",
-            "answer": "a"
-          }
-        ]
-      }
-    },
-    {
-      "id": "1c74",
-      "email": "kumbhanikrupali26@gmail.com",
-      "password": "Krupali@123",
-      "additional": {
-        "name": "ww",
-        "gender": "female",
-        "age": "32",
-        "profession": "Student",
-        "securityQuestions": [
-          {
-            "question": "What is your mother's maiden name?",
-            "answer": "zz"
-          },
-          {
-            "question": "What was the name of your first pet?",
-            "answer": "zz"
-          },
-          {
-            "question": "In what city were you born?",
-            "answer": "zz"
-          }
-        ]
-      }
-    },
-    {
-      "id": "860d",
-      "email": "sizuka@gmail.com",
-      "password": "Sizuka@123",
-      "additional": {
-        "name": "ss",
-        "gender": "female",
-        "age": "32",
-        "profession": "Cinematographer",
-        "securityQuestions": [
-          {
-            "question": "What is your mother's maiden name?",
-            "answer": "ss"
-          },
-          {
-            "question": "What was the name of your first pet?",
-            "answer": "ss"
-          },
-          {
-            "question": "In what city were you born?",
-            "answer": "ss"
-          }
-        ]
-      }
-    },
-    {
-      "id": "c624",
-      "email": "Bheem@gmail.com",
-      "password": "Bheem@123",
-      "additional": {
-        "name": "Bheem",
+        "name": "Doraemon",
         "gender": "male",
-        "age": "11",
+        "age": "45",
         "profession": "Other",
         "securityQuestions": [
           {
             "question": "What is your mother's maiden name?",
-            "answer": "Bheem"
+            "answer": "Doraemon"
           },
           {
             "question": "What was the name of your first pet?",
-            "answer": "Bheem"
+            "answer": "Doraemon"
           },
           {
             "question": "In what city were you born?",
-            "answer": "Bheem"
+            "answer": "Doraemon"
+          }
+        ]
+      }
+    },
+    {
+      "id": "794e",
+      "email": "nobita@gmail.com",
+      "password": "Nobita@123",
+      "additional": {
+        "name": "Nobita",
+        "gender": "male",
+        "age": "45",
+        "profession": "Student",
+        "securityQuestions": [
+          {
+            "question": "What is your mother's maiden name?",
+            "answer": "Nobita"
+          },
+          {
+            "question": "What was the name of your first pet?",
+            "answer": "Nobita"
+          },
+          {
+            "question": "In what city were you born?",
+            "answer": "Nobita"
+          }
+        ]
+      }
+    },
+    {
+      "id": "084a",
+      "email": "nikhil17@gmail.com",
+      "password": "",
+      "additional": {
+        "name": "Nikhil",
+        "gender": "male",
+        "age": "24",
+        "profession": "Other",
+        "securityQuestions": [
+          {
+            "question": "What is your mother's maiden name?",
+            "answer": "Nikhil"
+          },
+          {
+            "question": "What was the name of your first pet?",
+            "answer": "Nikhil"
+          },
+          {
+            "question": "In what city were you born?",
+            "answer": "Nikhil"
+          }
+        ]
+      }
+    },
+    {
+      "id": "786b",
+      "email": "nikhil17@gmail.com",
+      "password": "Nikhil@123",
+      "additional": {
+        "name": "Nikhil",
+        "gender": "male",
+        "age": "24",
+        "profession": "Other",
+        "securityQuestions": [
+          {
+            "question": "What is your mother's maiden name?",
+            "answer": "Nikhil"
+          },
+          {
+            "question": "What was the name of your first pet?",
+            "answer": "Nikhil"
+          },
+          {
+            "question": "In what city were you born?",
+            "answer": "Nikhil"
           }
         ]
       }
