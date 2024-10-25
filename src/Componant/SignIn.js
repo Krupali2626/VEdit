@@ -389,10 +389,10 @@ function SignIn(props, value) {
                 fullWidth
                 sx={{
                     '& .MuiDialog-paper': {
-                        backgroundColor: 'black',  // Set the background of the dialog to black
-                        borderRadius: '10px',  // Rounded corners
-                        padding: '20px',  // Extra padding for spacing
-                        border: '2px solid white',  // White border for the dialog box
+                        backgroundColor: 'black',  
+                        borderRadius: '10px',  
+                        padding: '20px', 
+                        border: '2px solid white',  
                     },
                 }}
             >

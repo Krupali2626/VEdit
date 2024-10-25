@@ -156,9 +156,14 @@ function CustomNavbar(props) {
                                         // User is signed in, show avatar and logout button
                                         <div className='col-9 col-lg-3 d-flex justify-content-end align-items-center'>
                                             <div >
-                                                <Avatar sx={{ bgcolor: 'primary.main', marginRight: 2 }} style={profileStyle}>
-                                                    {getNameInitial(user.additional?.name)}
-                                                </Avatar>
+                                                <Link to="/PSidebar/Phome">
+                                                    <Avatar
+                                                        sx={{ bgcolor: 'primary.main' }}
+                                                        style={profileStyle}
+                                                    >
+                                                        {getNameInitial(user.additional?.name)}
+                                                    </Avatar>
+                                                </Link>
                                                 <Button
                                                     variant="outlined"
                                                     color="inherit"
@@ -195,7 +200,6 @@ function CustomNavbar(props) {
                                         </div>
                                     )
                                 }
-
                             </div>
                         </div>
                     </div>
