@@ -97,6 +97,20 @@
   transform: scale(0.8); /* Scale down to 80% */
 }
 
+/* Ensure to include styles for the playhead */
+.timeline {
+  position: relative;
+  background-color: #ddd; /* Background color for the timeline */
+  height: 30px; /* Height of the timeline */
+}
+
+.playhead {
+  position: absolute;
+  background-color: red; /* Color of the playhead cursor */
+  width: 2px;
+  height: 100%;
+}
+
 @media (max-width: 768px) {
   .a_main {
     margin-left: 0rem;
