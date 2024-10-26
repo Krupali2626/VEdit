@@ -22,7 +22,7 @@
 //         <div className="row">
 //             <div className="col-xxl-9 col-lg-10 col-12">
 //                 <div className='d_profile_bg p-4'>
-           
+
 //                     <div className="row py-3 d_p_row_border">
 //                         <div className="col-12 ">
 //                             <span className='d_pgray_txt'>Current Password</span>
@@ -65,7 +65,7 @@
 //                             />
 //                         </div>
 //                     </div>
-                 
+
 //                     <div className="row pt-5 pb-4">
 //                         <div className="col-12">
 //                             <div>
@@ -82,7 +82,7 @@
 // }
 // src/YourPath/ChangePass.js
 import React, { useState } from 'react';
-import '../../CSS/dprofile.css'; 
+import '../../CSS/dprofile.css';
 
 export default function ChangePass() {
   const [currentPassword, setCurrentPassword] = useState(''); // State for current password
@@ -112,60 +112,60 @@ export default function ChangePass() {
         <div className="row">
           <div className="col-xxl-9 col-lg-10 col-12">
             <div className='d_profile_bg p-4'>
-              
+
               {/* Current Password Input */}
               <div className="row py-3 d_p_row_border">
                 <div className="col-12">
                   <span className='d_pgray_txt'>Current Password</span>
                 </div>
                 <div className="col-12">
-                  <input 
+                  <input
                     type="text" // Use 'text' type to show asterisks
                     value={renderAsterisks(currentPassword)} // Show asterisks instead of real password
                     onChange={(e) => handleDisplay(e, setCurrentPassword)} // Update state with real input
-                    className="form-control bg-transparent p-0 mt-3  border-0 text-white" 
+                    className="form-control bg-transparent p-0 mt-3  border-0 text-white"
                     placeholder="Enter Current password"
                   />
                 </div>
               </div>
-              
+
               {/* New Password Input */}
               <div className="row py-3 d_p_row_border">
                 <div className="col-12">
                   <span className='d_pgray_txt'>New Password</span>
                 </div>
                 <div className="col-12">
-                  <input 
+                  <input
                     type="text" // Use 'text' type to show asterisks
                     value={renderAsterisks(newPassword)} // Show asterisks instead of real password
                     onChange={(e) => handleDisplay(e, setNewPassword)} // Update state with real input
-                    className="form-control bg-transparent p-0 mt-3 border-0 text-white" 
+                    className="form-control bg-transparent p-0 mt-3 border-0 text-white"
                     placeholder="Enter new password"
                   />
                 </div>
               </div>
-              
+
               {/* Confirm New Password Input */}
               <div className="row py-3 d_p_row_border">
                 <div className="col-12">
                   <span className='d_pgray_txt'>Confirm New Password</span>
                 </div>
                 <div className="col-12">
-                  <input 
+                  <input
                     type="text" // Use 'text' type to show asterisks
                     value={renderAsterisks(confirmPassword)} // Show asterisks instead of real password
                     onChange={(e) => handleDisplay(e, setConfirmPassword)} // Update state with real input
-                    className="form-control p-0 mt-3 bg-transparent border-0 text-white" 
+                    className="form-control p-0 mt-3 bg-transparent border-0 text-white"
                     placeholder="Enter Confirm new password"
                   />
                 </div>
               </div>
-              
+
               {/* Save Button */}
               <div className="row pt-5 pb-4">
                 <div className="col-12">
                   <div>
-                    <span className='bg-white text-dark py-2 px-5 rounded fw-bold' style={{cursor:'pointer'}}>
+                    <span className='bg-white text-dark py-2 px-5 rounded fw-bold' style={{ cursor: 'pointer' }}>
                       Save
                     </span>
                   </div>

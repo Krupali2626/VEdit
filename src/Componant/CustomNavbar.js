@@ -11,29 +11,57 @@ import useMediaQuery from '@mui/material/useMediaQuery';
 import IconButton from '@mui/material/IconButton';
 import Typography from '@mui/material/Typography';
 import CloseIcon from '@mui/icons-material/Close';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom'; // Added useNavigate
 import Avatar from '@mui/material/Avatar';
 
 function CustomNavbar(props) {
     const [open, setOpen] = useState(false);
     const [user, setUser] = useState(null);
-
+    const navigate = useNavigate(); // For programmatic navigation
     const isMobile = useMediaQuery('(max-width:991px)');
 
+    // Effect to check user authentication status
     useEffect(() => {
-        const storedUser = JSON.parse(localStorage.getItem('user'));
-        console.log("storedUser", storedUser)
-        setUser(storedUser);
+        // Function to check and set user data
+        const checkUserAuth = () => {
+            const storedUser = localStorage.getItem('user');
+            if (storedUser) {
+                try {
+                    const parsedUser = JSON.parse(storedUser);
+                    setUser(parsedUser);
+                } catch (error) {
+                    console.error('Error parsing user data:', error);
+                    localStorage.removeItem('user'); // Clear invalid data
+                    setUser(null);
+                }
+            } else {
+                setUser(null);
+            }
+        };
+
+        // Initial check
+        checkUserAuth();
+
+        // Add event listener for storage changes
+        window.addEventListener('storage', checkUserAuth);
+
+        // Cleanup
+        return () => {
+            window.removeEventListener('storage', checkUserAuth);
+        };
     }, []);
 
     const toggleDrawer = (newOpen) => () => {
         setOpen(newOpen);
     };
 
+    // Enhanced logout handler
     const handleLogout = () => {
         localStorage.removeItem('user');
         setUser(null);
-        // Redirect to home or login page if needed
+        navigate('/'); // Redirect to home page after logout
+        // Force a page reload to clear any remaining state
+        window.location.reload();
     };
 
     // Define navItems with corresponding routes
@@ -44,7 +72,12 @@ function CustomNavbar(props) {
         { label: 'About Us', path: '/about' }
     ];
 
+    // Helper function to get user initial for Avatar
+    const getNameInitial = (name) => {
+        return name ? name.charAt(0).toUpperCase() : 'U';
+    };
 
+    // Rest of your component code remains the same...
     const DrawerList = (
         <Box
             sx={{
@@ -83,8 +116,8 @@ function CustomNavbar(props) {
                         <ListItemButton
                             onClick={toggleDrawer(false)}
                             sx={{ '&:hover': { backgroundColor: 'rgba(255, 255, 255, 0.08)' } }}
-                            component={Link}  // Use Link component
-                            to={path}          // Set the "to" prop to navigate
+                            component={Link}
+                            to={path}
                         >
                             <ListItemText primary={label} primaryTypographyProps={{ sx: { color: 'white' } }} />
                         </ListItemButton>
@@ -93,10 +126,6 @@ function CustomNavbar(props) {
             </List>
         </Box>
     );
-
-    const getNameInitial = (name) => {
-        return name ? name.charAt(0).toUpperCase() : 'U';
-    };
 
     const profileStyle = {
         background: 'linear-gradient(109.46deg, rgba(201, 201, 201, 0.8) 1.57%, rgba(196, 196, 196, 0.1) 100%)',
@@ -151,51 +180,49 @@ function CustomNavbar(props) {
                                     </div>
                                 )}
 
-                                {
-                                    user ? (
-                                        // User is signed in, show avatar and logout button
-                                        <div className='col-9 col-lg-3 d-flex justify-content-end align-items-center'>
-                                            <div >
+                                {user ? (
+                                    <div className='col-9 col-lg-3 d-flex justify-content-end align-items-center'>
+                                        <div>
+                                            <Link to="/PSidebar/Phome" style={{ textDecoration: 'none' }}>
                                                 <Avatar sx={{ bgcolor: 'primary.main', marginRight: 2 }} style={profileStyle}>
                                                     {getNameInitial(user.additional?.name)}
                                                 </Avatar>
+                                            </Link>
+                                            <Button
+                                                variant="outlined"
+                                                color="inherit"
+                                                size={isMobile ? "small" : "medium"}
+                                                onClick={handleLogout}
+                                            >
+                                                Log Out
+                                            </Button>
+                                        </div>
+                                    </div>
+                                ) : (
+                                    <div className="col-9 col-lg-3">
+                                        <div className='k_Both_btn d-flex justify-content-end align-items-center'>
+                                            <Link to="/signin" style={{ textDecoration: 'none', color: 'white' }}>
                                                 <Button
                                                     variant="outlined"
                                                     color="inherit"
                                                     size={isMobile ? "small" : "medium"}
-                                                    onClick={handleLogout}
+                                                    sx={{ mr: 1 }}
                                                 >
-                                                    Log Out
+                                                    Sign In
                                                 </Button>
-                                            </div>
+                                            </Link>
+                                            <Link to="/signup" style={{ textDecoration: 'none', color: 'white' }}>
+                                                <Button
+                                                    variant="outlined"
+                                                    color="inherit"
+                                                    size={isMobile ? "small" : "medium"}
+                                                >
+                                                    Sign Up
+                                                </Button>
+                                            </Link>
                                         </div>
-                                    ) : (
-                                        <div className="col-9 col-lg-3">
-                                            <div className='k_Both_btn d-flex justify-content-end align-items-center'>
-                                                <Link to="/signin" style={{ textDecoration: 'none', color: 'white' }}>
-                                                    <Button
-                                                        variant="outlined"
-                                                        color="inherit"
-                                                        size={isMobile ? "small" : "medium"}
-                                                        sx={{ mr: 1 }}
-                                                    >
-                                                        Sign In
-                                                    </Button>
-                                                </Link>
-                                                <Link to="/signup" style={{ textDecoration: 'none', color: 'white' }}>
-                                                    <Button
-                                                        variant="outlined"
-                                                        color="inherit"
-                                                        size={isMobile ? "small" : "medium"}
-                                                    >
-                                                        Sign Up
-                                                    </Button>
-                                                </Link>
-                                            </div>
-                                        </div>
-                                    )
-                                }
-
+                                    </div>
+                                )}
                             </div>
                         </div>
                     </div>

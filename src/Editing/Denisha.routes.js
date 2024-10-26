@@ -26,7 +26,8 @@ const DenishaRoutes = () => {
       </Route>
       <Route path="/VESidebar" element={<VESidebar />} />
       <Route path="/TimelineEditor" element={<TimelineEditor />} />
-      <Route path="/PSidebar" element={<PSidebar />} >
+      {/* <Route path="/PSidebar" element={<PSidebar />} > */}
+      <Route path="/PSidebar/*" element={<PSidebar />}>
         <Route path="empty" element={<Empty />} />
         <Route path="Phome" element={<PHome />} />
       

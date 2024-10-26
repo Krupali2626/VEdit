@@ -6,7 +6,7 @@ import t11 from "../Assets/denisha_img/t11.svg";
 import t1 from "../Assets/denisha_img/t1.svg";
 import t2 from "../Assets/denisha_img/t2.svg";
 import t3 from "../Assets/denisha_img/t3.svg";
-import t4 from "../Assets/denisha_img/t4.svg"; // Kept for design
+import t4 from "../Assets/denisha_img/t4.svg"; 
 import t5 from "../Assets/denisha_img/t5.svg";
 import t6 from "../Assets/denisha_img/t6.svg";
 import t7 from "../Assets/denisha_img/t7.svg";

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useRef, useState } from 'react';
 import { useDispatch } from 'react-redux';
 import { useFormik } from 'formik';
 import * as Yup from 'yup';
@@ -10,6 +10,7 @@ import { FcGoogle } from "react-icons/fc";
 import { MdCall } from "react-icons/md";
 import PopUpImg from '../Assets/PopUp.png';
 import { Dialog, DialogTitle, DialogContent, DialogActions, TextField, Button as MuiButton, Typography, LinearProgress, Box, Select, MenuItem } from '@mui/material';
+import emailjs from '@emailjs/browser';
 
 
 function SignIn(props, value) {
@@ -35,6 +36,9 @@ function SignIn(props, value) {
     ]);
     const [securityAnswers, setSecurityAnswers] = useState(['', '', '']);
     const [currentUser, setCurrentUser] = useState(null);
+    const [generatedOTP, setGeneratedOTP] = useState('');
+    const emailForm = useRef();
+
 
     const validationSchema = Yup.object().shape({
         email: Yup.string().email('Invalid email address').required('Email is required'),
@@ -55,7 +59,6 @@ function SignIn(props, value) {
         },
         validationSchema: validationSchema,
         onSubmit: async (values) => {
-            // Handle form submission based on form type
             if (formType === 'signup') {
                 setOpenModal(true);
             } else if (formType === 'signin') {
@@ -68,22 +71,33 @@ function SignIn(props, value) {
                             setOpenSecurityModal(true);
                             setCurrentUser(response);
                         } else {
-                            // Store all user data in local storage
                             localStorage.setItem('user', JSON.stringify(response));
                             alert("Sign in successful!");
                             navigate('/');
                         }
                     } else {
-                        // Handle mobile sign in if implemented
+                        // Handle mobile sign in
                     }
                 } catch (error) {
                     console.log("Signin failed: ", error);
                     alert("Sign in failed. Please try again.");
-
                 }
             } else if (formType === 'forgot') {
-                console.log("Forgot password for:", signInMethod === 'email' ? values.email : values.mobile);
-                setOtpSent(true);
+                if (signInMethod === 'email') {
+                    // Generate and send OTP for forgot password
+                    const otp = generateOTP();
+                    const emailSent = await sendOTPEmail(values.email, otp);
+
+                    if (emailSent) {
+                        setOtpSent(['', '', '', '']); // Reset OTP input fields
+                        alert('OTP has been sent to your email');
+                    } else {
+                        alert('Failed to send OTP. Please try again.');
+                    }
+                } else {
+                    // Handle mobile OTP if needed
+                    console.log("Forgot password for mobile:", values.mobile);
+                }
             }
         },
     });
@@ -104,8 +118,86 @@ function SignIn(props, value) {
         },
     ];
 
-    const handleResendOtp = () => {
-        console.log("Resending OTP to", formik.values.email);
+    const handleOTPVerification = (enteredOTP) => {
+        const fullOTP = enteredOTP.join('');
+        if (fullOTP === generatedOTP) {
+            // OTP verified successfully
+            alert('OTP verified successfully');
+            // Add your password reset logic here
+            // You might want to navigate to a password reset form
+            // navigate('/reset-password');
+        } else {
+            alert('Invalid OTP. Please try again.');
+        }
+    };
+
+
+
+    // Function to generate 4-digit OTP
+    const generateOTP = () => {
+        const otp = Math.floor(1000 + Math.random() * 9000).toString();
+        setGeneratedOTP(otp);
+        return otp;
+    };
+
+    const sendOTPEmail = async (email, otp) => {
+        try {
+            // Create template parameters
+            const templateParams = {
+                to_email: email,
+                otp: otp,
+                // Add any other template variables you need
+            };
+
+            // Send email using EmailJS
+            const response = await emailjs.send(
+                'service_fwyu2ya', // Your EmailJS service ID
+                'template_33ytgmq', // Your EmailJS template ID
+                templateParams,
+                'R-yXtVBr8WNcAl9gC' // Your EmailJS public key
+            );
+
+            if (response.status === 200) {
+                console.log('OTP sent successfully');
+                return true;
+            }
+            return false;
+        } catch (error) {
+            console.error('Failed to send OTP:', error);
+            return false;
+        }
+    };
+
+    // Modify the resend OTP handler
+    const handleResendOtp = async () => {
+        const otp = generateOTP();
+        const emailSent = await sendOTPEmail(formik.values.email, otp);
+
+        if (emailSent) {
+            alert('New OTP has been sent to your email');
+        } else {
+            alert('Failed to resend OTP. Please try again.');
+        }
+    };
+
+    // Add OTP input handler
+    const handleOTPInput = (index, value) => {
+        if (value.length <= 1 && /^\d*$/.test(value)) {
+            const newOTP = [...otpSent];
+            newOTP[index] = value;
+            setOtpSent(newOTP);
+
+            // Auto-focus next input
+            if (value && index < 3) {
+                const nextInput = document.querySelector(`input[name=otp-${index + 1}]`);
+                if (nextInput) nextInput.focus();
+            }
+
+            // Check if all digits are entered
+            if (newOTP.every(digit => digit !== '') && newOTP.join('').length === 4) {
+                handleOTPVerification(newOTP);
+            }
+        }
     };
 
     const handleModalClose = () => {
@@ -181,7 +273,6 @@ function SignIn(props, value) {
                 })).unwrap();
 
                 if (response) {
-                    // Store all user data in local storage after successful security verification
                     localStorage.setItem('user', JSON.stringify(response));
                     alert("Sign in successful!");
                     navigate('/');
@@ -299,16 +390,31 @@ function SignIn(props, value) {
                                                         key={index}
                                                         type="text"
                                                         maxLength="1"
+                                                        name={`otp-${index}`}
+                                                        value={otpSent[index]}
+                                                        onChange={(e) => handleOTPInput(index, e.target.value)}
                                                         className="mx-1 text-center bg-dark text-light border-secondary"
                                                         style={{ width: '40px', height: '40px' }}
                                                     />
                                                 ))}
                                             </div>
-                                            <Button variant="light" type="submit" className="w-100 mb-3 fw-bold">
+                                            <Button
+                                                variant="light"
+                                                type="button"
+                                                onClick={() => handleOTPVerification(otpSent)}
+                                                className="w-100 mb-3 fw-bold"
+                                            >
                                                 Verify
                                             </Button>
                                             <p className="text-center mb-3">
-                                                Didn't receive OTP? <Button variant="link" className="p-0 text-light" onClick={handleResendOtp}>Resend</Button>
+                                                Didn't receive OTP?
+                                                <Button
+                                                    variant="link"
+                                                    className="p-0 text-light"
+                                                    onClick={handleResendOtp}
+                                                >
+                                                    Resend
+                                                </Button>
                                             </p>
                                         </Form>
                                     </div>
