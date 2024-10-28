@@ -6,7 +6,7 @@ import t11 from "../Assets/denisha_img/t11.svg";
 import t1 from "../Assets/denisha_img/t1.svg";
 import t2 from "../Assets/denisha_img/t2.svg";
 import t3 from "../Assets/denisha_img/t3.svg";
-import t4 from "../Assets/denisha_img/t4.svg"; 
+import t4 from "../Assets/denisha_img/t4.svg"; // Kept for design
 import t5 from "../Assets/denisha_img/t5.svg";
 import t6 from "../Assets/denisha_img/t6.svg";
 import t7 from "../Assets/denisha_img/t7.svg";
@@ -173,7 +173,7 @@ export default function MediaComponent({ uploadedMedia, onMediaUpload }) {
 
   return (
     <div>
-      <div className="row">
+      <div className="row w-100">
         <div className="col-xl-3 d-xl-block d-none px-0">
           {!media ? (
             <div>
@@ -196,8 +196,8 @@ export default function MediaComponent({ uploadedMedia, onMediaUpload }) {
               </div>
             </div>
           ) : (
-            <div className="d_uploaded_media border p-2 overflow-auto" style={{ height: '487px' }}>
-              <div className="row">
+            <div className="d_uploaded_media border p-2 overflow-hidden" style={{ height: '487px' }}>
+              <div className="row w-100">
                 {allMedia.slice().reverse().map((file, index) => {
                   const reversedIndex = allMedia.length - 1 - index; // To get the actual index of the media item
                   return (
@@ -277,8 +277,8 @@ export default function MediaComponent({ uploadedMedia, onMediaUpload }) {
         </div>
       </div>
 
-      <div className="row mt-3 w-100">
-        <div className="d_timeline_bg_icon px-0" style={{overflow:'auto',width:'100%'}}>
+      <div className="row w-100 mt-3 ">
+        <div className="d_timeline_bg_icon px-0" style={{overflowX:'auto',width:'100%'}}>
           <div className="d_timeline_icon_row p-2 d-flex justify-content-between align-items-center" >
             <div className="d_timeline_left_icons d-flex align-items-center">
               <img className="mx-2" src={t11} alt="Icon 1" />
@@ -339,17 +339,16 @@ export default function MediaComponent({ uploadedMedia, onMediaUpload }) {
             {Object.keys(thumbnails).length > 0 ? (
               Object.entries(thumbnails).map(([fileName, { images }]) => (
                 <div key={fileName} className="col-12 px-0 d-flex flex-column align-items-start">
-                  <div className="d-flex flex-row flex-nowrap" style={{ overflowX: 'auto', whiteSpace: 'nowrap', position: 'relative' }}>
+                  <div className="d-flex flex-row flex-nowrap" style={{ overflowX: 'hidden', whiteSpace: 'nowrap', position: 'relative' }}>
                     {images.map((thumbnail, index) => (
                       <img
                         key={index}
                         src={thumbnail}
                         alt={`Thumbnail ${index}`}
-                        style={{ width: `${thumbnailWidth * 2.26}px`, height: '70px', objectFit: 'cover', margin: '5px 0px' }}
+                        style={{ width: `${thumbnailWidth * 2.26}px`, height: '70px', objectFit: 'cover', margin: '5px 0px',  overflowX: 'hidden' }}
                       />
                     ))}
-                    {/* Draggable Controller */}
-                    <div
+                    {/* <div
                       onMouseDown={handleMouseDown}
                       style={{
                         position: 'absolute',
@@ -359,7 +358,7 @@ export default function MediaComponent({ uploadedMedia, onMediaUpload }) {
                         cursor: 'ew-resize',
                         left: `${cutStart * thumbnailWidth}px`, // Position based on cutStart
                       }}
-                    />
+                    /> */}
                   </div>
                 </div>
               ))

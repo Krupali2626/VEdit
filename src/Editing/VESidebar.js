@@ -70,9 +70,9 @@ export default function VESidebar() {
     return (
         <>
             <div className="fixed-navbar">
-                <div className="row text-white">
+                <div className="row w-100 text-white">
                     <div className=''>
-                        <div className="row">
+                        <div className="row w-100">
                             <div className="col-12 text-end my-3 d-flex align-items-center justify-content-between">
                                 <div className="d-flex align-items-center">
                                     {isMobile && (
@@ -97,7 +97,7 @@ export default function VESidebar() {
                     </div>
                 </div>
             </div>
-            <div className="row">
+            <div className="row w-100 ">
                 <div className="col-auto p-0">
                     <div className={`fixed-sidebar dE_sidebar d-flex flex-column align-items-center ${isOpen ? 'open' : 'closed'}`}>
                         {(isOpen || !isMobile) && (
