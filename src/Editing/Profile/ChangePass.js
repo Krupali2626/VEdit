@@ -171,7 +171,6 @@ export default function ChangePass() {
                   </div>
                 </div>
               </div>
-
             </div>
           </div>
         </div>
