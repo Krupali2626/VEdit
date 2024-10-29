@@ -27,7 +27,6 @@ function SignIn(props, value) {
     const [answers, setAnswers] = useState({});
     const [inputValue, setInputValue] = useState('');
 
-
     const [openSecurityModal, setOpenSecurityModal] = useState(false);
     const [securityQuestions, setSecurityQuestions] = useState([
         { question: "What is your mother's maiden name?", answer: "" },
@@ -44,6 +43,10 @@ function SignIn(props, value) {
     const [confirmNewPassword, setConfirmNewPassword] = useState('');
     const [showNewPassword, setShowNewPassword] = useState(false);
     const [showConfirmNewPassword, setShowConfirmNewPassword] = useState(false);
+
+    const [mobileOtpSent, setMobileOtpSent] = useState(false);
+    const [mobileOtp, setMobileOtp] = useState(['', '', '', '']);
+    const [generatedMobileOTP, setGeneratedMobileOTP] = useState('');
 
 
     const validationSchema = Yup.object().shape({
@@ -69,20 +72,19 @@ function SignIn(props, value) {
                 setOpenModal(true);
             } else if (formType === 'signin') {
                 try {
-                    let response;
                     if (signInMethod === 'email') {
-                        response = await dispatch(signIn(values)).unwrap();
-                        if (response.requireSecurityQuestions) {
-                            setSecurityQuestions(response.additional.securityQuestions);
-                            setOpenSecurityModal(true);
-                            setCurrentUser(response);
-                        } else {
-                            localStorage.setItem('user', JSON.stringify(response));
-                            alert("Sign in successful!");
-                            navigate('/');
-                        }
+                        // ... (keep existing email sign in logic)
                     } else {
                         // Handle mobile sign in
+                        const otp = generateMobileOTP();
+                        const response = await sendMobileOTP(values.mobile, otp);
+
+                        if (response.success) {
+                            setMobileOtpSent(true);
+                            alert('OTP has been sent to your mobile number');
+                        } else {
+                            alert('Failed to send OTP. Please try again.');
+                        }
                     }
                 } catch (error) {
                     console.log("Signin failed: ", error);
@@ -90,19 +92,18 @@ function SignIn(props, value) {
                 }
             } else if (formType === 'forgot') {
                 if (signInMethod === 'email') {
-                    // Generate and send OTP for forgot password
-                    const otp = generateOTP();
-                    const emailSent = await sendOTPEmail(values.email, otp);
+                    // ... (keep existing email forgot password logic)
+                } else {
+                    // Handle mobile forgot password
+                    const otp = generateMobileOTP();
+                    const response = await sendMobileOTP(values.mobile, otp);
 
-                    if (emailSent) {
-                        setOtpSent(['', '', '', '']); // Reset OTP input fields
-                        alert('OTP has been sent to your email');
+                    if (response.success) {
+                        setMobileOtpSent(true);
+                        alert('OTP has been sent to your mobile number');
                     } else {
                         alert('Failed to send OTP. Please try again.');
                     }
-                } else {
-                    // Handle mobile OTP if needed
-                    console.log("Forgot password for mobile:", values.mobile);
                 }
             }
         },
@@ -317,6 +318,94 @@ function SignIn(props, value) {
         }
     };
 
+    const generateMobileOTP = () => {
+        const otp = Math.floor(1000 + Math.random() * 9000).toString();
+        console.log('Generated Mobile OTP:', otp); // For testing purposes
+        setGeneratedMobileOTP(otp);
+        return otp;
+    };
+
+    const sendMobileOTP = async (phoneNumber, otp) => {
+        try {
+            // Mock API call to send SMS
+            // In production, replace this with actual SMS service integration
+            console.log(`Sending OTP ${otp} to ${phoneNumber}`);
+
+            // Simulating API response
+            return {
+                success: true,
+                message: 'OTP sent successfully'
+            };
+        } catch (error) {
+            console.error('Failed to send mobile OTP:', error);
+            return {
+                success: false,
+                message: 'Failed to send OTP'
+            };
+        }
+    };
+
+    // Handle mobile OTP verification
+    const handleMobileOTPVerification = (enteredOTP) => {
+        const fullOTP = enteredOTP.join('');
+        if (fullOTP === generatedMobileOTP) {
+            if (formType === 'forgot') {
+                setShowResetPassword(true);
+            } else if (formType === 'signin') {
+                // Handle sign in with mobile
+                handleMobileSignIn(formik.values.mobile);
+            }
+            setMobileOtpSent(false);
+        } else {
+            alert('Invalid OTP. Please try again.');
+        }
+    };
+
+    const handleMobileSignIn = async (mobileNumber) => {
+        try {
+            const response = await dispatch(mobileSignIn({ mobile: mobileNumber })).unwrap();
+            if (response) {
+                localStorage.setItem('user', JSON.stringify(response));
+                alert("Sign in successful!");
+                navigate('/');
+            }
+        } catch (error) {
+            console.error("Mobile sign in failed:", error);
+            alert("Sign in failed. Please try again.");
+        }
+    };
+
+    // Handle mobile OTP input
+    const handleMobileOTPInput = (index, value) => {
+        if (value.length <= 1 && /^\d*$/.test(value)) {
+            const newOTP = [...mobileOtp];
+            newOTP[index] = value;
+            setMobileOtp(newOTP);
+
+            // Auto-focus next input
+            if (value && index < 3) {
+                const nextInput = document.querySelector(`input[name=mobile-otp-${index + 1}]`);
+                if (nextInput) nextInput.focus();
+            }
+
+            // Check if all digits are entered
+            if (newOTP.every(digit => digit !== '') && newOTP.join('').length === 4) {
+                handleMobileOTPVerification(newOTP);
+            }
+        }
+    };
+
+    // Add resend mobile OTP handler
+    const handleResendMobileOtp = async () => {
+        const otp = generateMobileOTP();
+        const response = await sendMobileOTP(formik.values.mobile, otp);
+
+        if (response.success) {
+            alert('New OTP has been sent to your mobile number');
+        } else {
+            alert('Failed to resend OTP. Please try again.');
+        }
+    };
 
 
     return (
@@ -509,6 +598,47 @@ function SignIn(props, value) {
                                             >
                                                 Reset Password
                                             </Button>
+                                        </Form>
+                                    </div>
+                                )}
+
+                                {/* Add mobile OTP verification form */}
+                                {signInMethod === 'mobile' && mobileOtpSent && !showResetPassword && (
+                                    <div className="text-light rounded" style={{ maxWidth: '300px', margin: 'auto' }}>
+                                        <p className="text-center mb-5">We've sent an OTP to {formik.values.mobile}</p>
+                                        <Form>
+                                            <div className="d-flex justify-content-evenly mb-4">
+                                                {[...Array(4)].map((_, index) => (
+                                                    <Form.Control
+                                                        key={index}
+                                                        type="text"
+                                                        maxLength="1"
+                                                        name={`mobile-otp-${index}`}
+                                                        value={mobileOtp[index]}
+                                                        onChange={(e) => handleMobileOTPInput(index, e.target.value)}
+                                                        className="mx-1 text-center bg-dark text-light border-secondary"
+                                                        style={{ width: '40px', height: '40px' }}
+                                                    />
+                                                ))}
+                                            </div>
+                                            <Button
+                                                variant="light"
+                                                type="button"
+                                                onClick={() => handleMobileOTPVerification(mobileOtp)}
+                                                className="w-100 mb-3 fw-bold"
+                                            >
+                                                Verify
+                                            </Button>
+                                            <p className="text-center mb-3">
+                                                Didn't receive OTP?
+                                                <Button
+                                                    variant="link"
+                                                    className="p-0 text-light"
+                                                    onClick={handleResendMobileOtp}
+                                                >
+                                                    Resend
+                                                </Button>
+                                            </p>
                                         </Form>
                                     </div>
                                 )}

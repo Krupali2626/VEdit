@@ -131,7 +131,7 @@ export const resetPassword = createAsyncThunk(
             }
 
             const updatedUser = await updateResponse.json();
-            console.log("updatedUser : ",updatedUser)
+            console.log("updatedUser : ", updatedUser)
             return updatedUser;
         } catch (error) {
             return rejectWithValue(error.message);
@@ -156,9 +156,9 @@ const signInSlice = createSlice({
                 state.error = null;
             })
             .addCase(signUp.fulfilled, (state, action) => {
-                state.isLoading = false;  
-                state.user = action.payload;  
-                state.error = null;  
+                state.isLoading = false;
+                state.user = action.payload;
+                state.error = null;
             })
             .addCase(signIn.fulfilled, (state, action) => {
                 state.isLoading = false;
@@ -179,7 +179,7 @@ const signInSlice = createSlice({
                 state.error = null;
             })
             .addCase(resetPassword.fulfilled, (state, action) => {
-                console.log("action",action.payload)
+                console.log("action", action.payload)
                 state.isLoading = false;
                 state.currentUser = action.payload;
                 state.error = null;
