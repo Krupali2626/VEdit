@@ -25,9 +25,7 @@ export default function MediaComponent({ uploadedMedia, onMediaUpload }) {
   const [currentMediaIndex, setCurrentMediaIndex] = useState(null);
   const [displayTime, setDisplayTime] = useState(30); // State to manage displayed time
   const [thumbnails, setThumbnails] = useState({}); // State to manage thumbnails for each video
-  const [cutStart, setCutStart] = useState(0); // Start of the cut
-  const [cutEnd, setCutEnd] = useState(30); // End of the cut
-
+ 
   const handleUpload = (event) => {
     const file = event.target.files[0];
     if (file) {
@@ -151,24 +149,27 @@ export default function MediaComponent({ uploadedMedia, onMediaUpload }) {
 
   const thumbnailWidth = calculateThumbnailWidth();
 
-  // Handle dragging to cut thumbnails
-  const handleMouseDown = (e) => {
-    const startX = e.clientX;
-    const initialCutStart = cutStart;
+  // Function to handle the start of the drag
+  const handleDragStart = (event, index, fileName) => {
+    event.dataTransfer.setData("text/plain", JSON.stringify({ index, fileName })); // Store the index and fileName of the dragged thumbnail
+  };
 
-    const handleMouseMove = (moveEvent) => {
-      const deltaX = moveEvent.clientX - startX;
-      const newCutStart = Math.max(0, initialCutStart + deltaX / thumbnailWidth);
-      setCutStart(newCutStart);
-    };
+  // Function to handle the drop of a thumbnail
+  const handleDrop = (event, targetIndex, fileName) => {
+    event.preventDefault(); // Prevent default behavior
+    const { index, fileName: draggedFileName } = JSON.parse(event.dataTransfer.getData("text/plain")); // Get the index and fileName of the dragged thumbnail
 
-    const handleMouseUp = () => {
-      window.removeEventListener('mousemove', handleMouseMove);
-      window.removeEventListener('mouseup', handleMouseUp);
-    };
+    if (draggedFileName === fileName && index !== targetIndex) { // Ensure the dragged item is from the same file
+      const newImages = [...thumbnails[fileName].images]; // Create a new copy of the images array for the specific file
+      const [movedThumbnail] = newImages.splice(index, 1); // Remove the dragged thumbnail
+      newImages.splice(targetIndex, 0, movedThumbnail); // Insert it at the target index
 
-    window.addEventListener('mousemove', handleMouseMove);
-    window.addEventListener('mouseup', handleMouseUp);
+      // Update the thumbnails state with the new order
+      setThumbnails((prevThumbnails) => ({
+        ...prevThumbnails,
+        [fileName]: { images: newImages }, // Update the images for the specific file
+      }));
+    }
   };
 
   return (
@@ -277,8 +278,8 @@ export default function MediaComponent({ uploadedMedia, onMediaUpload }) {
         </div>
       </div>
 
-      <div className="row w-100 mt-3 ">
-        <div className="d_timeline_bg_icon px-0" style={{overflowX:'auto',width:'100%'}}>
+      <div className="row mt-3 w-100">
+        <div className="d_timeline_bg_icon px-0" style={{ overflow: 'auto', width: '100%' }}>
           <div className="d_timeline_icon_row p-2 d-flex justify-content-between align-items-center" >
             <div className="d_timeline_left_icons d-flex align-items-center">
               <img className="mx-2" src={t11} alt="Icon 1" />
@@ -339,26 +340,42 @@ export default function MediaComponent({ uploadedMedia, onMediaUpload }) {
             {Object.keys(thumbnails).length > 0 ? (
               Object.entries(thumbnails).map(([fileName, { images }]) => (
                 <div key={fileName} className="col-12 px-0 d-flex flex-column align-items-start">
-                  <div className="d-flex flex-row flex-nowrap" style={{ overflowX: 'hidden', whiteSpace: 'nowrap', position: 'relative' }}>
+                  <div
+                    className="d-flex flex-row flex-nowrap"
+                    style={{
+                      overflowX: 'auto',
+                      whiteSpace: 'nowrap',
+                      position: 'relative',
+                      borderTop: '2px solid white',
+                      borderBottom: '2px solid white',
+                      borderLeft: '7px solid white',
+                      borderRight: '7px solid white',
+                      borderRadius: '4px',
+                      margin: '5px 0px',
+                    }}
+                  >
+                    <div style={{ paddingTop: "9px", paddingBottom: "8px", backgroundColor: 'white' }}>
+                      <span style={{ borderLeft: '4px solid black', borderRadius: '20px', paddingBottom: '30px' }}></span>
+                    </div>
+
+                    {/* Draggable Thumbnail Images */}
                     {images.map((thumbnail, index) => (
                       <img
                         key={index}
                         src={thumbnail}
                         alt={`Thumbnail ${index}`}
-                        style={{ width: `${thumbnailWidth * 2.26}px`, height: '70px', objectFit: 'cover', margin: '5px 0px',  overflowX: 'hidden' }}
+                        style={{ width: `${thumbnailWidth * 2.26}px`, height: '70px', objectFit: 'cover' }}
+                        draggable // Enable dragging
+                        onDragStart={(e) => handleDragStart(e, index, fileName)} // Start dragging with fileName
+                        onDragOver={(e) => e.preventDefault()} // Allow dragging over
+                        onDrop={(e) => handleDrop(e, index, fileName)} // Handle dropping on this thumbnail with fileName
                       />
                     ))}
-                    {/* <div
-                      onMouseDown={handleMouseDown}
-                      style={{
-                        position: 'absolute',
-                        width: '5px',
-                        height: '70px',
-                        backgroundColor: 'yellow',
-                        cursor: 'ew-resize',
-                        left: `${cutStart * thumbnailWidth}px`, // Position based on cutStart
-                      }}
-                    /> */}
+
+                    <div style={{ borderRight: '7px solid white' }} />
+                    <div style={{ paddingTop: "9px", paddingBottom: "8px", backgroundColor: 'white' }}>
+                      <span style={{ borderLeft: '4px solid black', borderRadius: '20px', paddingBottom: '30px' }}></span>
+                    </div>
                   </div>
                 </div>
               ))
@@ -368,6 +385,6 @@ export default function MediaComponent({ uploadedMedia, onMediaUpload }) {
           </div>
         </div>
       </div>
-    </div>
+    </div >
   );
 }
