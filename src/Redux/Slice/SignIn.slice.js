@@ -10,7 +10,7 @@ const initialState = {
 
 // Add data in http://localhost:1726/signup api during sign-up
 export const signUp = createAsyncThunk(
-    'auth/signUp', 
+    'auth/signUp',
     async (signUpData, { rejectWithValue }) => {
         try {
             console.log("Sending sign-up data:", signUpData);  // Debugging to ensure data is correct
@@ -61,9 +61,6 @@ export const signIn = createAsyncThunk(
     async (userData, { rejectWithValue }) => {
         try {
             const response = await fetch('http://localhost:1726/signup');
-            if (!response.ok) {
-                throw new Error('Failed to fetch user data');
-            }
             const users = await response.json();
 
             const user = users.find(u => u.email === userData.email && u.password === userData.password);
@@ -107,28 +104,40 @@ export const verifySecurityQuestions = createAsyncThunk(
     }
 );
 
-// export const mobileSignUp = createAsyncThunk(
-//     'mobileSignUp/mobileSignUp',
-//     async (userData, { rejectWithValue }) => {
-//         try {
-//             const response = await fetch('http://localhost:1726/mobile', {
-//                 method: 'POST',
-//                 headers: {
-//                     'Content-Type': 'application/json',
-//                 },
-//                 body: JSON.stringify(userData),
-//             });
+export const resetPassword = createAsyncThunk(
+    'auth/resetPassword',
+    async ({ email, newPassword }, { rejectWithValue }) => {
+        try {
+            // First, get all users
+            const getUserResponse = await fetch('http://localhost:1726/signup');
+            const users = await getUserResponse.json();
 
-//             if (!response.ok) {
-//                 throw new Error('Mobile signup failed');
-//             }
+            // Find the user to update
+            const userToUpdate = users.find(user => user.email === email);
+            // Update the user's password
+            userToUpdate.password = newPassword;
 
-//             return await response.json();
-//         } catch (error) {
-//             return rejectWithValue(error.message);
-//         }
-//     }
-// );
+            // Send the update request
+            const updateResponse = await fetch(`http://localhost:1726/signup/${userToUpdate.id}`, {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(userToUpdate)
+            });
+
+            if (!updateResponse.ok) {
+                throw new Error('Failed to update password');
+            }
+
+            const updatedUser = await updateResponse.json();
+            console.log("updatedUser : ", updatedUser)
+            return updatedUser;
+        } catch (error) {
+            return rejectWithValue(error.message);
+        }
+    }
+);
 
 
 const signInSlice = createSlice({
@@ -147,15 +156,10 @@ const signInSlice = createSlice({
                 state.error = null;
             })
             .addCase(signUp.fulfilled, (state, action) => {
-                state.isLoading = false;  // Stop loading when fulfilled
-                state.user = action.payload;  // Store user data from the response
-                state.error = null;  // Clear any errors
+                state.isLoading = false;
+                state.user = action.payload;
+                state.error = null;
             })
-            // .addCase(signUp.fulfilled, (state, action) => {
-            //     state.isLoading = false;
-            //     state.user = action.payload;
-            //     state.error = null;
-            // })
             .addCase(signIn.fulfilled, (state, action) => {
                 state.isLoading = false;
                 state.currentUser = action.payload;
@@ -170,11 +174,20 @@ const signInSlice = createSlice({
                 state.isLoading = false;
                 state.error = action.payload;
             })
-        // .addCase(mobileSignUp.fulfilled, (state, action) => {
-        //     state.isLoading = false;
-        //     state.currentUser = action.payload;
-        //     state.error = null;
-        // })
+            .addCase(resetPassword.pending, (state) => {
+                state.isLoading = true;
+                state.error = null;
+            })
+            .addCase(resetPassword.fulfilled, (state, action) => {
+                console.log("action", action.payload)
+                state.isLoading = false;
+                state.currentUser = action.payload;
+                state.error = null;
+            })
+            .addCase(resetPassword.rejected, (state, action) => {
+                state.isLoading = false;
+                state.error = action.payload;
+            });
     }
 });
 

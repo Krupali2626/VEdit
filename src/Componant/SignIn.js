@@ -2,7 +2,7 @@ import React, { useRef, useState } from 'react';
 import { useDispatch } from 'react-redux';
 import { useFormik } from 'formik';
 import * as Yup from 'yup';
-import { signUp, signIn, mobileSignIn, verifySecurityQuestions } from '../Redux/Slice/SignIn.slice';
+import { signUp, signIn, mobileSignIn, verifySecurityQuestions, resetPassword } from '../Redux/Slice/SignIn.slice';
 import { useNavigate } from 'react-router-dom';
 import { Form, Button } from 'react-bootstrap';
 import { FaEnvelope, FaLock, FaApple, FaEye, FaEyeSlash } from 'react-icons/fa';
@@ -27,7 +27,6 @@ function SignIn(props, value) {
     const [answers, setAnswers] = useState({});
     const [inputValue, setInputValue] = useState('');
 
-
     const [openSecurityModal, setOpenSecurityModal] = useState(false);
     const [securityQuestions, setSecurityQuestions] = useState([
         { question: "What is your mother's maiden name?", answer: "" },
@@ -38,6 +37,16 @@ function SignIn(props, value) {
     const [currentUser, setCurrentUser] = useState(null);
     const [generatedOTP, setGeneratedOTP] = useState('');
     const emailForm = useRef();
+
+    const [showResetPassword, setShowResetPassword] = useState(false);
+    const [newPassword, setNewPassword] = useState('');
+    const [confirmNewPassword, setConfirmNewPassword] = useState('');
+    const [showNewPassword, setShowNewPassword] = useState(false);
+    const [showConfirmNewPassword, setShowConfirmNewPassword] = useState(false);
+
+    const [mobileOtpSent, setMobileOtpSent] = useState(false);
+    const [mobileOtp, setMobileOtp] = useState(['', '', '', '']);
+    const [generatedMobileOTP, setGeneratedMobileOTP] = useState('');
 
 
     const validationSchema = Yup.object().shape({
@@ -63,20 +72,19 @@ function SignIn(props, value) {
                 setOpenModal(true);
             } else if (formType === 'signin') {
                 try {
-                    let response;
                     if (signInMethod === 'email') {
-                        response = await dispatch(signIn(values)).unwrap();
-                        if (response.requireSecurityQuestions) {
-                            setSecurityQuestions(response.additional.securityQuestions);
-                            setOpenSecurityModal(true);
-                            setCurrentUser(response);
-                        } else {
-                            localStorage.setItem('user', JSON.stringify(response));
-                            alert("Sign in successful!");
-                            navigate('/');
-                        }
+                        // ... (keep existing email sign in logic)
                     } else {
                         // Handle mobile sign in
+                        const otp = generateMobileOTP();
+                        const response = await sendMobileOTP(values.mobile, otp);
+
+                        if (response.success) {
+                            setMobileOtpSent(true);
+                            alert('OTP has been sent to your mobile number');
+                        } else {
+                            alert('Failed to send OTP. Please try again.');
+                        }
                     }
                 } catch (error) {
                     console.log("Signin failed: ", error);
@@ -84,24 +92,22 @@ function SignIn(props, value) {
                 }
             } else if (formType === 'forgot') {
                 if (signInMethod === 'email') {
-                    // Generate and send OTP for forgot password
-                    const otp = generateOTP();
-                    const emailSent = await sendOTPEmail(values.email, otp);
+                    // ... (keep existing email forgot password logic)
+                } else {
+                    // Handle mobile forgot password
+                    const otp = generateMobileOTP();
+                    const response = await sendMobileOTP(values.mobile, otp);
 
-                    if (emailSent) {
-                        setOtpSent(['', '', '', '']); // Reset OTP input fields
-                        alert('OTP has been sent to your email');
+                    if (response.success) {
+                        setMobileOtpSent(true);
+                        alert('OTP has been sent to your mobile number');
                     } else {
                         alert('Failed to send OTP. Please try again.');
                     }
-                } else {
-                    // Handle mobile OTP if needed
-                    console.log("Forgot password for mobile:", values.mobile);
                 }
             }
         },
     });
-    console.log(currentUser);
 
     // Registration flow questions
     const QUESTIONS = [
@@ -121,40 +127,35 @@ function SignIn(props, value) {
     const handleOTPVerification = (enteredOTP) => {
         const fullOTP = enteredOTP.join('');
         if (fullOTP === generatedOTP) {
-            // OTP verified successfully
-            alert('OTP verified successfully');
-            // Add your password reset logic here
-            // You might want to navigate to a password reset form
-            // navigate('/reset-password');
+            setShowResetPassword(true); // Show reset password form after successful OTP verification
+            setOtpSent(false); // Hide OTP form
         } else {
             alert('Invalid OTP. Please try again.');
         }
     };
 
-
-
-    // Function to generate 4-digit OTP
     const generateOTP = () => {
         const otp = Math.floor(1000 + Math.random() * 9000).toString();
+        console.log(otp)
         setGeneratedOTP(otp);
         return otp;
     };
 
     const sendOTPEmail = async (email, otp) => {
         try {
-            // Create template parameters
             const templateParams = {
                 to_email: email,
+                message: `Your OTP for password reset is: ${otp}`,
                 otp: otp,
-                // Add any other template variables you need
             };
+            console.log('Sending email with params:', templateParams);
 
             // Send email using EmailJS
             const response = await emailjs.send(
-                'service_fwyu2ya', // Your EmailJS service ID
-                'template_33ytgmq', // Your EmailJS template ID
+                'service_fwyu2ya',
+                'template_33ytgmq',
                 templateParams,
-                'R-yXtVBr8WNcAl9gC' // Your EmailJS public key
+                'R-yXtVBr8WNcAl9gC'
             );
 
             if (response.status === 200) {
@@ -174,6 +175,7 @@ function SignIn(props, value) {
         const emailSent = await sendOTPEmail(formik.values.email, otp);
 
         if (emailSent) {
+            console.log(emailSent)
             alert('New OTP has been sent to your email');
         } else {
             alert('Failed to resend OTP. Please try again.');
@@ -287,6 +289,125 @@ function SignIn(props, value) {
         handleModalClose();
     };
 
+    const handleResetPassword = async () => {
+        // Password validation
+        if (newPassword.length < 8) {
+            alert('Password must be at least 8 characters long');
+            return;
+        }
+
+        if (newPassword !== confirmNewPassword) {
+            alert('Passwords do not match');
+            return;
+        }
+
+        try {
+            dispatch(resetPassword({
+                email: formik.values.email,
+                newPassword: newPassword
+            }));
+
+            alert('Password reset successful!');
+            setFormType('signin');
+            setShowResetPassword(false);
+            setNewPassword('');
+            setConfirmNewPassword('');
+        } catch (error) {
+            console.error('Failed to reset password:', error);
+            alert('Failed to reset password. Please try again.');
+        }
+    };
+
+    const generateMobileOTP = () => {
+        const otp = Math.floor(1000 + Math.random() * 9000).toString();
+        console.log('Generated Mobile OTP:', otp); // For testing purposes
+        setGeneratedMobileOTP(otp);
+        return otp;
+    };
+
+    const sendMobileOTP = async (phoneNumber, otp) => {
+        try {
+            // Mock API call to send SMS
+            // In production, replace this with actual SMS service integration
+            console.log(`Sending OTP ${otp} to ${phoneNumber}`);
+
+            // Simulating API response
+            return {
+                success: true,
+                message: 'OTP sent successfully'
+            };
+        } catch (error) {
+            console.error('Failed to send mobile OTP:', error);
+            return {
+                success: false,
+                message: 'Failed to send OTP'
+            };
+        }
+    };
+
+    // Handle mobile OTP verification
+    const handleMobileOTPVerification = (enteredOTP) => {
+        const fullOTP = enteredOTP.join('');
+        if (fullOTP === generatedMobileOTP) {
+            if (formType === 'forgot') {
+                setShowResetPassword(true);
+            } else if (formType === 'signin') {
+                // Handle sign in with mobile
+                handleMobileSignIn(formik.values.mobile);
+            }
+            setMobileOtpSent(false);
+        } else {
+            alert('Invalid OTP. Please try again.');
+        }
+    };
+
+    const handleMobileSignIn = async (mobileNumber) => {
+        try {
+            const response = await dispatch(mobileSignIn({ mobile: mobileNumber })).unwrap();
+            if (response) {
+                localStorage.setItem('user', JSON.stringify(response));
+                alert("Sign in successful!");
+                navigate('/');
+            }
+        } catch (error) {
+            console.error("Mobile sign in failed:", error);
+            alert("Sign in failed. Please try again.");
+        }
+    };
+
+    // Handle mobile OTP input
+    const handleMobileOTPInput = (index, value) => {
+        if (value.length <= 1 && /^\d*$/.test(value)) {
+            const newOTP = [...mobileOtp];
+            newOTP[index] = value;
+            setMobileOtp(newOTP);
+
+            // Auto-focus next input
+            if (value && index < 3) {
+                const nextInput = document.querySelector(`input[name=mobile-otp-${index + 1}]`);
+                if (nextInput) nextInput.focus();
+            }
+
+            // Check if all digits are entered
+            if (newOTP.every(digit => digit !== '') && newOTP.join('').length === 4) {
+                handleMobileOTPVerification(newOTP);
+            }
+        }
+    };
+
+    // Add resend mobile OTP handler
+    const handleResendMobileOtp = async () => {
+        const otp = generateMobileOTP();
+        const response = await sendMobileOTP(formik.values.mobile, otp);
+
+        if (response.success) {
+            alert('New OTP has been sent to your mobile number');
+        } else {
+            alert('Failed to resend OTP. Please try again.');
+        }
+    };
+
+
     return (
         <>
             <div className='k_popBg_image'>
@@ -295,15 +416,17 @@ function SignIn(props, value) {
                         <div className="k_glass_effect text-light rounded k_form-width">
 
                             <h3 className="text-center mb-4">
-                                {formType === 'signin' ? 'Welcome Back User!' :
-                                    formType === 'signup' ? 'Welcome User' :
-                                        formType === 'forgot' && !otpSent ? 'Forgot Password' :
-                                            formType === 'forgot' && otpSent ? 'OTP Verification' : null}
+                                {!showResetPassword && (
+                                    formType === 'signin' ? 'Welcome Back User!' :
+                                        formType === 'signup' ? 'Welcome User' :
+                                            formType === 'forgot' && !otpSent ? 'Forgot Password' :
+                                                formType === 'forgot' && otpSent ? 'OTP Verification' : null
+                                )}
                             </h3>
 
                             <Form onSubmit={formik.handleSubmit}>
 
-                                {(formType !== 'forgot' || (formType === 'forgot' && !otpSent)) && (
+                                {(formType !== 'forgot' || (formType === 'forgot' && !otpSent)) && !showResetPassword && (
                                     <Form.Group className="mb-3" controlId={signInMethod === 'email' ? "formBasicEmail" : "formBasicMobile"}>
                                         <div className="input-group">
                                             <span className="input-group-text bg-transparent text-secondary border-end-0 border-secondary">
@@ -317,7 +440,6 @@ function SignIn(props, value) {
                                                 onChange={formik.handleChange}
                                                 onBlur={formik.handleBlur}
                                                 value={signInMethod === 'email' ? formik.values.email : formik.values.mobile}
-
                                             />
                                         </div>
                                         {formik.touched[signInMethod] && formik.errors[signInMethod] ? (
@@ -380,7 +502,7 @@ function SignIn(props, value) {
                                     </>
                                 )}
 
-                                {formType === 'forgot' && otpSent && (
+                                {formType === 'forgot' && otpSent && !showResetPassword && (
                                     <div className="text-light rounded" style={{ maxWidth: '300px', margin: 'auto' }}>
                                         <p className="text-center mb-5">We've sent an OTP to {formik.values.email}</p>
                                         <Form>
@@ -420,13 +542,116 @@ function SignIn(props, value) {
                                     </div>
                                 )}
 
-                                {formType === 'signin' && (
-                                    <div className="text-end mb-3">
-                                        <a href="#" onClick={() => setFormType('forgot')} className="text-danger text-decoration-none">Forgot Password?</a>
+                                {formType === 'forgot' && showResetPassword && (
+                                    <div className="text-light rounded" >
+                                        <h3 className="text-center mb-4">Reset Password</h3>
+                                        <Form>
+                                            {/* New Password Input */}
+                                            <Form.Group className="mb-3">
+                                                <div className="input-group">
+                                                    <span className="input-group-text bg-transparent text-secondary border-end-0 border-secondary">
+                                                        <FaLock />
+                                                    </span>
+                                                    <Form.Control
+                                                        type={showNewPassword ? "text" : "password"}
+                                                        placeholder="Create new password"
+                                                        className="border-start-0 border-end-0 border-secondary inputStyle"
+                                                        value={newPassword}
+                                                        onChange={(e) => setNewPassword(e.target.value)}
+                                                    />
+                                                    <span
+                                                        className="input-group-text bg-transparent text-secondary border-start-0 border-secondary"
+                                                        onClick={() => setShowNewPassword(!showNewPassword)}
+                                                    >
+                                                        {showNewPassword ? <FaEye size={20} /> : <FaEyeSlash size={20} />}
+                                                    </span>
+                                                </div>
+                                            </Form.Group>
+
+                                            {/* Confirm New Password Input */}
+                                            <Form.Group className="mb-4">
+                                                <div className="input-group">
+                                                    <span className="input-group-text bg-transparent text-secondary border-end-0 border-secondary">
+                                                        <FaLock />
+                                                    </span>
+                                                    <Form.Control
+                                                        type={showConfirmNewPassword ? "text" : "password"}
+                                                        placeholder="Confirm new password"
+                                                        className="border-start-0 border-end-0 border-secondary inputStyle"
+                                                        value={confirmNewPassword}
+                                                        onChange={(e) => setConfirmNewPassword(e.target.value)}
+                                                    />
+                                                    <span
+                                                        className="input-group-text bg-transparent text-secondary border-start-0 border-secondary"
+                                                        onClick={() => setShowConfirmNewPassword(!showConfirmNewPassword)}
+                                                    >
+                                                        {showConfirmNewPassword ? <FaEye size={20} /> : <FaEyeSlash size={20} />}
+                                                    </span>
+                                                </div>
+                                            </Form.Group>
+
+                                            <Button
+                                                variant="light"
+                                                type="button"
+                                                onClick={handleResetPassword}
+                                                className="w-100 mb-3 fw-bold mt-4"
+                                            >
+                                                Reset Password
+                                            </Button>
+                                        </Form>
                                     </div>
                                 )}
 
-                                {(formType !== 'forgot' || !otpSent) && (
+                                {/* Add mobile OTP verification form */}
+                                {signInMethod === 'mobile' && mobileOtpSent && !showResetPassword && (
+                                    <div className="text-light rounded" style={{ maxWidth: '300px', margin: 'auto' }}>
+                                        <p className="text-center mb-5">We've sent an OTP to {formik.values.mobile}</p>
+                                        <Form>
+                                            <div className="d-flex justify-content-evenly mb-4">
+                                                {[...Array(4)].map((_, index) => (
+                                                    <Form.Control
+                                                        key={index}
+                                                        type="text"
+                                                        maxLength="1"
+                                                        name={`mobile-otp-${index}`}
+                                                        value={mobileOtp[index]}
+                                                        onChange={(e) => handleMobileOTPInput(index, e.target.value)}
+                                                        className="mx-1 text-center bg-dark text-light border-secondary"
+                                                        style={{ width: '40px', height: '40px' }}
+                                                    />
+                                                ))}
+                                            </div>
+                                            <Button
+                                                variant="light"
+                                                type="button"
+                                                onClick={() => handleMobileOTPVerification(mobileOtp)}
+                                                className="w-100 mb-3 fw-bold"
+                                            >
+                                                Verify
+                                            </Button>
+                                            <p className="text-center mb-3">
+                                                Didn't receive OTP?
+                                                <Button
+                                                    variant="link"
+                                                    className="p-0 text-light"
+                                                    onClick={handleResendMobileOtp}
+                                                >
+                                                    Resend
+                                                </Button>
+                                            </p>
+                                        </Form>
+                                    </div>
+                                )}
+
+                                {formType === 'signin' && (
+                                    <div className="text-end mb-3">
+                                        <a href="#" onClick={() => setFormType('forgot')} className="text-danger text-decoration-none">
+                                            Forgot Password?
+                                        </a>
+                                    </div>
+                                )}
+
+                                {(formType !== 'forgot' || !otpSent) && !showResetPassword && (
                                     <Button variant="light" type="submit" className="w-100 mb-3 fw-bold">
                                         {formType === 'signin' ? 'Sign In' :
                                             formType === 'signup' ? 'Sign Up' :

@@ -1,151 +1,77 @@
 {
   "signup": [
     {
-      "id": "ba16",
-      "email": "helsinki@gmail.com",
-      "password": "hELL@123",
-      "additional": {
-        "name": "ff",
-        "gender": "female",
-        "age": "32",
-        "profession": "Student",
-        "securityQuestions": [
-          {
-            "question": "What is your mother's maiden name?",
-            "answer": "qq"
-          },
-          {
-            "question": "What was the name of your first pet?",
-            "answer": "qq"
-          },
-          {
-            "question": "In what city were you born?",
-            "answer": "qq"
-          }
-        ]
-      }
-    },
-    {
-      "id": "3a21",
-      "email": "jiaan@gmail.com",
-      "password": "Jiaan@123",
-      "additional": {
-        "name": "jj",
-        "gender": "female",
-        "age": "32",
-        "profession": "Student",
-        "securityQuestions": [
-          {
-            "question": "What is your mother's maiden name?",
-            "answer": "jj"
-          },
-          {
-            "question": "What was the name of your first pet?",
-            "answer": "jj"
-          },
-          {
-            "question": "In what city were you born?",
-            "answer": "jj"
-          }
-        ]
-      }
-    },
-    {
-      "id": "4517",
+      "id": "3a2e",
       "email": "krupali.kalathiyainfotech@gmail.com",
-      "password": "Aksh@1234",
+      "password": "********3",
       "additional": {
-        "name": "sdhfgw",
+        "name": "Krupali",
         "gender": "female",
-        "age": "32",
+        "age": "22",
         "profession": "Video Editor",
         "securityQuestions": [
           {
             "question": "What is your mother's maiden name?",
-            "answer": "a"
+            "answer": "Krupali"
           },
           {
             "question": "What was the name of your first pet?",
-            "answer": "a"
+            "answer": "Krupali"
           },
           {
             "question": "In what city were you born?",
-            "answer": "a"
+            "answer": "Krupali"
           }
         ]
-      }
+      },
+      "requireSecurityQuestions": true
     },
     {
-      "id": "1c74",
-      "email": "kumbhanikrupali26@gmail.com",
-      "password": "Krupali@123",
+      "id": "934d",
+      "email": "krupalikumbhani26@gmail.com",
+      "password": "Aesha@123",
       "additional": {
-        "name": "ww",
+        "name": "Aesha",
         "gender": "female",
-        "age": "32",
-        "profession": "Student",
-        "securityQuestions": [
-          {
-            "question": "What is your mother's maiden name?",
-            "answer": "zz"
-          },
-          {
-            "question": "What was the name of your first pet?",
-            "answer": "zz"
-          },
-          {
-            "question": "In what city were you born?",
-            "answer": "zz"
-          }
-        ]
-      }
-    },
-    {
-      "id": "860d",
-      "email": "sizuka@gmail.com",
-      "password": "Sizuka@123",
-      "additional": {
-        "name": "ss",
-        "gender": "female",
-        "age": "32",
-        "profession": "Cinematographer",
-        "securityQuestions": [
-          {
-            "question": "What is your mother's maiden name?",
-            "answer": "ss"
-          },
-          {
-            "question": "What was the name of your first pet?",
-            "answer": "ss"
-          },
-          {
-            "question": "In what city were you born?",
-            "answer": "ss"
-          }
-        ]
-      }
-    },
-    {
-      "id": "c624",
-      "email": "Bheem@gmail.com",
-      "password": "Bheem@123",
-      "additional": {
-        "name": "Bheem",
-        "gender": "male",
-        "age": "11",
+        "age": "20",
         "profession": "Other",
         "securityQuestions": [
           {
             "question": "What is your mother's maiden name?",
-            "answer": "Bheem"
+            "answer": "Aesha"
           },
           {
             "question": "What was the name of your first pet?",
-            "answer": "Bheem"
+            "answer": "Aesha"
           },
           {
             "question": "In what city were you born?",
-            "answer": "Bheem"
+            "answer": "Aesha"
+          }
+        ]
+      }
+    },
+    {
+      "id": "8066",
+      "email": "krupali.kalathiyainfotech@gmail.com",
+      "password": "Krupali@123",
+      "additional": {
+        "name": "Krupali",
+        "gender": "female",
+        "age": "20",
+        "profession": "Cinematographer",
+        "securityQuestions": [
+          {
+            "question": "What is your mother's maiden name?",
+            "answer": "Krupali"
+          },
+          {
+            "question": "What was the name of your first pet?",
+            "answer": "Krupali"
+          },
+          {
+            "question": "In what city were you born?",
+            "answer": "Krupali"
           }
         ]
       }
