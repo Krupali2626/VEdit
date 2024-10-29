@@ -25,7 +25,9 @@ export default function MediaComponent({ uploadedMedia, onMediaUpload }) {
   const [currentMediaIndex, setCurrentMediaIndex] = useState(null);
   const [displayTime, setDisplayTime] = useState(30); // State to manage displayed time
   const [thumbnails, setThumbnails] = useState({}); // State to manage thumbnails for each video
- 
+  const [draggedThumbnails, setDraggedThumbnails] = useState([]); // State to manage dragged thumbnails
+  const [cursorPosition, setCursorPosition] = useState(0); // State to manage cursor position
+
   const handleUpload = (event) => {
     const file = event.target.files[0];
     if (file) {
@@ -140,6 +142,23 @@ export default function MediaComponent({ uploadedMedia, onMediaUpload }) {
     }
   };
 
+  // Update cursor position based on video time
+  useEffect(() => {
+    const updateCursor = () => {
+      if (videoRef.current) {
+        const currentTime = videoRef.current.currentTime;
+        const duration = videoRef.current.duration;
+        const position = (currentTime / duration) * 100; // Calculate position as a percentage
+        setCursorPosition(position);
+      }
+    };
+
+    if (isPlaying) {
+      const interval = setInterval(updateCursor, 1000); // Update every second
+      return () => clearInterval(interval);
+    }
+  }, [isPlaying]);
+
   // Calculate the width of each thumbnail based on the number of markers
   const calculateThumbnailWidth = () => {
     const numberOfMarkers = Math.ceil(displayTime / 2);
@@ -150,26 +169,30 @@ export default function MediaComponent({ uploadedMedia, onMediaUpload }) {
   const thumbnailWidth = calculateThumbnailWidth();
 
   // Function to handle the start of the drag
-  const handleDragStart = (event, index, fileName) => {
-    event.dataTransfer.setData("text/plain", JSON.stringify({ index, fileName })); // Store the index and fileName of the dragged thumbnail
+  const handleDragStart = (event, fileName) => {
+    const allThumbnails = thumbnails[fileName].images; // Get all thumbnails for the dragged file
+    event.dataTransfer.setData("text/plain", JSON.stringify({ allThumbnails, fileName })); // Store all thumbnails
   };
 
   // Function to handle the drop of a thumbnail
   const handleDrop = (event, targetIndex, fileName) => {
     event.preventDefault(); // Prevent default behavior
-    const { index, fileName: draggedFileName } = JSON.parse(event.dataTransfer.getData("text/plain")); // Get the index and fileName of the dragged thumbnail
+    const { allThumbnails } = JSON.parse(event.dataTransfer.getData("text/plain")); // Get all thumbnails
 
-    if (draggedFileName === fileName && index !== targetIndex) { // Ensure the dragged item is from the same file
-      const newImages = [...thumbnails[fileName].images]; // Create a new copy of the images array for the specific file
-      const [movedThumbnail] = newImages.splice(index, 1); // Remove the dragged thumbnail
-      newImages.splice(targetIndex, 0, movedThumbnail); // Insert it at the target index
+    // Update the thumbnails state with the new order
+    setThumbnails((prevThumbnails) => ({
+      ...prevThumbnails,
+      [fileName]: { images: allThumbnails }, // Replace with the dragged thumbnails
+    }));
+  };
 
-      // Update the thumbnails state with the new order
-      setThumbnails((prevThumbnails) => ({
-        ...prevThumbnails,
-        [fileName]: { images: newImages }, // Update the images for the specific file
-      }));
-    }
+  // Function to handle dropping a thumbnail into the new row
+  const handleThumbnailDrop = (event) => {
+    event.preventDefault();
+    const { allThumbnails, fileName } = JSON.parse(event.dataTransfer.getData("text/plain"));
+
+    // Add all dragged thumbnails to the draggedThumbnails state
+    setDraggedThumbnails(allThumbnails);
   };
 
   return (
@@ -279,7 +302,7 @@ export default function MediaComponent({ uploadedMedia, onMediaUpload }) {
       </div>
 
       <div className="row mt-3 w-100">
-        <div className="d_timeline_bg_icon px-0" style={{ overflow: 'auto', width: '100%' }}>
+        <div className="d_timeline_bg_icon px-0" style={{ overflow: 'auto', width: '100%' }} >
           <div className="d_timeline_icon_row p-2 d-flex justify-content-between align-items-center" >
             <div className="d_timeline_left_icons d-flex align-items-center">
               <img className="mx-2" src={t11} alt="Icon 1" />
@@ -333,6 +356,30 @@ export default function MediaComponent({ uploadedMedia, onMediaUpload }) {
                 );
               })}
             </div>
+
+            {/* Cursor */}
+            <div
+              style={{
+                position: 'absolute',
+                width: '2px', // Width of the cursor
+                height: '100%', // Full height of the timeline
+                backgroundColor: 'white', // Cursor color
+                left: `${cursorPosition}%`, // Position based on cursorPosition
+                top: '0', // Align to the top of the timeline
+                zIndex: 10, // Ensure it appears above other elements
+              }}
+            >
+              <div style={{
+                position: 'absolute',
+                width: '0',
+                height: '0',
+                borderLeft: '5px solid transparent',
+                borderRight: '5px solid transparent',
+                borderBottom: '5px solid white',
+                top: '-5px', // Position the arrow above the cursor
+                left: '-5px', // Center the arrow
+              }} />
+            </div>
           </div>
 
           {/* Thumbnails Section */}
@@ -353,11 +400,13 @@ export default function MediaComponent({ uploadedMedia, onMediaUpload }) {
                       borderRadius: '4px',
                       margin: '5px 0px',
                     }}
+                    onDrop={(e) => handleThumbnailDrop(e)} // Handle dropping on the entire row
+                    onDragOver={(e) => e.preventDefault()} // Allow dragging over
                   >
                     <div style={{ paddingTop: "9px", paddingBottom: "8px", backgroundColor: 'white' }}>
                       <span style={{ borderLeft: '4px solid black', borderRadius: '20px', paddingBottom: '30px' }}></span>
                     </div>
-
+                    <div style={{ borderRight: '7px solid white' }} />
                     {/* Draggable Thumbnail Images */}
                     {images.map((thumbnail, index) => (
                       <img
@@ -366,7 +415,7 @@ export default function MediaComponent({ uploadedMedia, onMediaUpload }) {
                         alt={`Thumbnail ${index}`}
                         style={{ width: `${thumbnailWidth * 2.26}px`, height: '70px', objectFit: 'cover' }}
                         draggable // Enable dragging
-                        onDragStart={(e) => handleDragStart(e, index, fileName)} // Start dragging with fileName
+                        onDragStart={(e) => handleDragStart(e, fileName)} // Start dragging with fileName
                         onDragOver={(e) => e.preventDefault()} // Allow dragging over
                         onDrop={(e) => handleDrop(e, index, fileName)} // Handle dropping on this thumbnail with fileName
                       />
@@ -383,8 +432,69 @@ export default function MediaComponent({ uploadedMedia, onMediaUpload }) {
               <p>No thumbnails available</p>
             )}
           </div>
+
+          {/* New Row for Dragged Thumbnails */}
+          <div className="row w-100 px-0" onDrop={handleThumbnailDrop} onDragOver={(e) => e.preventDefault()}>
+            <div className="col-12 px-0">
+              <div className="d-flex flex-row flex-nowrap"
+                style={{
+                  overflowX: 'auto',
+                  borderRadius: '4px',
+                  whiteSpace: 'nowrap',
+                  borderLeft: draggedThumbnails.length > 0 ? '7px solid white' : 'none' // Conditionally render left border
+                }}
+              >
+                {/* Left border element */}
+                <div style={{ paddingTop: "9px", paddingBottom: "8px" }}>
+                  <span
+                    style={{
+                      borderLeft: draggedThumbnails.length > 0 ? '4px solid black' : 'none', // Conditionally render inner left border
+                      borderRadius: '20px',
+                      paddingBottom: '30px'
+                    }}
+                  ></span>
+                </div>
+
+                {/* Conditional right border spacer */}
+                <div style={{ borderRight: draggedThumbnails.length > 0 ? '7px solid white' : 'none' }} />
+
+                {/* Render dragged thumbnails */}
+                {draggedThumbnails.map((thumbnail, index) => (
+                  <img
+                    key={index}
+                    src={thumbnail}
+                    alt={`Dragged Thumbnail ${index}`}
+                    style={{ width: `${thumbnailWidth * 2.26}px`, height: '70px', objectFit: 'cover' }}
+                  />
+                ))}
+
+                {/* Conditional right border spacer */}
+                <div style={{ borderRight: draggedThumbnails.length > 0 ? '7px solid white' : 'none' }} />
+
+                {/* Right border element */}
+                <div style={{ paddingTop: "9px", paddingBottom: "8px" }}>
+                  <span
+                    style={{
+                      borderLeft: draggedThumbnails.length > 0 ? '4px solid black' : 'none', // Conditionally render inner right border
+                      borderRadius: '20px',
+                      paddingBottom: '30px'
+                    }}
+                  ></span>
+                </div>
+
+                {/* Final conditional right border with rounded corners */}
+                <div
+                  style={{
+                    borderRight: draggedThumbnails.length > 0 ? '7px solid white' : 'none',
+                    borderRadius: '0px 4px 4px 0px'
+                  }}
+                />
+              </div>
+            </div>
+          </div>
+
         </div>
       </div>
-    </div >
+    </div>
   );
 }
