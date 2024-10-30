@@ -353,25 +353,11 @@ function SignIn(props, value) {
                 setShowResetPassword(true);
             } else if (formType === 'signin') {
                 // Handle sign in with mobile
-                handleMobileSignIn(formik.values.mobile);
+                // handleMobileSignIn(formik.values.mobile);
             }
             setMobileOtpSent(false);
         } else {
             alert('Invalid OTP. Please try again.');
-        }
-    };
-
-    const handleMobileSignIn = async (mobileNumber) => {
-        try {
-            const response = await dispatch(mobileSignIn({ mobile: mobileNumber })).unwrap();
-            if (response) {
-                localStorage.setItem('user', JSON.stringify(response));
-                alert("Sign in successful!");
-                navigate('/');
-            }
-        } catch (error) {
-            console.error("Mobile sign in failed:", error);
-            alert("Sign in failed. Please try again.");
         }
     };
 
