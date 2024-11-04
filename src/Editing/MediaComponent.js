@@ -27,6 +27,7 @@ export default function MediaComponent({ uploadedMedia, onMediaUpload }) {
   const [thumbnails, setThumbnails] = useState({}); // State to manage thumbnails for each video
   const [draggedThumbnails, setDraggedThumbnails] = useState([]); // State to manage dragged thumbnails
   const [cursorPosition, setCursorPosition] = useState(0); // State to manage cursor position
+  const [draggedThumbnailIndex, setDraggedThumbnailIndex] = useState(null); // Index of the dragged thumbnail
 
   const handleUpload = (event) => {
     const file = event.target.files[0];
@@ -41,9 +42,25 @@ export default function MediaComponent({ uploadedMedia, onMediaUpload }) {
       onMediaUpload(file);
       console.log("Uploaded file:", file); // Debugging line
 
-      // Generate thumbnails for the uploaded video
+      // Generate thumbnails for the uploaded video immediately
       if (fileType === 'video') {
         generateThumbnails(file);
+      } else if (fileType === 'image') {
+        // For images, create a thumbnail immediately
+        const img = new Image();
+        img.src = fileURL;
+        img.onload = () => {
+          const canvas = document.createElement('canvas');
+          canvas.width = 132; // Thumbnail width
+          canvas.height = 150; // Thumbnail height
+          const context = canvas.getContext('2d');
+          context.drawImage(img, 0, 0, canvas.width, canvas.height);
+          const thumbnailDataUrl = canvas.toDataURL();
+          setThumbnails((prev) => ({
+            ...prev,
+            [file.name]: { images: [thumbnailDataUrl], times: [] }, // Store the thumbnail immediately
+          }));
+        };
       }
     }
   };
@@ -99,10 +116,17 @@ export default function MediaComponent({ uploadedMedia, onMediaUpload }) {
           ...prev,
           [videoFile.name]: { images: newThumbnails, times: timeStamps }, // Ensure the structure is correct
         }));
+        updateDisplayTime(newThumbnails.length); // Update display time based on the number of thumbnails
       };
 
       captureAllFrames();
     });
+  };
+
+  const updateDisplayTime = (thumbnailCount) => {
+    // Update display time based on the number of thumbnails
+    const newDisplayTime = thumbnailCount * 2; // Assuming each thumbnail represents 2 seconds
+    setDisplayTime(newDisplayTime);
   };
 
   const handleMediaSelect = (index) => {
@@ -153,10 +177,8 @@ export default function MediaComponent({ uploadedMedia, onMediaUpload }) {
       }
     };
 
-    if (isPlaying) {
-      const interval = setInterval(updateCursor, 1000); // Update every second
-      return () => clearInterval(interval);
-    }
+    const interval = setInterval(updateCursor, 50); // Update every 50ms for smoother cursor movement
+    return () => clearInterval(interval);
   }, [isPlaying]);
 
   // Calculate the width of each thumbnail based on the number of markers
@@ -169,7 +191,8 @@ export default function MediaComponent({ uploadedMedia, onMediaUpload }) {
   const thumbnailWidth = calculateThumbnailWidth();
 
   // Function to handle the start of the drag
-  const handleDragStart = (event, fileName) => {
+  const handleDragStart = (event, fileName, index) => {
+    setDraggedThumbnailIndex(index); // Set the index of the dragged thumbnail
     const allThumbnails = thumbnails[fileName].images; // Get all thumbnails for the dragged file
     event.dataTransfer.setData("text/plain", JSON.stringify({ allThumbnails, fileName })); // Store all thumbnails
   };
@@ -180,10 +203,18 @@ export default function MediaComponent({ uploadedMedia, onMediaUpload }) {
     const { allThumbnails } = JSON.parse(event.dataTransfer.getData("text/plain")); // Get all thumbnails
 
     // Update the thumbnails state with the new order
-    setThumbnails((prevThumbnails) => ({
-      ...prevThumbnails,
-      [fileName]: { images: allThumbnails }, // Replace with the dragged thumbnails
-    }));
+    setThumbnails((prevThumbnails) => {
+      const newThumbnails = [...prevThumbnails[fileName].images];
+      const draggedThumbnail = newThumbnails.splice(draggedThumbnailIndex, 1)[0]; // Remove the dragged thumbnail
+      newThumbnails.splice(targetIndex, 0, draggedThumbnail); // Insert it at the target index
+
+      updateDisplayTime(newThumbnails.length); // Update display time based on the new number of thumbnails
+
+      return {
+        ...prevThumbnails,
+        [fileName]: { images: newThumbnails }, // Replace with the new order
+      };
+    });
   };
 
   // Function to handle dropping a thumbnail into the new row
@@ -415,7 +446,7 @@ export default function MediaComponent({ uploadedMedia, onMediaUpload }) {
                         alt={`Thumbnail ${index}`}
                         style={{ width: `${thumbnailWidth * 2.26}px`, height: '70px', objectFit: 'cover' }}
                         draggable // Enable dragging
-                        onDragStart={(e) => handleDragStart(e, fileName)} // Start dragging with fileName
+                        onDragStart={(e) => handleDragStart(e, fileName, index)} // Start dragging with fileName and index
                         onDragOver={(e) => e.preventDefault()} // Allow dragging over
                         onDrop={(e) => handleDrop(e, index, fileName)} // Handle dropping on this thumbnail with fileName
                       />
