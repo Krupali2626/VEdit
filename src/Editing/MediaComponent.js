@@ -6,7 +6,7 @@ import t11 from "../Assets/denisha_img/t11.svg";
 import t1 from "../Assets/denisha_img/t1.svg";
 import t2 from "../Assets/denisha_img/t2.svg";
 import t3 from "../Assets/denisha_img/t3.svg";
-import t4 from "../Assets/denisha_img/t4.svg"; // Kept for design
+import t4 from "../Assets/denisha_img/t4.svg";
 import t5 from "../Assets/denisha_img/t5.svg";
 import t6 from "../Assets/denisha_img/t6.svg";
 import t7 from "../Assets/denisha_img/t7.svg";
@@ -28,6 +28,9 @@ export default function MediaComponent({ uploadedMedia, onMediaUpload }) {
   const [draggedThumbnails, setDraggedThumbnails] = useState([]); // State to manage dragged thumbnails
   const [cursorPosition, setCursorPosition] = useState(0); // State to manage cursor position
   const [draggedThumbnailIndex, setDraggedThumbnailIndex] = useState(null); // Index of the dragged thumbnail
+  const [selectedThumbnailIndex, setSelectedThumbnailIndex] = useState({}); // State to manage selected thumbnail index for each video
+
+  const thumbnailWidth = 132; // Fixed width for thumbnails
 
   const handleUpload = (event) => {
     const file = event.target.files[0];
@@ -181,15 +184,6 @@ export default function MediaComponent({ uploadedMedia, onMediaUpload }) {
     return () => clearInterval(interval);
   }, [isPlaying]);
 
-  // Calculate the width of each thumbnail based on the number of markers
-  const calculateThumbnailWidth = () => {
-    const numberOfMarkers = Math.ceil(displayTime / 2);
-    const containerWidth = 800; // Adjust this value based on your layout
-    return containerWidth / numberOfMarkers; // Width of each thumbnail
-  };
-
-  const thumbnailWidth = calculateThumbnailWidth();
-
   // Function to handle the start of the drag
   const handleDragStart = (event, fileName, index) => {
     setDraggedThumbnailIndex(index); // Set the index of the dragged thumbnail
@@ -224,6 +218,17 @@ export default function MediaComponent({ uploadedMedia, onMediaUpload }) {
 
     // Add all dragged thumbnails to the draggedThumbnails state
     setDraggedThumbnails(allThumbnails);
+  };
+
+  // Function to handle thumbnail selection
+  const handleThumbnailSelect = (fileName, index) => {
+    // Clear previously selected thumbnail for all videos
+    setSelectedThumbnailIndex((prev) => {
+      const newSelected = {};
+      newSelected[fileName] = index; // Set the selected index for the specific video
+      handleMediaSelect(allMedia.findIndex(media => media.name === fileName)); // Set the current media index based on the selected thumbnail
+      return newSelected; // Only keep the currently selected thumbnail
+    });
   };
 
   return (
@@ -394,10 +399,10 @@ export default function MediaComponent({ uploadedMedia, onMediaUpload }) {
                 position: 'absolute',
                 width: '2px', // Width of the cursor
                 height: '100%', // Full height of the timeline
-                backgroundColor: 'white', // Cursor color
-                left: `${cursorPosition}%`, // Position based on cursorPosition
-                top: '0', // Align to the top of the timeline
-                zIndex: 10, // Ensure it appears above other elements
+                backgroundColor: 'white',
+                left: `${cursorPosition}%`,
+                top: '0',
+                zIndex: 10,
               }}
             >
               <div style={{
@@ -414,7 +419,7 @@ export default function MediaComponent({ uploadedMedia, onMediaUpload }) {
           </div>
 
           {/* Thumbnails Section */}
-          <div className="row w-100 px-0" >
+          <div className="row w-100 px-0" style={{ overflowX: 'auto' }}> {/* Enable horizontal scrolling */}
             {Object.keys(thumbnails).length > 0 ? (
               Object.entries(thumbnails).map(([fileName, { images }]) => (
                 <div key={fileName} className="col-12 px-0 d-flex flex-column align-items-start">
@@ -424,38 +429,62 @@ export default function MediaComponent({ uploadedMedia, onMediaUpload }) {
                       overflowX: 'auto',
                       whiteSpace: 'nowrap',
                       position: 'relative',
-                      borderTop: '2px solid white',
-                      borderBottom: '2px solid white',
-                      borderLeft: '7px solid white',
-                      borderRight: '7px solid white',
-                      borderRadius: '4px',
                       margin: '5px 0px',
+                      border: currentMediaIndex !== null && allMedia[currentMediaIndex].name === fileName ? '2px solid black' : 'none', // Apply black border if this video is active
+                      borderRadius: '4px',
+                      padding: '0 5px', // Add padding to create space for the white border
+                      backgroundColor: 'white', // Background color for the border effect
                     }}
-                    onDrop={(e) => handleThumbnailDrop(e)} // Handle dropping on the entire row
-                    onDragOver={(e) => e.preventDefault()} // Allow dragging over
                   >
-                    <div style={{ paddingTop: "9px", paddingBottom: "8px", backgroundColor: 'white' }}>
-                      <span style={{ borderLeft: '4px solid black', borderRadius: '20px', paddingBottom: '30px' }}></span>
-                    </div>
-                    <div style={{ borderRight: '7px solid white' }} />
-                    {/* Draggable Thumbnail Images */}
+                    {/* Left black border */}
+                    <div style={{
+                      width: '4px', // Width of the black border
+                      backgroundColor: 'black', // Color of the border
+                      padding: '10px 0px !important', // Padding for the border
+                      borderRadius: '4px', // Rounded corners for the left side
+                      marginTop: "10px",
+                      marginBottom:"10px"
+                    }}> </div>
+
+                    {/* Spacer for the white border */}
+                    <div style={{
+                      width: '5px', // Width of the white spacer
+                      backgroundColor: 'white', // Color of the spacer
+                      borderRadius: '4px 0 0 4px', // Rounded corners for the left side
+                    }} />
+
+
                     {images.map((thumbnail, index) => (
                       <img
                         key={index}
                         src={thumbnail}
                         alt={`Thumbnail ${index}`}
-                        style={{ width: `${thumbnailWidth * 2.26}px`, height: '70px', objectFit: 'cover' }}
-                        draggable // Enable dragging
-                        onDragStart={(e) => handleDragStart(e, fileName, index)} // Start dragging with fileName and index
-                        onDragOver={(e) => e.preventDefault()} // Allow dragging over
-                        onDrop={(e) => handleDrop(e, index, fileName)} // Handle dropping on this thumbnail with fileName
+                        style={{
+                          width: `${thumbnailWidth}px`,
+                          height: '70px',
+                          objectFit: 'cover',
+                          cursor: 'pointer',
+                        }}
+                        onClick={() => handleThumbnailSelect(fileName, index)}
                       />
                     ))}
 
-                    <div style={{ borderRight: '7px solid white' }} />
-                    <div style={{ paddingTop: "9px", paddingBottom: "8px", backgroundColor: 'white' }}>
-                      <span style={{ borderLeft: '4px solid black', borderRadius: '20px', paddingBottom: '30px' }}></span>
-                    </div>
+                    <div style={{
+                      width: '7px',
+                      backgroundColor: 'white',
+                      borderRadius: '0 4px 4px 0',
+                    }} />
+
+                    {/* Left black border */}
+                    <div style={{
+                      width: '4px', // Width of the black border
+                      backgroundColor: 'black', // Color of the border
+                      padding: '10px 0px !important', // Padding for the border
+                      borderRadius: '4px', // Rounded corners for the left side
+                      marginTop: "10px",
+                      marginBottom:"10px"
+                    }}> </div>
+
                   </div>
                 </div>
               ))
@@ -464,66 +493,104 @@ export default function MediaComponent({ uploadedMedia, onMediaUpload }) {
             )}
           </div>
 
-          {/* New Row for Dragged Thumbnails */}
-          <div className="row w-100 px-0" onDrop={handleThumbnailDrop} onDragOver={(e) => e.preventDefault()}>
+
+          <div
+            className="row w-100 px-0"
+            onDrop={handleThumbnailDrop}
+            onDragOver={(e) => e.preventDefault()}
+          >
             <div className="col-12 px-0">
-              <div className="d-flex flex-row flex-nowrap"
+              {/* Flex container for dragged thumbnails with conditional border styling */}
+              <div
+                className="d-flex flex-row flex-nowrap"
                 style={{
                   overflowX: 'auto',
                   borderRadius: '4px',
                   whiteSpace: 'nowrap',
-                  borderLeft: draggedThumbnails.length > 0 ? '7px solid white' : 'none' // Conditionally render left border
+                  borderLeft: draggedThumbnails.length > 0 ? '7px solid white' : 'none',
+                  borderRight: draggedThumbnails.length > 0 ? '7px solid white' : 'none',
                 }}
               >
-                {/* Left border element */}
+                {/* Left border decorative element */}
                 <div style={{ paddingTop: "9px", paddingBottom: "8px" }}>
                   <span
                     style={{
-                      borderLeft: draggedThumbnails.length > 0 ? '4px solid black' : 'none', // Conditionally render inner left border
+                      borderLeft: draggedThumbnails.length > 0 ? '4px solid black' : 'none',
                       borderRadius: '20px',
                       paddingBottom: '30px'
                     }}
-                  ></span>
+                  />
                 </div>
 
-                {/* Conditional right border spacer */}
-                <div style={{ borderRight: draggedThumbnails.length > 0 ? '7px solid white' : 'none' }} />
-
-                {/* Render dragged thumbnails */}
+                {/* Map through and render dragged thumbnails */}
                 {draggedThumbnails.map((thumbnail, index) => (
-                  <img
+                  <div
                     key={index}
-                    src={thumbnail}
-                    alt={`Dragged Thumbnail ${index}`}
-                    style={{ width: `${thumbnailWidth * 2.26}px`, height: '70px', objectFit: 'cover' }}
-                  />
+                    className="position-relative"
+                    onClick={() => {
+                      // Create a new Blob from the thumbnail data URL
+                      fetch(thumbnail)
+                        .then(res => res.blob())
+                        .then(blob => {
+                          // Create a File object from the Blob
+                          const file = new File([blob], `thumbnail-${index}.png`, { type: 'image/png' });
+
+                          // Update media states
+                          setMedia(file);
+                          setMediaType('image');
+                          setMediaBlobUrl(thumbnail); // Use thumbnail URL directly
+                          setCurrentMediaIndex(index);
+                          setSelectedThumbnailIndex(index);
+
+                          // If there's a video element, update its display
+                          const videoPreview = document.getElementById('videoPreview');
+                          if (videoPreview) {
+                            videoPreview.style.display = 'none';
+                          }
+
+                          // Update the preview div
+                          const previewDiv = document.querySelector('.d_bg_preview');
+                          if (previewDiv) {
+                            // Clear existing content
+                            previewDiv.innerHTML = '';
+
+                            // Create and add new image
+                            const img = document.createElement('img');
+                            img.src = thumbnail;
+                            img.style.width = '100%';
+                            img.style.height = '100%';
+                            img.style.objectFit = 'contain';
+                            previewDiv.appendChild(img);
+                          }
+                        });
+                    }}
+                  >
+                    <img
+                      src={thumbnail}
+                      alt={`Dragged Thumbnail ${index}`}
+                      style={{
+                        width: `${thumbnailWidth}px`,
+                        height: '70px',
+                        objectFit: 'cover',
+                        cursor: 'pointer'
+                      }}
+                    />
+                  </div>
                 ))}
 
-                {/* Conditional right border spacer */}
-                <div style={{ borderRight: draggedThumbnails.length > 0 ? '7px solid white' : 'none' }} />
-
-                {/* Right border element */}
+                {/* Right border decorative element */}
                 <div style={{ paddingTop: "9px", paddingBottom: "8px" }}>
                   <span
                     style={{
-                      borderLeft: draggedThumbnails.length > 0 ? '4px solid black' : 'none', // Conditionally render inner right border
+                      borderLeft: draggedThumbnails.length > 0 ? '4px solid black' : 'none',
                       borderRadius: '20px',
                       paddingBottom: '30px'
                     }}
-                  ></span>
+                  />
                 </div>
-
-                {/* Final conditional right border with rounded corners */}
-                <div
-                  style={{
-                    borderRight: draggedThumbnails.length > 0 ? '7px solid white' : 'none',
-                    borderRadius: '0px 4px 4px 0px'
-                  }}
-                />
               </div>
             </div>
           </div>
-
         </div>
       </div>
     </div>
