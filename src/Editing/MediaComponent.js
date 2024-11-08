@@ -1,4 +1,3 @@
-// src/Editing/MediaComponent.js
 import React, { useState, useEffect, useRef } from 'react';
 import '../CSS/newmedia.css';
 import d_m1 from "../Assets/denisha_img/cloud.svg";
@@ -231,6 +230,27 @@ export default function MediaComponent({ uploadedMedia, onMediaUpload }) {
     });
   };
 
+  // Function to handle media deletion
+  const handleDeleteMedia = (index) => {
+    // Check if the index is valid
+    if (index < 0 || index >= allMedia.length) {
+      console.error("Invalid index for deletion:", index);
+      return; // Exit if the index is invalid
+    }
+
+    const fileName = allMedia[index].name; // Get the name of the file to delete
+    setAllMedia((prev) => {
+      const newMedia = prev.filter((_, i) => i !== index); // Remove the media from the allMedia state
+      return newMedia;
+    });
+
+    setThumbnails((prev) => {
+      const newThumbnails = { ...prev };
+      delete newThumbnails[fileName]; // Remove the thumbnails associated with the deleted media
+      return newThumbnails;
+    });
+  };
+
   return (
     <div>
       <div className="row w-100">
@@ -262,8 +282,8 @@ export default function MediaComponent({ uploadedMedia, onMediaUpload }) {
                   const reversedIndex = allMedia.length - 1 - index; // To get the actual index of the media item
                   return (
                     <div
-                      className="col-4 d-flex justify-content-center"
-                      key={reversedIndex} // Use the reversed index for unique keys
+                      className="col-4 d-flex justify-content-center position-relative" // Added position-relative for absolute positioning of delete icon
+                      key={file.name} // Use file name for unique keys
                       style={{ marginBottom: '15px' }}
                       onClick={() => handleMediaSelect(reversedIndex)} // Handle media selection with reversed index
                     >
@@ -284,6 +304,63 @@ export default function MediaComponent({ uploadedMedia, onMediaUpload }) {
                       ) : (
                         <p>Unsupported media type</p>
                       )}
+                      {/* Delete Icon */}
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation(); // Prevent triggering media selection
+                          handleDeleteMedia(reversedIndex); // Call delete function
+                        }}
+                        style={{
+                          position: 'absolute',
+                          top: '5px',
+                          right: '5px',
+                          background: 'none',
+                          border: 'none',
+                          cursor: 'pointer',
+                          display: 'none', // Initially hidden
+                        }}
+                        className="delete-icon" // Add a class for styling
+                      >
+                        <img src="path/to/delete-icon.svg" alt="Delete" style={{ width: '20px', height: '20px' }} />
+                      </button>
+                      {/* Show delete icon on hover */}
+                      <div
+                        className="hover-overlay"
+                        style={{
+                          position: 'absolute',
+                          top: 0,
+                          left: 0,
+                          right: 0,
+                          bottom: 0,
+                          backgroundColor: 'rgba(0, 0, 0, 0.5)',
+                          display: 'flex',
+                          justifyContent: 'center',
+                          alignItems: 'center',
+                          opacity: 0,
+                          transition: 'opacity 0.3s',
+                        }}
+                        onMouseEnter={(e) => {
+                          e.currentTarget.style.opacity = 1; // Show overlay on hover
+                        }}
+                        onMouseLeave={(e) => {
+                          e.currentTarget.style.opacity = 0; // Hide overlay when not hovering
+                        }}
+                      >
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation(); // Prevent triggering media selection
+                            handleDeleteMedia(reversedIndex); // Call delete function
+                          }}
+                          style={{
+                            background: 'none',
+                            border: 'none',
+                            color: 'white',
+                            cursor: 'pointer',
+                          }}
+                        >
+                          Delete
+                        </button>
+                      </div>
                     </div>
                   );
                 })}
@@ -421,7 +498,7 @@ export default function MediaComponent({ uploadedMedia, onMediaUpload }) {
           {/* Thumbnails Section */}
           <div className="row w-100 px-0" style={{ overflowX: 'auto' }}> {/* Enable horizontal scrolling */}
             {Object.keys(thumbnails).length > 0 ? (
-              Object.entries(thumbnails).map(([fileName, { images }]) => (
+              Object.entries(thumbnails).reverse().map(([fileName, { images }]) => (
                 <div key={fileName} className="col-12 px-0 d-flex flex-column align-items-start">
                   <div
                     className="d-flex flex-row flex-nowrap"
@@ -430,25 +507,29 @@ export default function MediaComponent({ uploadedMedia, onMediaUpload }) {
                       whiteSpace: 'nowrap',
                       position: 'relative',
                       margin: '5px 0px',
-                      border: currentMediaIndex !== null && allMedia[currentMediaIndex].name === fileName ? '2px solid black' : 'none', // Apply black border if this video is active
+                      borderLeft: currentMediaIndex !== null && allMedia[currentMediaIndex].name === fileName ? '7px solid white' : 'none', // Apply black border if this video is active
+                      borderRight: currentMediaIndex !== null && allMedia[currentMediaIndex].name === fileName ? '7px solid white' : 'none', // Apply black border if this video is active
+                      borderTop: currentMediaIndex !== null && allMedia[currentMediaIndex].name === fileName ? '2px solid white' : 'none', // Apply black border if this video is active
+                      borderBottom: currentMediaIndex !== null && allMedia[currentMediaIndex].name === fileName ? '2px solid white' : 'none', // Apply black border if this video is active
                       borderRadius: '4px',
-                      padding: '0 5px', // Add padding to create space for the white border
+                      padding: '0 0px', // Add padding to create space for the white border
                       backgroundColor: 'white', // Background color for the border effect
                     }}
                   >
                     {/* Left black border */}
                     <div style={{
-                      width: '4px', // Width of the black border
+                      width: currentMediaIndex !== null && allMedia[currentMediaIndex].name === fileName ? '4px' : '0px', // Width of the black border
                       backgroundColor: 'black', // Color of the border
                       padding: '10px 0px !important', // Padding for the border
                       borderRadius: '4px', // Rounded corners for the left side
+                      paddingLeft:"100px !important",
                       marginTop: "10px",
                       marginBottom:"10px"
                     }}> </div>
 
                     {/* Spacer for the white border */}
                     <div style={{
-                      width: '5px', // Width of the white spacer
+                      width: currentMediaIndex !== null && allMedia[currentMediaIndex].name === fileName ? '5px' : '0px',// Width of the white spacer
                       backgroundColor: 'white', // Color of the spacer
                       borderRadius: '4px 0 0 4px', // Rounded corners for the left side
                     }} />
@@ -470,14 +551,14 @@ export default function MediaComponent({ uploadedMedia, onMediaUpload }) {
                     ))}
 
                     <div style={{
-                      width: '7px',
+                      width:  currentMediaIndex !== null && allMedia[currentMediaIndex].name === fileName ? '7px' : '0px',
                       backgroundColor: 'white',
                       borderRadius: '0 4px 4px 0',
                     }} />
 
                     {/* Left black border */}
                     <div style={{
-                      width: '4px', // Width of the black border
+                      width: currentMediaIndex !== null && allMedia[currentMediaIndex].name === fileName ? '4px' : '0px', // Width of the black border
                       backgroundColor: 'black', // Color of the border
                       padding: '10px 0px !important', // Padding for the border
                       borderRadius: '4px', // Rounded corners for the left side
