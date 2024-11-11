@@ -2,7 +2,7 @@ import React, { useRef, useState } from 'react';
 import { useDispatch } from 'react-redux';
 import { useFormik } from 'formik';
 import * as Yup from 'yup';
-import { signUp, signIn, mobileSignIn, verifySecurityQuestions, resetPassword } from '../Redux/Slice/SignIn.slice';
+import { signUp, signIn, verifySecurityQuestions, resetPassword } from '../Redux/Slice/SignIn.slice';
 import { useNavigate } from 'react-router-dom';
 import { Form, Button } from 'react-bootstrap';
 import { FaEnvelope, FaLock, FaApple, FaEye, FaEyeSlash } from 'react-icons/fa';
@@ -11,6 +11,7 @@ import { MdCall } from "react-icons/md";
 import PopUpImg from '../Assets/PopUp.png';
 import { Dialog, DialogTitle, DialogContent, DialogActions, TextField, Button as MuiButton, Typography, LinearProgress, Box, Select, MenuItem } from '@mui/material';
 import emailjs from '@emailjs/browser';
+import { mobileSignIn } from '../Redux/Slice/MobileSign.slice';
 
 
 function SignIn(props, value) {
@@ -346,14 +347,14 @@ function SignIn(props, value) {
     };
 
     // Handle mobile OTP verification
-    const handleMobileOTPVerification = (enteredOTP) => {
+    const handleMobileOTPVerification = async (enteredOTP) => {
         const fullOTP = enteredOTP.join('');
         if (fullOTP === generatedMobileOTP) {
             if (formType === 'forgot') {
                 setShowResetPassword(true);
             } else if (formType === 'signin') {
-                // Handle sign in with mobile
-                handleMobileSignIn(formik.values.mobile);
+                // Call the mobile sign in function
+                await handleMobileSignIn(formik.values.mobile);
             }
             setMobileOtpSent(false);
         } else {
@@ -363,10 +364,21 @@ function SignIn(props, value) {
 
     const handleMobileSignIn = async (mobileNumber) => {
         try {
-            const response = await dispatch(mobileSignIn({ mobile: mobileNumber })).unwrap();
+            // Dispatch the mobileSignIn action
+            const response =  dispatch(mobileSignIn({
+                mobile: mobileNumber
+            }));
+
+
             if (response) {
+                console.log(response)
+                // Store user data in local storage
                 localStorage.setItem('user', JSON.stringify(response));
+
+                // Show success message
                 alert("Sign in successful!");
+
+                // Navigate to home page
                 navigate('/');
             }
         } catch (error) {
@@ -375,7 +387,7 @@ function SignIn(props, value) {
         }
     };
 
-    // Handle mobile OTP input
+    // Update the existing handleMobileOTPInput function
     const handleMobileOTPInput = (index, value) => {
         if (value.length <= 1 && /^\d*$/.test(value)) {
             const newOTP = [...mobileOtp];
@@ -389,9 +401,9 @@ function SignIn(props, value) {
             }
 
             // Check if all digits are entered
-            // if (newOTP.every(digit => digit !== '') && newOTP.join('').length === 4) {
-            //     handleMobileOTPVerification(newOTP);
-            // }
+            if (newOTP.every(digit => digit !== '') && newOTP.join('').length === 4) {
+                handleMobileOTPVerification(newOTP);
+            }
         }
     };
 
