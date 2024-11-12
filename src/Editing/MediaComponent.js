@@ -22,6 +22,7 @@ export default function MediaComponent({ uploadedMedia, onMediaUpload }) {
   const [mediaType, setMediaType] = useState('');
   const [allMedia, setAllMedia] = useState([]);
   const videoRef = useRef(null);
+  const [hasMedia, setHasMedia] = useState(false);
   const [isPlaying, setIsPlaying] = useState(false);
   const [mediaBlobUrl, setMediaBlobUrl] = useState(null);
   const [currentMediaIndex, setCurrentMediaIndex] = useState(null);
@@ -34,6 +35,7 @@ export default function MediaComponent({ uploadedMedia, onMediaUpload }) {
   const [deletedMediaNames, setDeletedMediaNames] = useState([]);
   const [showModal, setShowModal] = useState(false); // State for modal visibility
   const [mediaToDeleteIndex, setMediaToDeleteIndex] = useState(null); // Index of media to delete
+  const [copiedVideoThumbnails, setCopiedVideoThumbnails] = useState([]); // New state for copied video thumbnails
 
   const thumbnailWidth = 132; // Fixed width for thumbnails
 
@@ -43,39 +45,50 @@ export default function MediaComponent({ uploadedMedia, onMediaUpload }) {
     if (file) {
       const fileType = file.type.split('/')[0];
       const fileURL = URL.createObjectURL(file);
-
-      // Check if the file already exists in allMedia
+  
+      // Check for duplicate file
       if (allMedia.some(media => media.name === file.name)) {
         console.warn("File already exists:", file.name);
-        return; // Exit if the file already exists
+        return;
       }
-
-      // Proceed to add the new media
-      setAllMedia((prev) => [...prev, file]); // Add the new media to the state
-      onMediaUpload(file); // Call the upload callback
-
-      // Generate thumbnails for the uploaded video immediately
+  
+      // Set hasMedia to true when uploading
+      setHasMedia(true);
+      
+      // Update media states
+      setAllMedia((prev) => [...prev, file]);
+      onMediaUpload(file);
+  
+      // Generate thumbnails based on file type
       if (fileType === 'video') {
         generateThumbnails(file);
       } else if (fileType === 'image') {
-        // For images, create a thumbnail immediately
-        const img = new Image();
-        img.src = fileURL;
-        img.onload = () => {
-          const canvas = document.createElement('canvas');
-          canvas.width = 132; // Thumbnail width
-          canvas.height = 150; // Thumbnail height
-          const context = canvas.getContext('2d');
-          context.drawImage(img, 0, 0, canvas.width, canvas.height);
-          const thumbnailDataUrl = canvas.toDataURL();
-          setThumbnails((prev) => ({
-            ...prev,
-            [file.name]: { images: [thumbnailDataUrl], times: [] }, // Store the thumbnail immediately
-          }));
-        };
+        generateImageThumbnail(file, fileURL);
       }
     }
   };
+  // First, add the generateImageThumbnail function
+const generateImageThumbnail = (file, fileURL) => {
+  const img = new Image();
+  img.src = fileURL;
+  img.onload = () => {
+    const canvas = document.createElement('canvas');
+    canvas.width = 132; // Thumbnail width
+    canvas.height = 150; // Thumbnail height
+    const context = canvas.getContext('2d');
+    context.drawImage(img, 0, 0, canvas.width, canvas.height);
+    const thumbnailDataUrl = canvas.toDataURL();
+    
+    // Update thumbnails state with the new image thumbnail
+    setThumbnails((prev) => ({
+      ...prev,
+      [file.name]: { 
+        images: [thumbnailDataUrl], 
+        times: [] // Empty array for images since they don't have timestamps
+      }
+    }));
+  };
+};
 
   useEffect(() => {
     if (uploadedMedia.length > 0) {
@@ -265,31 +278,52 @@ export default function MediaComponent({ uploadedMedia, onMediaUpload }) {
   //     return newThumbnails;
   //   });
   // };
-
   const handleDeleteMedia = (index) => {
     // Check if the index is valid
     if (index < 0 || index >= allMedia.length) {
-      console.error("Invalid index for deletion:", index);
-      return; // Exit if the index is invalid
+        console.error("Invalid index for deletion:", index);
+        return;
     }
 
-    const fileName = allMedia[index].name; // Get the name of the file to delete
+    const fileName = allMedia[index].name;
 
-    // Update the allMedia state to remove the selected media
+    // Update the allMedia state
     setAllMedia((prev) => {
-      const newMedia = prev.filter((_, i) => i !== index); // Remove the media from the allMedia state
-      return newMedia; // Return the updated media array
+        const newMedia = prev.filter((_, i) => i !== index);
+        
+        // If this was the last media item, reset the media states
+        if (newMedia.length === 0) {
+            setMedia(null); // Clear the media preview
+            setMediaType(''); // Clear the media type
+            setMediaBlobUrl(null); // Clear the media blob URL
+            setCurrentMediaIndex(null); // Reset the current media index
+            setHasMedia(false); // Indicate that there is no media
+        } else {
+            // If the deleted media was the currently selected media, clear the preview
+            if (currentMediaIndex === index) {
+                setMedia(null); // Clear the media preview
+                setMediaType(''); // Clear the media type
+                setMediaBlobUrl(null); // Clear the media blob URL
+                setCurrentMediaIndex(null); // Reset the current media index
+            } else {
+                // If there are still media items, select an appropriate one
+                const newIndex = Math.min(index, newMedia.length - 1);
+                handleMediaSelect(newIndex);
+            }
+        }
+        
+        return newMedia;
     });
 
-    // Update the thumbnails state to remove the associated thumbnails
+    // Update thumbnails state
     setThumbnails((prev) => {
-      const newThumbnails = { ...prev };
-      delete newThumbnails[fileName]; // Remove the thumbnails associated with the deleted media
-      return newThumbnails; // Return the updated thumbnails
+        const newThumbnails = { ...prev };
+        delete newThumbnails[fileName];
+        return newThumbnails;
     });
 
-    // Update the deletedMediaNames state to include the deleted media
-    setDeletedMediaNames((prev) => [...prev, fileName]); // Add the deleted media name to the state
+    // Update deletedMediaNames state
+    setDeletedMediaNames((prev) => [...prev, fileName]);
   };
 
   // Function to handle delete confirmation
@@ -300,12 +334,28 @@ export default function MediaComponent({ uploadedMedia, onMediaUpload }) {
     }
     setShowModal(false); // Hide modal
   };
-
+  const handleThumbnailCopy = () => {
+    if (currentMediaIndex !== null && allMedia[currentMediaIndex]) {
+      const currentFileName = allMedia[currentMediaIndex].name;
+      const currentThumbnails = thumbnails[currentFileName];
+      
+      if (currentThumbnails && currentThumbnails.images) {
+        // Update the thumbnails state by appending the copied thumbnails to the current video's thumbnails
+        setThumbnails(prev => ({
+          ...prev,
+          [currentFileName]: {
+            ...prev[currentFileName],
+            images: [...prev[currentFileName].images, ...currentThumbnails.images] // Append copied thumbnails
+          }
+        }));
+      }
+    }
+  };
   return (
     <div>
       <div className="row w-100">
         <div className="col-xl-3 d-xl-block d-none px-0">
-          {!media ? (
+        {allMedia.length === 0 ? ( // Changed condition to check array length
             <div>
               <div
                 className="d_bg_media"
@@ -391,7 +441,9 @@ export default function MediaComponent({ uploadedMedia, onMediaUpload }) {
                             right: 0,
                             bottom: 0,
                             backgroundColor: 'rgba(0, 0, 0, 0.5)',
-
+                            display: 'flex',              
+                            flexDirection: 'column',    
+                            justifyContent: 'space-between',
                             paddingRight: '10px',
                             opacity: 0,
                             transition: 'opacity 0.3s',
@@ -414,13 +466,32 @@ export default function MediaComponent({ uploadedMedia, onMediaUpload }) {
                               border: 'none',
                               color: 'white',
                               cursor: 'pointer',
+                              float: 'right',
                               fontSize: '22px',
+                              paddingTop:'6px',
                               display: 'flex',
                               justifyContent: 'end',
                               alignItems: 'baseline',
                             }}
                           >
                             <RiDeleteBin6Line />
+                          </button>
+                          <button
+                           
+                            style={{
+                              background: 'none',
+                              border: 'none',
+                              color: 'white',
+                              cursor: 'pointer',
+                              float: 'left',
+                              fontSize: '18px',
+                              display: 'flex',
+                              paddingLeft: '10px',
+                              alignItems: 'baseline',
+
+                            }}
+                          >
+                            10:13
                           </button>
                         </div>
                       </div>
@@ -481,7 +552,13 @@ export default function MediaComponent({ uploadedMedia, onMediaUpload }) {
           <div className="d_timeline_icon_row p-2 d-flex justify-content-between align-items-center" >
             <div className="d_timeline_left_icons d-flex align-items-center">
               <img className="mx-2" src={t11} alt="Icon 1" />
-              <img className="mx-2" src={t1} alt="Icon 2" />
+              <img 
+                className="mx-2" 
+                src={t1} 
+                alt="Icon 2" 
+                onClick={handleThumbnailCopy}
+                style={{ cursor: 'pointer' }}
+              />
               <img className="mx-2" src={t2} alt="Icon 3" />
             </div>
             <div className="d_timeline_time_display">
@@ -558,89 +635,89 @@ export default function MediaComponent({ uploadedMedia, onMediaUpload }) {
           </div>
 
           {/* Thumbnails Section */}
-          <div id='d_dreg' className="row w-100 px-0 d_delete_media" style={{ overflowX: 'auto' }}> {/* Enable horizontal scrolling */}
-            {Object.keys(thumbnails).length > 0 ? (
-              Object.entries(thumbnails).reverse().map(([fileName, { images }]) => {
-                // Check if the media has been deleted
-                if (deletedMediaNames.includes(fileName)) {
-                  return null; // Skip rendering if the media has been deleted
-                }
+          <div id='d_dreg' className="row w-100 px-0 d_delete_media" style={{ overflowX: 'auto' }}>
+        {Object.keys(thumbnails).length > 0 ? (
+          Object.entries(thumbnails).reverse().map(([fileName, { images }]) => {
+            // Check if the media has been deleted
+            if (deletedMediaNames.includes(fileName)) {
+              return null;
+            }
 
-                return (
-                  <div key={fileName} className="col-12 px-0 d-flex flex-column align-items-start">
-                    <div
-                      className="d-flex flex-row flex-nowrap"
+            return (
+              <div key={fileName} className="col-12 px-0 d-flex flex-column align-items-start">
+                <div
+                  className="d-flex flex-row flex-nowrap"
+                  style={{
+                    overflowX: 'auto',
+                    whiteSpace: 'nowrap',
+                    position: 'relative',
+                    margin: '5px 0px',
+                    borderLeft: currentMediaIndex !== null && allMedia[currentMediaIndex].name === fileName ? '7px solid white' : 'none',
+                    borderRight: currentMediaIndex !== null && allMedia[currentMediaIndex].name === fileName ? '7px solid white' : 'none',
+                    borderTop: currentMediaIndex !== null && allMedia[currentMediaIndex].name === fileName ? '2px solid white' : 'none',
+                    borderBottom: currentMediaIndex !== null && allMedia[currentMediaIndex].name === fileName ? '2px solid white' : 'none',
+                    borderRadius: '4px',
+                    padding: '0 0px',
+                    backgroundColor: 'white',
+                  }}
+                >
+                  {/* Left black border */}
+                  <div style={{
+                    width: currentMediaIndex !== null && allMedia[currentMediaIndex].name === fileName ? '4px' : '0px',
+                    backgroundColor: 'black',
+                    padding: '10px 0px !important',
+                    borderRadius: '4px',
+                    paddingLeft: "100px !important",
+                    marginTop: "10px",
+                    marginBottom: "10px"
+                  }}></div>
+
+                  {/* Spacer for the white border */}
+                  <div style={{
+                    width: currentMediaIndex !== null && allMedia[currentMediaIndex].name === fileName ? '5px' : '0px',
+                    backgroundColor: 'white',
+                    borderRadius: '4px 0 0 4px',
+                  }} />
+
+                  {images.map((thumbnail, index) => (
+                    <img
+                      key={index}
+                      src={thumbnail}
+                      alt={`Thumbnail ${index}`}
                       style={{
-                        overflowX: 'auto',
-                        whiteSpace: 'nowrap',
-                        position: 'relative',
-                        margin: '5px 0px',
-                        borderLeft: currentMediaIndex !== null && allMedia[currentMediaIndex].name === fileName ? '7px solid white' : 'none', // Apply white border if this video is active
-                        borderRight: currentMediaIndex !== null && allMedia[currentMediaIndex].name === fileName ? '7px solid white' : 'none', // Apply white border if this video is active
-                        borderTop: currentMediaIndex !== null && allMedia[currentMediaIndex].name === fileName ? '2px solid white' : 'none', // Apply white border if this video is active
-                        borderBottom: currentMediaIndex !== null && allMedia[currentMediaIndex].name === fileName ? '2px solid white' : 'none', // Apply white border if this video is active
-                        borderRadius: '4px',
-                        padding: '0 0px', // Add padding to create space for the white border
-                        backgroundColor: 'white', // Background color for the border effect
+                        width: `${thumbnailWidth}px`,
+                        height: '70px',
+                        objectFit: 'cover',
+                        cursor: 'pointer',
                       }}
-                    >
-                      {/* Left black border */}
-                      <div style={{
-                        width: currentMediaIndex !== null && allMedia[currentMediaIndex].name === fileName ? '4px' : '0px', // Width of the black border
-                        backgroundColor: 'black', // Color of the border
-                        padding: '10px 0px !important', // Padding for the border
-                        borderRadius: '4px', // Rounded corners for the left side
-                        paddingLeft: "100px !important",
-                        marginTop: "10px",
-                        marginBottom: "10px"
-                      }}> </div>
+                      onClick={() => handleThumbnailSelect(fileName, index)}
+                    />
+                  ))}
 
-                      {/* Spacer for the white border */}
-                      <div style={{
-                        width: currentMediaIndex !== null && allMedia[currentMediaIndex].name === fileName ? '5px' : '0px', // Width of the white spacer
-                        backgroundColor: 'white', // Color of the spacer
-                        borderRadius: '4px 0 0 4px', // Rounded corners for the left side
-                      }} />
+                  {/* Right spacer and border */}
+                  <div style={{
+                    width: currentMediaIndex !== null && allMedia[currentMediaIndex].name === fileName ? '7px' : '0px',
+                    backgroundColor: 'white',
+                    borderRadius: '0 4px 4px 0',
+                  }} />
 
-                      {images.map((thumbnail, index) => (
-                        <img
-                          key={index}
-                          src={thumbnail}
-                          alt={`Thumbnail ${index}`}
-                          style={{
-                            width: `${thumbnailWidth}px`,
-                            height: '70px',
-                            objectFit: 'cover',
-                            cursor: 'pointer',
-                          }}
-                          onClick={() => handleThumbnailSelect(fileName, index)}
-                        />
-                      ))}
-
-                      <div style={{
-                        width: currentMediaIndex !== null && allMedia[currentMediaIndex].name === fileName ? '7px' : '0px',
-                        backgroundColor: 'white',
-                        borderRadius: '0 4px 4px 0',
-                      }} />
-
-                      {/* Right black border */}
-                      <div style={{
-                        width: currentMediaIndex !== null && allMedia[currentMediaIndex].name === fileName ? '4px' : '0px', // Width of the black border
-                        backgroundColor: 'black', // Color of the border
-                        padding: '10px 0px !important', // Padding for the border
-                        borderRadius: '4px', // Rounded corners for the left side
-                        marginTop: "10px",
-                        marginBottom: "10px"
-                      }}> </div>
-                    </div>
-                  </div>
-                );
-              })
-            ) : (
-              <p>No thumbnails available</p>
-            )}
-          </div>
-
+                  {/* Right black border */}
+                  <div style={{
+                    width: currentMediaIndex !== null && allMedia[currentMediaIndex].name === fileName ? '4px' : '0px',
+                    backgroundColor: 'black',
+                    padding: '10px 0px !important',
+                    borderRadius: '4px',
+                    marginTop: "10px",
+                    marginBottom: "10px"
+                  }}></div>
+                </div>
+              </div>
+            );
+          })
+        ) : (
+          <p>No thumbnails available</p>
+        )}
+      </div>
 
           <div
             className="row w-100 px-0"
