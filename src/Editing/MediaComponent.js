@@ -36,24 +36,67 @@ export default function MediaComponent({ uploadedMedia, onMediaUpload }) {
   const [showModal, setShowModal] = useState(false);
   const [mediaToDeleteIndex, setMediaToDeleteIndex] = useState(null);
   const [copiedVideoThumbnails, setCopiedVideoThumbnails] = useState([]);
+  const [mediaIds, setMediaIds] = useState([]);
+  const [nextId, setNextId] = useState(1);
+  const [imageDisplayTime, setImageDisplayTime] = useState(0); // Track time for image display
+  const [imageTimer, setImageTimer] = useState(null); // Timer for image display
 
   const thumbnailWidth = 132;
 
+  // const handleUpload = async (event) => {
+  //   const file = event.target.files[0];
+  //   if (file) {
+  //     const fileType = file.type.split('/')[0];
+  //     const fileURL = URL.createObjectURL(file);
+  //     if (allMedia.some(media => media.name === file.name) || deletedMediaNames.includes(file.name)) return; // Prevent re-upload of deleted media
+  //     setHasMedia(true);
+  //     setAllMedia((prev) => [...prev, file]); // Update state with new media
+  //     onMediaUpload(file); // Call the upload handler
+  //     if (fileType === 'video') {
+  //       await generateThumbnails(file); // Ensure thumbnails are generated for videos
+  //     } else if (fileType === 'image') {
+  //       await generateImageThumbnail(file, fileURL); // Generate thumbnail for images
+  //     }
+  //     console.log("Uploaded Media:", file); // Log the uploaded media
+  //   }
+  // };
   const handleUpload = async (event) => {
     const file = event.target.files[0];
     if (file) {
       const fileType = file.type.split('/')[0];
       const fileURL = URL.createObjectURL(file);
-      if (allMedia.some(media => media.name === file.name) || deletedMediaNames.includes(file.name)) return; // Prevent re-upload of deleted media
-      setHasMedia(true);
-      setAllMedia((prev) => [...prev, file]); // Update state with new media
-      onMediaUpload(file); // Call the upload handler
-      if (fileType === 'video') {
-        await generateThumbnails(file); // Ensure thumbnails are generated for videos
-      } else if (fileType === 'image') {
-        await generateImageThumbnail(file, fileURL); // Generate thumbnail for images
+      
+      // Check if file was previously deleted
+      if (deletedMediaNames.includes(file.name)) {
+        return; // Prevent re-upload of deleted media
       }
-      console.log("Uploaded Media:", file); // Log the uploaded media
+      
+      // Check if file already exists
+      if (allMedia.some(media => media.name === file.name)) {
+        return; // Prevent duplicate uploads
+      }
+
+      setHasMedia(true);
+      
+      // Add new media to the array
+      const newMediaArray = [...allMedia, file];
+      setAllMedia(newMediaArray);
+      
+      // Set the newly uploaded media as current
+      const newIndex = newMediaArray.length - 1;
+      setCurrentMediaIndex(newIndex);
+      setMedia(file);
+      setMediaType(fileType);
+      setMediaBlobUrl(fileURL);
+
+      // Generate thumbnails based on file type
+      if (fileType === 'video') {
+        await generateThumbnails(file);
+      } else if (fileType === 'image') {
+        await generateImageThumbnail(file, fileURL);
+      }
+
+      onMediaUpload(file);
     }
   };
 
@@ -207,8 +250,70 @@ export default function MediaComponent({ uploadedMedia, onMediaUpload }) {
     }
   };
 
+  useEffect(() => {
+    // Add event listener for video end
+    const videoElement = videoRef.current;
+    if (videoElement) {
+      const handleVideoEnd = () => {
+        setCursorPosition(0); // Reset cursor position to start
+        setIsPlaying(false); // Reset play state
+      };
+
+      videoElement.addEventListener('ended', handleVideoEnd);
+
+      // Cleanup event listener on unmount
+      return () => {
+        videoElement.removeEventListener('ended', handleVideoEnd);
+      };
+    }
+  }, [videoRef]);
+
+  useEffect(() => {
+    let intervalId;
+
+    if (isPlaying && mediaType === 'video') {
+      intervalId = setInterval(() => {
+        if (videoRef.current) {
+          const currentTime = videoRef.current.currentTime;
+          const duration = videoRef.current.duration;
+          const position = (currentTime / duration) * 100; // Calculate percentage
+          setCursorPosition(position);
+        }
+      }, 100); // Update every 100ms
+    }
+
+    return () => {
+      clearInterval(intervalId); // Clear interval on unmount or when not playing
+    };
+  }, [isPlaying, mediaType]);
+
   const handlePlayPause = () => {
-    if (videoRef.current) {
+    if (mediaType === 'image') {
+      if (isPlaying) {
+        // Pause the image display
+        clearInterval(imageTimer);
+        setIsPlaying(false);
+        setCursorPosition(0); // Reset cursor position when paused
+      } else {
+        // Start displaying the image for 5 seconds
+        setIsPlaying(true);
+        setImageDisplayTime(0); // Reset display time
+        const timer = setInterval(() => {
+          setImageDisplayTime(prev => {
+            if (prev >= 5000) { // 5 seconds
+              clearInterval(timer);
+              handleRightClick(); // Move to the next media
+              setIsPlaying(false); // Reset play state
+              setCursorPosition(0); // Reset cursor position when image display is over
+              return 0; // Reset display time
+            }
+            return prev + 100; // Increment by 100ms
+          });
+        }, 100); // Update every 100ms
+        setImageTimer(timer);
+      }
+    } else if (videoRef.current) {
+      // If the current media is a video, play or pause the video
       if (isPlaying) {
         videoRef.current.pause();
       } else {
@@ -219,17 +324,12 @@ export default function MediaComponent({ uploadedMedia, onMediaUpload }) {
   };
 
   useEffect(() => {
-    const updateCursor = () => {
-      if (videoRef.current) {
-        const currentTime = videoRef.current.currentTime;
-        const duration = videoRef.current.duration;
-        const position = (currentTime / duration) * 100;
-        setCursorPosition(position);
-      }
-    };
-    const interval = setInterval(updateCursor, 50);
-    return () => clearInterval(interval);
-  }, [isPlaying]);
+    // Update cursor position based on image display time
+    if (mediaType === 'image' && isPlaying) {
+      const position = (imageDisplayTime / 5000) * 100; // Calculate percentage
+      setCursorPosition(position);
+    }
+  }, [imageDisplayTime, isPlaying, mediaType]);
 
   const handleThumbnailSelect = (fileName, index) => {
     setSelectedThumbnailIndex((prev) => {
@@ -284,16 +384,14 @@ export default function MediaComponent({ uploadedMedia, onMediaUpload }) {
   const confirmDeleteMedia = () => {
     if (mediaToDeleteIndex !== null) {
       const fileName = allMedia[mediaToDeleteIndex].name;
-
-      // Create new array without the deleted media
       const newMediaArray = allMedia.filter((_, index) => index !== mediaToDeleteIndex);
-
-      // Update allMedia state with filtered array
+      
+      // Update allMedia state
       setAllMedia(newMediaArray);
-
-      // Update deletedMediaNames
+      
+      // Add to deleted media names
       setDeletedMediaNames(prev => [...prev, fileName]);
-
+      
       // Clear thumbnails for deleted media
       setThumbnails(prev => {
         const newThumbnails = { ...prev };
@@ -301,30 +399,30 @@ export default function MediaComponent({ uploadedMedia, onMediaUpload }) {
         return newThumbnails;
       });
 
-      // Reset current media if it was deleted
-      if (currentMediaIndex === mediaToDeleteIndex) {
+      // Handle current media after deletion
+      if (newMediaArray.length === 0) {
+        // Reset all media-related states if no media left
         setMedia(null);
         setMediaType('');
         setMediaBlobUrl(null);
-
-        // If there are remaining media items, select the next available one
-        if (newMediaArray.length > 0) {
+        setCurrentMediaIndex(null);
+        setHasMedia(false);
+      } else {
+        if (currentMediaIndex === mediaToDeleteIndex) {
+          // If deleted media was current, select next available media
           const newIndex = Math.min(mediaToDeleteIndex, newMediaArray.length - 1);
           const nextMedia = newMediaArray[newIndex];
           setMedia(nextMedia);
           setMediaType(nextMedia.type.split('/')[0]);
           setMediaBlobUrl(URL.createObjectURL(nextMedia));
           setCurrentMediaIndex(newIndex);
-        } else {
-          setCurrentMediaIndex(null);
-          setHasMedia(false);
+        } else if (currentMediaIndex > mediaToDeleteIndex) {
+          // Adjust index if deleted media was before current media
+          setCurrentMediaIndex(prev => prev - 1);
         }
-      } else if (currentMediaIndex > mediaToDeleteIndex) {
-        // Adjust currentMediaIndex if deleted media was before current media
-        setCurrentMediaIndex(currentMediaIndex - 1);
       }
 
-      // Stop video playback if playing
+      // Stop video if playing
       if (isPlaying) {
         setIsPlaying(false);
         if (videoRef.current) {
@@ -332,11 +430,8 @@ export default function MediaComponent({ uploadedMedia, onMediaUpload }) {
         }
       }
 
-      // Reset mediaToDeleteIndex
       setMediaToDeleteIndex(null);
     }
-
-    // Close modal
     setShowModal(false);
   };
   const handleThumbnailCopy = () => {
@@ -440,6 +535,44 @@ export default function MediaComponent({ uploadedMedia, onMediaUpload }) {
     }
     return false;
   };
+  
+  const renderMedia = () => {
+    if (!media || !mediaBlobUrl) {
+      return null;
+    }
+
+    // Ensure media hasn't been deleted
+    if (deletedMediaNames.includes(media.name)) {
+      return null;
+    }
+
+    switch (mediaType) {
+      case 'image':
+        return (
+          <img 
+            src={mediaBlobUrl} 
+            alt="Selected Media" 
+            style={{ width: '100%', height: '100%', objectFit: 'contain' }} 
+          />
+        );
+      case 'video':
+        return (
+          <video 
+            id="videoPreview" 
+            ref={videoRef} 
+            key={mediaBlobUrl} 
+            controls={false} 
+            style={{ width: '100%', height: '100%' }}
+          >
+            <source src={mediaBlobUrl} type={media.type} />
+            Your browser does not support the video tag.
+          </video>
+        );
+      default:
+        return <p>Unsupported media type</p>;
+    }
+  };
+
   return (
     <div>
       <div className="row w-100">
@@ -496,19 +629,8 @@ export default function MediaComponent({ uploadedMedia, onMediaUpload }) {
         </div>
         <div className="col-xl-9 col-12 text-center">
           <div className="d-flex justify-content-center">
-            <div className="d_bg_preview">
-              {media && (
-                mediaType === 'image' ? (
-                  <img src={mediaBlobUrl} alt="Selected Media" style={{ width: '100%', height: '100%' }} />
-                ) : mediaType === 'video' ? (
-                  <video id="videoPreview" ref={videoRef} key={mediaBlobUrl} controls={false} style={{ width: '100%', height: '100%' }}>
-                    <source src={mediaBlobUrl} type={media.type} />
-                    Your browser does not support the video tag.
-                  </video>
-                ) : (
-                  <p>Unsupported media type</p>
-                )
-              )}
+          <div className="d_bg_preview">
+              {renderMedia()}
             </div>
           </div>
           <div className="mt-2">
@@ -638,10 +760,7 @@ export default function MediaComponent({ uploadedMedia, onMediaUpload }) {
       </Modal>
     </div>
   );
-}
-
-
-// import React, { useState, useEffect, useRef } from 'react';
+}// import React, { useState, useEffect, useRef } from 'react';
 // import { RiDeleteBin6Line } from "react-icons/ri";
 
 // export default function MediaComponent({ uploadedMedia, onMediaUpload }) {
@@ -719,3 +838,5 @@ export default function MediaComponent({ uploadedMedia, onMediaUpload }) {
 //         </div>
 //     );
 // }
+
+
