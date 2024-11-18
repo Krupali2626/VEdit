@@ -137,5 +137,39 @@
 
 .d_uploaded_media .row {
   position: relative;
-  z-index: 1;
+  z-index: 1;.media-container {
+  position: relative;
+  transition: transform 0.3s ease, width 0.3s ease, height 0.3s ease;
 }
+
+.media-container.fill {
+  overflow: hidden;
+}
+
+.media-container.fill img,
+.media-container.fill video {
+  min-width: 100%;
+  min-height: 100%;
+  object-fit: cover;
+}
+}
+.media-container {
+  position: relative;
+  transition: transform 0.3s ease, width 0.3s ease, height 0.3s ease;
+}
+
+.media-container.fill {
+  overflow: hidden;
+}
+
+.media-container.fill img,
+.media-container.fill video {
+  min-width: 100%;
+  min-height: 100%;
+  object-fit: cover;
+}
+.d_bg_preview {
+  overflow: hidden; /* Hide overflow content */
+  position: relative; /* Ensure positioning context for absolute children */
+}
+

@@ -1,3 +1,4 @@
+// Fill and fit button working complete 
 import React, { useState, useEffect, useRef } from 'react';
 import '../CSS/newmedia.css';
 import d_m1 from "../Assets/denisha_img/cloud.svg";
@@ -23,7 +24,13 @@ import { BiTachometer } from "react-icons/bi";
 import { ImStopwatch } from "react-icons/im";
 import { BiSolidHourglassBottom } from "react-icons/bi";
 import { HiAdjustmentsHorizontal } from "react-icons/hi2";
-
+import Fill from '../Assets/Fill.png'
+import Fit from '../Assets/Fit.png'
+import { IoRefreshOutline } from "react-icons/io5";
+import { GoMirror } from "react-icons/go";
+import { LuFlipVertical2 } from "react-icons/lu";
+import { CgCompressLeft } from "react-icons/cg";
+import { FaCompressAlt } from "react-icons/fa";
 
 export default function MediaComponent({ uploadedMedia, onMediaUpload }) {
   const [media, setMedia] = useState(null);
@@ -44,6 +51,18 @@ export default function MediaComponent({ uploadedMedia, onMediaUpload }) {
   const [showModal, setShowModal] = useState(false);
   const [mediaToDeleteIndex, setMediaToDeleteIndex] = useState(null);
   const [copiedVideoThumbnails, setCopiedVideoThumbnails] = useState([]);
+  const [isClicked, setIsClicked] = useState(false);
+  const [size, setSize] = useState({ width: '100%', height: '100%' });
+  const [position, setPosition] = useState({ x: 0, y: 0 });
+  const [isDragging, setIsDragging] = useState(false);
+  const [resizeDirection, setResizeDirection] = useState(null);
+  const containerRef = useRef(null);
+  const initialSizeRef = useRef(null);
+  const initialPosRef = useRef(null);
+  const initialMouseRef = useRef(null);
+  const previewContainerRef = useRef(null);
+  const [isSelected, setIsSelected] = useState(false);
+  const [displayMode, setDisplayMode] = useState('fit');
 
   const thumbnailWidth = 132;
 
@@ -315,6 +334,218 @@ export default function MediaComponent({ uploadedMedia, onMediaUpload }) {
     setDraggedThumbnails(allThumbnails);
   };
 
+  const handleMediaClick = (e) => {
+    e.stopPropagation();
+    setIsSelected(true);
+  };
+
+  useEffect(() => {
+    const handleClickOutside = (e) => {
+      if (containerRef.current && !containerRef.current.contains(e.target)) {
+        setIsSelected(false);
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, []);
+
+  const handleResizeStart = (e, direction) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setResizeDirection(direction);
+
+    const container = containerRef.current;
+    if (container) {
+      initialSizeRef.current = {
+        width: container.offsetWidth,
+        height: container.offsetHeight
+      };
+      initialMouseRef.current = {
+        x: e.clientX,
+        y: e.clientY
+      };
+    }
+  };
+
+  const handleDragStart = (e) => {
+    e.preventDefault();
+    setIsDragging(true);
+
+    initialPosRef.current = {
+      x: position.x,
+      y: position.y
+    };
+    initialMouseRef.current = {
+      x: e.clientX,
+      y: e.clientY
+    };
+  };
+
+  useEffect(() => {
+    const handleMouseMove = (e) => {
+      if (resizeDirection || isDragging) {
+        const previewBounds = previewContainerRef.current.getBoundingClientRect(); // Get the dimensions of the preview container
+        const containerBounds = containerRef.current.getBoundingClientRect(); // Get the dimensions of the media container
+
+
+        if (resizeDirection) {
+          const deltaX = e.clientX - initialMouseRef.current.x;
+          const deltaY = e.clientY - initialMouseRef.current.y;
+
+          let newWidth = initialSizeRef.current.width;
+          let newHeight = initialSizeRef.current.height;
+
+          switch (resizeDirection) {
+            case 'topLeft':
+              newWidth = initialSizeRef.current.width - deltaX;
+              newHeight = initialSizeRef.current.height - deltaY;
+              break;
+            case 'topRight':
+              newWidth = initialSizeRef.current.width + deltaX;
+              newHeight = initialSizeRef.current.height - deltaY;
+              break;
+            case 'bottomLeft':
+              newWidth = initialSizeRef.current.width - deltaX;
+              newHeight = initialSizeRef.current.height + deltaY;
+              break;
+            case 'bottomRight':
+              newWidth = initialSizeRef.current.width + deltaX;
+              newHeight = initialSizeRef.current.height + deltaY;
+              break;
+          }
+
+          const minSize = 100;
+          const maxWidth = previewBounds.width;
+          const maxHeight = previewBounds.height;
+
+          newWidth = Math.min(maxWidth, Math.max(minSize, newWidth));
+          newHeight = Math.min(maxHeight, Math.max(minSize, newHeight));
+
+          setSize({
+            width: `${newWidth}px`,
+            height: `${newHeight}px`
+          });
+        } else if (isDragging) {
+          const deltaX = e.clientX - initialMouseRef.current.x; // Calculate the change in X position
+          const deltaY = e.clientY - initialMouseRef.current.y; // Calculate the change in Y position
+
+          let newX = initialPosRef.current.x + deltaX; // Calculate the new X position
+          let newY = initialPosRef.current.y + deltaY; // Calculate the new Y position
+
+          // Boundary checks to keep the media within the d_bg_preview container
+          const minX = 0; // Minimum X position
+          const minY = 0; // Minimum Y position
+          const maxX = previewBounds.width - containerBounds.width; // Maximum X position
+          const maxY = previewBounds.height - containerBounds.height; // Maximum Y position
+
+          // Ensure the new position is within the bounds
+          newX = Math.min(maxX, Math.max(minX, newX));
+          newY = Math.min(maxY, Math.max(minY, newY));
+
+          setPosition({
+            x: newX, // Update the X position
+            y: newY  // Update the Y position
+          });
+        }
+      }
+    };
+
+    const handleMouseUp = () => {
+      setResizeDirection(null);
+      setIsDragging(false);
+    };
+
+    if (resizeDirection || isDragging) {
+      document.addEventListener('mousemove', handleMouseMove);
+      document.addEventListener('mouseup', handleMouseUp);
+    }
+
+    return () => {
+      document.removeEventListener('mousemove', handleMouseMove);
+      document.removeEventListener('mouseup', handleMouseUp);
+    };
+  }, [resizeDirection, isDragging]);
+
+  const cornerIconStyle = {
+    position: 'absolute',
+    fontSize: '16px',
+    color: 'black',
+    backgroundColor: 'white',
+    borderRadius: '50%',
+    padding: '4px',
+    cursor: 'pointer',
+    zIndex: 2
+  };
+
+  const handleFillClick = () => {
+    setDisplayMode('fill');
+    setSize({
+      width: '100%',
+      height: '100%'
+    });
+    setPosition({ x: 0, y: 0 });
+  };
+
+  const handleFitClick = () => {
+    setDisplayMode('fit');
+    if (containerRef.current && previewContainerRef.current) {
+      const previewBounds = previewContainerRef.current.getBoundingClientRect();
+      const naturalSize = getNaturalMediaSize();
+
+      const scale = Math.min(
+        previewBounds.width / naturalSize.width,
+        previewBounds.height / naturalSize.height
+      );
+
+      const newWidth = naturalSize.width * scale;
+      const newHeight = naturalSize.height * scale;
+
+      const newX = (previewBounds.width - newWidth) / 2;
+      const newY = (previewBounds.height - newHeight) / 2;
+
+      setSize({
+        width: `${newWidth}px`,
+        height: `${newHeight}px`
+      });
+      setPosition({ x: newX, y: newY });
+    }
+  };
+
+  const getNaturalMediaSize = () => {
+    if (mediaType === 'image') {
+      const img = new Image();
+      img.src = mediaBlobUrl;
+      return {
+        width: img.naturalWidth || 800,
+        height: img.naturalHeight || 600
+      };
+    } else if (mediaType === 'video') {
+      return {
+        width: videoRef.current?.videoWidth || 800,
+        height: videoRef.current?.videoHeight || 600
+      };
+    }
+    return { width: 800, height: 600 };
+  };
+
+  const getMediaStyle = () => ({
+    width: size.width,
+    height: size.height,
+    transform: `translate(${position.x}px, ${position.y}px)`,
+    cursor: isDragging ? 'grabbing' : 'grab',
+    border: isSelected ? '2px solid white' : 'none',
+  });
+
+  const getMediaContentStyle = () => ({
+    width: '100%',
+    height: '100%',
+    objectFit: displayMode === 'fill' ? 'cover' : 'contain',
+    pointerEvents: 'none'
+  });
+
   return (
     <div>
       <div className="row w-100">
@@ -331,17 +562,16 @@ export default function MediaComponent({ uploadedMedia, onMediaUpload }) {
           ) : (
             <div>
               {allMedia.length > 0 ? (
-                <div className="d_uploaded_media border p-2 overflow-hidden" style={{ height: '290px', marginBottom: '15px' }}>
+                <div className="d_uploaded_media border p-2 overflow-hidden" style={{ height: '500px', marginBottom: '15px' }}>
                   <div className="row">
                     <div className="col">
-                      {/* Tabs component with selected tab controlled by value */}
                       <Tabs
                         value={value}
-                        onChange={handleChange}    
+                        onChange={handleChange}
                         aria-label="icon tabs example"
-                        centered                  
-                        textColor="primary"       
-                        indicatorColor="primary"  
+                        centered
+                        textColor="primary"
+                        indicatorColor="primary"
                       >
                         <Tab icon={<GrHomeOption color='white' size={21} />} aria-label="home" />
                         <Tab icon={<HiAdjustmentsHorizontal color='white' size={21} />} aria-label="settings" />
@@ -351,35 +581,38 @@ export default function MediaComponent({ uploadedMedia, onMediaUpload }) {
                       </Tabs>
                     </div>
                   </div>
-                  <div className="text-center mb-3  justify-content-between align-items-center p-4 ">
-                    <div className="d-flex gap-3 justify-content-center my-4">
-                      <button className="btn btn-dark btn-sm px-3">
-                        <span className="me-2">□</span>Fill
-                      </button>
+                  <div className='d-flex align-items-center justify-content-center' style={{ height: '442px' }}>
+                    <div className="text-center mb-3  justify-content-between align-items-center p-4  ">
+                      <div className="d-flex gap-3 justify-content-center my-4">
+                        <button
+                          className={`btn ${displayMode === 'fill' ? 'btn-primary' : 'btn-dark'} btn-sm px-5 py-2 d-flex align-items-center`}
+                          onClick={handleFillClick}
+                        >
+                          <img src={Fill} alt="" className='me-2' />Fill
+                        </button>
 
-                      <button className="btn btn-dark btn-sm px-3">
-                        <span className="me-2">□</span>Fit
-                      </button>
-                    </div>
-                    <h5>Flip and Rotate</h5>
+                        <button
+                          className={`btn ${displayMode === 'fit' ? 'btn-primary' : 'btn-dark'} btn-sm px-5 py-2 d-flex align-items-center`}
+                          onClick={handleFitClick}
+                        >
+                          <img src={Fit} alt="" className='me-2' />Fit
+                        </button>
+                      </div>
+                      <h5>Flip and Rotate</h5>
 
-                    <div className="d-flex align-items-center justify-content-center gap-2 my-2">
-                      <button className="btn btn-dark btn-md">↺</button>
-                      <button className="btn btn-dark btn-md">⟲</button>
-                      <button className="btn btn-dark btn-md">⟳</button>
-                      <div className='btn btn-dark btn-md'>
-                        <span className="text-white mx-2">-</span>
-                        <span className="text-white">0°</span>
-                        <span className="text-white mx-2">+</span>
+                      <div className="d-flex align-items-center justify-content-center gap-2 my-2">
+                        <button className="btn btn-dark btn-md"><IoRefreshOutline size={22} />
+                        </button>
+                        <button className="btn btn-dark btn-md"><GoMirror size={22} /></button>
+                        <button className="btn btn-dark btn-md"><LuFlipVertical2 size={22} /></button>
+                        <div className='btn btn-dark btn-md d-flex align-items-center'>
+                          <span className="text-white mx-2">-</span>
+                          <span className="text-white">0°</span>
+                          <span className="text-white mx-2">+</span>
+                        </div>
                       </div>
                     </div>
                   </div>
-                  {/* <div className="d_bg_overlayer" onClick={() => document.getElementById('fileInput').click()}>
-                  <img src={d_m1} alt="Upload Icon" />
-                  <p className='mb-0'>Click to upload</p>
-                  <p className='mb-0 text-secondary'>or drag & drop file here</p>
-                  <input type="file" id="fileInput" style={{ display: 'none' }} accept="image/*,video/*" onChange={handleUpload} />
-                </div> */}
                 </div>
               ) : (
                 <div className="d_uploaded_media border p-2 overflow-hidden" >
@@ -393,13 +626,16 @@ export default function MediaComponent({ uploadedMedia, onMediaUpload }) {
                             className="col-4 d-flex justify-content-center position-relative"
                             key={file.name}
                             style={{ marginBottom: '15px' }}
-                            onClick={() => handleMediaSelect(reversedIndex)}
+                            onClick={() => {
+                              handleMediaSelect(reversedIndex);
+                              setIsSelected(true); // Set isSelected to true on click
+                            }}
                           >
                             {file.type.startsWith('image/') ? (
                               <img
                                 src={URL.createObjectURL(file)}
                                 alt="Uploaded"
-                                style={{ width: '132px', height: '150px', objectFit: 'cover' }}
+                                style={{ width: '132px', height: '150px', objectFit: 'cover', border: isSelected ? '2px solid blue' : 'none' }} // Add border conditionally
                               />
                             ) : file.type.startsWith('video/') ? (
                               <video controls={false} style={{ width: '132px', height: '150px', objectFit: 'cover' }}>
@@ -409,82 +645,6 @@ export default function MediaComponent({ uploadedMedia, onMediaUpload }) {
                             ) : (
                               <p>Unsupported media type</p>
                             )}
-                            <button
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                setMediaToDeleteIndex(reversedIndex);
-                                setShowModal(true);
-                              }}
-                              style={{
-                                position: 'absolute',
-                                top: '5px',
-                                right: '5px',
-                                background: 'none',
-                                border: 'none',
-                                cursor: 'pointer',
-                                display: 'none'
-                              }}
-                              className="delete-icon"
-                            >
-                              <img src="path/to/delete-icon.svg" alt="Delete" style={{ width: '20px', height: '20px' }} />
-                            </button>
-
-                            <div
-                              className="hover-overlay"
-                              style={{
-                                position: 'absolute',
-                                top: 0,
-                                left: 0,
-                                right: 0,
-                                bottom: 0,
-                                backgroundColor: 'rgba(0, 0, 0, 0.5)',
-                                display: 'flex',
-                                flexDirection: 'column',
-                                justifyContent: 'space-between',
-                                paddingRight: '10px',
-                                opacity: 0,
-                                transition: 'opacity 0.3s'
-                              }}
-                              onMouseEnter={(e) => { e.currentTarget.style.opacity = 1; }}
-                              onMouseLeave={(e) => { e.currentTarget.style.opacity = 0; }}
-                            >
-                              <button
-                                onClick={(e) => {
-                                  e.stopPropagation();
-                                  setMediaToDeleteIndex(reversedIndex);
-                                  setShowModal(true);
-                                }}
-                                style={{
-                                  background: 'none',
-                                  border: 'none',
-                                  color: 'white',
-                                  cursor: 'pointer',
-                                  float: 'right',
-                                  fontSize: '22px',
-                                  paddingTop: '6px',
-                                  display: 'flex',
-                                  justifyContent: 'end',
-                                  alignItems: 'baseline'
-                                }}
-                              >
-                                <RiDeleteBin6Line />
-                              </button>
-                              <button
-                                style={{
-                                  background: 'none',
-                                  border: 'none',
-                                  color: 'white',
-                                  cursor: 'pointer',
-                                  float: 'left',
-                                  fontSize: '18px',
-                                  display: 'flex',
-                                  paddingLeft: '10px',
-                                  alignItems: 'baseline'
-                                }}
-                              >
-                                10:13
-                              </button>
-                            </div>
                           </div>
                         );
                       })}
@@ -492,24 +652,61 @@ export default function MediaComponent({ uploadedMedia, onMediaUpload }) {
                 </div>
               )}
             </div>
-
-          )
-          }
+          )}
         </div>
         <div className="col-xl-9 col-12 text-center">
           <div className="d-flex justify-content-center">
-            <div className="d_bg_preview">
+            <div className="d_bg_preview" ref={previewContainerRef} > {/* Prevent overflow to hide images outside the container */}
               {media && (
-                mediaType === 'image' ? (
-                  <img src={mediaBlobUrl} alt="Selected Media" style={{ width: '100%', height: '100%' }} />
-                ) : mediaType === 'video' ? (
-                  <video id="videoPreview" ref={videoRef} key={mediaBlobUrl} controls={false} style={{ width: '100%', height: '100%' }}>
-                    <source src={mediaBlobUrl} type={media.type} />
-                    Your browser does not support the video tag.
-                  </video>
-                ) : (
-                  <p>Unsupported media type</p>
-                )
+                <div
+                  ref={containerRef}
+                  style={getMediaStyle()} // Get the current style for the media container
+                  onClick={() => setIsSelected(true)} // Set the media as selected on click
+                  onMouseDown={handleDragStart} // Start dragging on mouse down
+                >
+                  {mediaType === 'image' ? (
+                    <img
+                      src={mediaBlobUrl}
+                      alt="Selected Media"
+                      style={{ ...getMediaContentStyle(), maxWidth: '100%', display: mediaBlobUrl ? 'block' : 'none' }} // Ensure the image does not exceed the container width
+                      draggable={false} // Prevent default drag behavior
+                    />
+                  ) : mediaType === 'video' ? (
+                    <video
+                      ref={videoRef}
+                      controls={false}
+                      style={getMediaContentStyle()} // Get the style for the media content
+                    >
+                      <source src={mediaBlobUrl} type={media?.type} />
+                      Your browser does not support the video tag.
+                    </video>
+                  ) : null}
+
+                  {isSelected && (
+                    <>
+                      <CgCompressLeft
+                        className="corner-icon"
+                        style={{ ...cornerIconStyle, left: '-8px', top: '-8px' }}
+                        onMouseDown={(e) => handleResizeStart(e, 'topLeft')} // Handle resizing from the top left
+                      />
+                      <FaCompressAlt
+                        className="corner-icon"
+                        style={{ ...cornerIconStyle, right: '-8px', top: '-8px' }}
+                        onMouseDown={(e) => handleResizeStart(e, 'topRight')} // Handle resizing from the top right
+                      />
+                      <FaCompressAlt
+                        className="corner-icon"
+                        style={{ ...cornerIconStyle, left: '-8px', bottom: '-8px' }}
+                        onMouseDown={(e) => handleResizeStart(e, 'bottomLeft')} // Handle resizing from the bottom left
+                      />
+                      <CgCompressLeft
+                        className="corner-icon"
+                        style={{ ...cornerIconStyle, right: '-8px', bottom: '-8px' }}
+                        onMouseDown={(e) => handleResizeStart(e, 'bottomRight')} // Handle resizing from the bottom right
+                      />
+                    </>
+                  )}
+                </div>
               )}
             </div>
           </div>
@@ -634,6 +831,6 @@ export default function MediaComponent({ uploadedMedia, onMediaUpload }) {
           </div>
         </Modal.Body>
       </Modal>
-    </div>
+    </div >
   );
 }
