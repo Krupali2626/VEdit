@@ -1,4 +1,3 @@
-// Fill and fit button working complete 
 import React, { useState, useEffect, useRef } from 'react';
 import '../CSS/newmedia.css';
 import d_m1 from "../Assets/denisha_img/cloud.svg";
@@ -31,6 +30,8 @@ import { GoMirror } from "react-icons/go";
 import { LuFlipVertical2 } from "react-icons/lu";
 import { CgCompressLeft } from "react-icons/cg";
 import { FaCompressAlt } from "react-icons/fa";
+import AccessTimeIcon from '@mui/icons-material/AccessTime';
+
 
 export default function MediaComponent({ uploadedMedia, onMediaUpload }) {
   const [media, setMedia] = useState(null);
@@ -63,13 +64,423 @@ export default function MediaComponent({ uploadedMedia, onMediaUpload }) {
   const previewContainerRef = useRef(null);
   const [isSelected, setIsSelected] = useState(false);
   const [displayMode, setDisplayMode] = useState('fit');
+  const [rotationAngle, setRotationAngle] = useState(0);
+  const [isMirrored, setIsMirrored] = useState(false);
+  const [isFlippedVertically, setIsFlippedVertically] = useState(false);
+  const [durationMs, setDurationMs] = useState(6030);
 
   const thumbnailWidth = 132;
 
   const [value, setValue] = React.useState(0);
+  const [tabContent, setTabContent] = useState('');
 
   const handleChange = (event, newValue) => {
     setValue(newValue);
+    switch (newValue) {
+      case 0:
+        setTabContent(
+          <div className='d-flex align-items-center justify-content-center' style={{ height: '442px' }}>
+            <div className="text-center mb-3 justify-content-between align-items-center p-4">
+              <div className="d-flex gap-3 justify-content-center my-4">
+                <button
+                  className={`btn btn-dark btn-sm px-5 py-2 d-flex align-items-center`}
+                  onClick={handleFillClick}
+                >
+                  <img src={Fill} alt="" className='me-2' />Fill
+                </button>
+
+                <button
+                  className={`btn btn-dark btn-sm px-5 py-2 d-flex align-items-center`}
+                  onClick={handleFitClick}
+                >
+                  <img src={Fit} alt="" className='me-2' />Fit
+                </button>
+              </div>
+              <h5>Flip and Rotate</h5>
+
+              <div className="d-flex align-items-center justify-content-center gap-2 my-2">
+                <button className="btn btn-dark btn-md" onClick={handleRotateIcon}>
+                  <IoRefreshOutline size={22} />
+                </button>
+                <button className="btn btn-dark btn-md" onClick={handleMirrorToggle}>
+                  <GoMirror size={22} />
+                </button>
+                <button className="btn btn-dark btn-md" onClick={handleFlipVerticalToggle}>
+                  <LuFlipVertical2 size={22} />
+                </button>
+                <div className='btn btn-dark btn-md d-flex align-items-center'>
+                  <span className="text-white mx-2" onClick={handleRotateRight}>-</span>
+                  <span className="text-white">{rotationAngle}°</span>
+                  <span className="text-white mx-2" onClick={handleRotateLeft}>+</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        );
+        break;
+      case 1:
+        setTabContent(
+          <div className="slider-container">
+            <div className="d-flex justify-content-between align-items-center">
+              <div className="slider-label">Opacity</div>
+              <div className="slider-value" id="opacityValue">100%</div>
+            </div>
+            <input
+              type="range"
+              className="slider"
+              min={0}
+              max={100}
+              defaultValue={100}
+              style={{
+                background: 'linear-gradient(90deg, #2D2C2C 0%, #F0F0F0 100%)',
+                height: '2px',
+                width: '100%',
+                appearance: 'none',
+              }}
+              onChange={(e) => {
+                const value = e.target.value; // Get the current value
+                document.getElementById('opacityValue').innerText = `${value}%`; // Update displayed value
+
+                // Apply opacity to the image in the preview container
+                const imageElement = document.getElementById('uploadedImage'); // Get the image element
+                if (imageElement) {
+                  imageElement.style.opacity = value / 100; // Set the opacity based on the slider value
+                }
+              }}
+            />
+
+            <div className="d-flex justify-content-between align-items-center">
+              <div className="slider-label">Brightness</div>
+              <div className="slider-value" id="brightnessValue">10</div>
+            </div>
+            <div style={{ position: 'relative', width: '100%' }}>
+              {/* Top line positioned above the slider, centered at 0 */}
+              <div style={{
+                position: 'absolute',
+                top: '7px',
+                left: '50%',
+                transform: 'translateX(-50%)',
+                width: '2px',
+                height: '6px',
+                background: 'white',
+              }} />
+
+              <input
+                type="range"
+                className="slider"
+                min={-100}
+                max={100}
+                defaultValue={10}
+                style={{
+                  background: 'linear-gradient(90deg, #2D2C2C 0%, #F0F0F0 100%)',
+                  height: '2px',
+                  width: '100%',
+                  position: 'relative',
+                  zIndex: 1
+                }}
+                onChange={(e) => {
+                  const value = e.target.value;
+                  document.getElementById('brightnessValue').innerText = value;
+
+                  const imageElement = document.getElementById('uploadedImage');
+                  if (imageElement) {
+                    imageElement.style.filter = `brightness(${(parseInt(value) + 100)}%)`;
+                    if (value == -100) {
+                      imageElement.style.filter = 'grayscale(100%)';
+                    }
+                  }
+                }}
+              />
+
+              {/* Bottom line positioned below the slider, centered at 0 */}
+              <div style={{
+                position: 'absolute',
+                bottom: '-3px',
+                left: '50%',
+                transform: 'translateX(-50%)',
+                width: '2px',
+                height: '6px',
+                background: 'white',
+              }} />
+            </div>
+
+            <div className="d-flex justify-content-between align-items-center">
+              <div className="slider-label">Contrast</div>
+              <div className="slider-value" id="contrastValue">10</div>
+            </div>
+            <div style={{ position: 'relative', width: '100%' }}>
+              {/* Top line positioned above the slider, centered at 0 */}
+              <div style={{
+                position: 'absolute',
+                top: '7px',
+                left: '50%',
+                transform: 'translateX(-50%)',
+                width: '2px',
+                height: '6px',
+                background: 'white',
+              }} />
+
+              <input
+                type="range"
+                className="slider"
+                min={-100}
+                max={100}
+                defaultValue={10}
+                style={{
+                  background: 'linear-gradient(90deg, #2D2C2C 0%, #F0F0F0 100%)',
+                  height: '2px',
+                  width: '100%',
+                  position: 'relative',
+                  zIndex: 1
+                }}
+                onChange={(e) => {
+                  const value = e.target.value;
+                  document.getElementById('contrastValue').innerText = value;
+
+                  const imageElement = document.getElementById('uploadedImage');
+                  if (imageElement) {
+                    const contrastValue = parseInt(value) + 100;
+                    imageElement.style.filter = `contrast(${contrastValue}%)`;
+                  }
+                }}
+              />
+
+              {/* Bottom line positioned below the slider, centered at 0 */}
+              <div style={{
+                position: 'absolute',
+                bottom: '-3px',
+                left: '50%',
+                transform: 'translateX(-50%)',
+                width: '2px',
+                height: '6px',
+                background: 'white',
+              }} />
+            </div>
+
+            <div className="d-flex justify-content-between align-items-center">
+              <div className="slider-label">Saturation</div>
+              <div className="slider-value" id="saturationValue">100</div>
+            </div>
+            <div style={{ position: 'relative', width: '100%' }}>
+              {/* Top line positioned above the slider, centered at 0 */}
+              <div style={{
+                position: 'absolute',
+                top: '7px',
+                left: '50%',
+                transform: 'translateX(-50%)',
+                width: '2px',
+                height: '6px',
+                background: 'white',
+              }} />
+
+              <input
+                type="range"
+                className="slider"
+                min={0}
+                max={200}
+                defaultValue={100}
+                style={{
+                  background: 'linear-gradient(90deg, #791515 0%, #474444 100%)',
+                  height: '2px',
+                  width: '100%',
+                  position: 'relative',
+                  zIndex: 1
+                }}
+                onChange={(e) => {
+                  const value = e.target.value;
+                  document.getElementById('saturationValue').innerText = value;
+
+                  const imageElement = document.getElementById('uploadedImage');
+                  if (imageElement) {
+                    imageElement.style.filter = `saturate(${value}%)`;
+                  }
+                }}
+              />
+
+              {/* Bottom line positioned below the slider, centered at 0 */}
+              <div style={{
+                position: 'absolute',
+                bottom: '-3px',
+                left: '50%',
+                transform: 'translateX(-50%)',
+                width: '2px',
+                height: '6px',
+                background: 'white',
+              }} />
+            </div>
+
+            <div className="d-flex justify-content-between align-items-center">
+              <div className="slider-label">Hue</div>
+              <div className="slider-value" id="hueValue">0</div>
+            </div>
+            <div style={{ position: 'relative', width: '100%' }}>
+              {/* Top line positioned above the slider, centered at 0 */}
+              <div style={{
+                position: 'absolute',
+                top: '7px',
+                left: '50%',
+                transform: 'translateX(-50%)',
+                width: '2px',
+                height: '6px',
+                background: 'white',
+              }} />
+
+              <input
+                type="range"
+                className="slider"
+                min={-180}
+                max={180}
+                defaultValue={0}
+                style={{
+                  background: 'linear-gradient(90deg, #7D37B4 0%, #2DA77B 50%, #6D5E25 75%, #B74E4E 100%)',
+                  height: '2px',
+                  width: '100%',
+                  position: 'relative',
+                  zIndex: 1
+                }}
+                onChange={(e) => {
+                  const value = e.target.value;
+                  document.getElementById('hueValue').innerText = value;
+
+                  const imageElement = document.getElementById('uploadedImage');
+                  if (imageElement) {
+                    imageElement.style.filter = `hue-rotate(${value}deg)`;
+                  }
+                }}
+              />
+
+              {/* Bottom line positioned below the slider, centered at 0 */}
+              <div style={{
+                position: 'absolute',
+                bottom: '-3px',
+                left: '50%',
+                transform: 'translateX(-50%)',
+                width: '2px',
+                height: '6px',
+                background: 'white',
+              }} />
+            </div>
+
+            <div className="d-flex justify-content-between align-items-center">
+              <div className="slider-label">Blur</div>
+              <div className="slider-value" id="blurValue">0</div>
+            </div>
+            <input
+              type="range"
+              className="slider"
+              min={0}
+              max={10}
+              defaultValue={0}
+              style={{
+                background: 'rgba(46, 46, 46, 1)',
+                height: '2px',
+                width: '100%'
+              }}
+              onChange={(e) => {
+                const value = e.target.value;
+                document.getElementById('blurValue').innerText = value;
+
+                const imageElement = document.getElementById('uploadedImage');
+                if (imageElement) {
+                  imageElement.style.filter = `blur(${value}px)`;
+                }
+              }}
+            />
+          </div>
+        );
+        break;
+      case 2:
+        setTabContent(
+          <div className="slider-container d-flex flex-column align-items-center">
+            <div className="d-flex justify-content-between align-items-center w-100">
+              <div className="slider-label">Speed</div>
+              <div className="slider-value" id="speedValue">0.6x</div>
+            </div>
+            <input
+              type="range"
+              className="slider"
+              min={0.1}
+              max={2}
+              step={0.1}
+              defaultValue={0.6}
+              style={{
+                background: 'linear-gradient(90deg, #2D2C2C 0%, #F0F0F0 100%)',
+                height: '2px',
+                width: '100%',
+                marginTop: '10px'
+              }}
+              onChange={(e) => {
+                const value = e.target.value;
+                document.getElementById('speedValue').innerText = `${value}x`;
+
+                if (videoRef.current) {
+                  videoRef.current.playbackRate = value;
+                }
+              }}
+            />
+          </div>
+        );
+        break;
+      case 3:
+        setTabContent(
+          <div className="d-flex flex-column align-items-center">
+            <h4>Timing</h4>
+            <div className="d-flex justify-content-between w-100" style={{ maxWidth: '300px', marginTop: '15px' }}>
+              <button
+                className="timer btn btn-dark d-flex align-items-center justify-align-content-center"
+                style={{ width: '100%', borderRadius: '5px' }}
+              >
+                <AccessTimeIcon style={{ marginRight: '9px' }} />
+                <input type="text" id="startTime" defaultValue="00:00.00" style={{ border: 'none', background: 'transparent', color: 'white', width: '100%' }} />
+              </button>
+
+              <button className="timer btn btn-dark d-flex align-items-center justify-align-content-center" style={{ width: '100%', borderRadius: '5px', marginLeft: '10px' }}>
+                <AccessTimeIcon style={{ marginRight: '9px' }} />
+                <input type="text" id="endTime" defaultValue="00:06.05" style={{ border: 'none', background: 'transparent', color: 'white', width: '100%' }} />
+              </button>
+            </div>
+          </div>
+        );
+        break;
+      case 4:
+        setTabContent(
+          <div className="d-flex flex-column align-items-center">
+            <h4 className="text-white">Duration</h4>
+            <div className="d-flex align-items-center mb-3" style={{ position: 'relative', width: '170px' }}>
+              <input
+                type="text"
+                className="form-control mx-2"
+                value={formatDuration(durationMs)} // Placeholder for duration value
+                readOnly
+                style={{ width: '100%', textAlign: 'center', padding: '10px 40px 10px 40px', backgroundColor: '#222', color: 'white', border: 'none', borderRadius: '5px' }}
+              />
+              <button className="btn btn-dark" onClick={() => changeDuration(-100)}
+                style={{ position: 'absolute', left: '10px', top: '50%', transform: 'translateY(-50%)', width: '30px', height: '30px', borderRadius: '50%', display: 'flex', justifyContent: 'center', alignItems: 'center', backgroundColor: 'transparent', border: 'none' }}>
+                −
+              </button>
+              <button className="btn btn-dark" onClick={() => changeDuration(100)}
+                style={{ position: 'absolute', right: '10px', top: '50%', transform: 'translateY(-50%)', width: '30px', height: '30px', borderRadius: '50%', display: 'flex', justifyContent: 'center', alignItems: 'center', backgroundColor: 'transparent', border: 'none' }}>
+                +
+              </button>
+            </div>
+            <div className="d-flex justify-content-between w-100">
+              {presets.map((seconds) => (
+                <button
+                  key={seconds}
+                  className="btn btn-secondary"
+                  onClick={() => setDurationSeconds(seconds)}
+                  style={{ margin: '0 5px' }}
+                >
+                  {seconds}s
+                </button>
+              ))}
+            </div>
+          </div>
+        );
+        break;
+      default:
+        setTabContent('');
+    }
   };
 
   const handleUpload = async (event) => {
@@ -77,10 +488,16 @@ export default function MediaComponent({ uploadedMedia, onMediaUpload }) {
     if (file) {
       const fileType = file.type.split('/')[0];
       const fileURL = URL.createObjectURL(file);
+
       if (allMedia.some(media => media.name === file.name)) return;
-      setHasMedia(true);
+
       setAllMedia((prev) => [...prev, file]);
       onMediaUpload(file);
+
+      setMedia(file);
+      setMediaType(fileType);
+      setMediaBlobUrl(fileURL);
+
       if (fileType === 'video') {
         generateThumbnails(file);
       } else if (fileType === 'image') {
@@ -124,7 +541,7 @@ export default function MediaComponent({ uploadedMedia, onMediaUpload }) {
       return (
         <div key={fileName} className="col-12 px-0 d-flex flex-column align-items-start">
           <div className="d-flex flex-row flex-nowrap" style={{ overflowX: 'auto', whiteSpace: 'nowrap', position: 'relative', margin: '5px 0px', borderLeft: isCurrentMedia ? '7px solid white' : 'none', borderRight: isCurrentMedia ? '7px solid white' : 'none', borderTop: isCurrentMedia ? '2px solid white' : 'none', borderBottom: isCurrentMedia ? '2px solid white' : 'none', borderRadius: '4px', padding: '0 0px', backgroundColor: 'white' }}>
-            <div style={{ width: isCurrentMedia ? '4px' : '0px', backgroundColor: 'black', padding: '10px 0px !important', borderRadius: '4px', marginTop: "10px", marginBottom: "10px" }} />
+            <div style={{ width: isCurrentMedia ? '3px' : '0px', backgroundColor: 'black', padding: '10px 0px !important', borderRadius: '4px', marginTop: "10px", marginBottom: "10px" }} />
             <div style={{ width: isCurrentMedia ? '5px' : '0px', backgroundColor: 'white', borderRadius: '4px 0 0 4px' }} />
             {images.map((thumbnail, index) => {
               const totalSeconds = index * 2;
@@ -139,7 +556,7 @@ export default function MediaComponent({ uploadedMedia, onMediaUpload }) {
               );
             })}
             <div style={{ width: isCurrentMedia ? '7px' : '0px', backgroundColor: 'white', borderRadius: '0 4px 4px 0' }} />
-            <div style={{ width: isCurrentMedia ? '4px' : '0px', backgroundColor: 'black', padding: '10px 0px !important', borderRadius: '4px', marginTop: "10px", marginBottom: "10px" }} />
+            <div style={{ width: isCurrentMedia ? '3px' : '0px', backgroundColor: 'black', padding: '10px 0px !important', borderRadius: '4px', marginTop: "10px", marginBottom: "10px" }} />
           </div>
         </div>
       );
@@ -213,6 +630,7 @@ export default function MediaComponent({ uploadedMedia, onMediaUpload }) {
     setDisplayTime(newDisplayTime);
   };
 
+  // 111111111111111111111
   const handleMediaSelect = (index) => {
     if (index < 0 || index >= allMedia.length) return;
     const file = allMedia[index];
@@ -237,6 +655,10 @@ export default function MediaComponent({ uploadedMedia, onMediaUpload }) {
     if (currentMediaIndex < allMedia.length - 1) {
       handleMediaSelect(currentMediaIndex + 1);
     }
+  };
+
+  const handleRotateIcon = () => {
+    setRotationAngle((prevAngle) => prevAngle + 90);
   };
 
   const handlePlayPause = () => {
@@ -352,123 +774,6 @@ export default function MediaComponent({ uploadedMedia, onMediaUpload }) {
     };
   }, []);
 
-  const handleResizeStart = (e, direction) => {
-    e.preventDefault();
-    e.stopPropagation();
-    setResizeDirection(direction);
-
-    const container = containerRef.current;
-    if (container) {
-      initialSizeRef.current = {
-        width: container.offsetWidth,
-        height: container.offsetHeight
-      };
-      initialMouseRef.current = {
-        x: e.clientX,
-        y: e.clientY
-      };
-    }
-  };
-
-  const handleDragStart = (e) => {
-    e.preventDefault();
-    setIsDragging(true);
-
-    initialPosRef.current = {
-      x: position.x,
-      y: position.y
-    };
-    initialMouseRef.current = {
-      x: e.clientX,
-      y: e.clientY
-    };
-  };
-
-  useEffect(() => {
-    const handleMouseMove = (e) => {
-      if (resizeDirection || isDragging) {
-        const previewBounds = previewContainerRef.current.getBoundingClientRect(); // Get the dimensions of the preview container
-        const containerBounds = containerRef.current.getBoundingClientRect(); // Get the dimensions of the media container
-
-
-        if (resizeDirection) {
-          const deltaX = e.clientX - initialMouseRef.current.x;
-          const deltaY = e.clientY - initialMouseRef.current.y;
-
-          let newWidth = initialSizeRef.current.width;
-          let newHeight = initialSizeRef.current.height;
-
-          switch (resizeDirection) {
-            case 'topLeft':
-              newWidth = initialSizeRef.current.width - deltaX;
-              newHeight = initialSizeRef.current.height - deltaY;
-              break;
-            case 'topRight':
-              newWidth = initialSizeRef.current.width + deltaX;
-              newHeight = initialSizeRef.current.height - deltaY;
-              break;
-            case 'bottomLeft':
-              newWidth = initialSizeRef.current.width - deltaX;
-              newHeight = initialSizeRef.current.height + deltaY;
-              break;
-            case 'bottomRight':
-              newWidth = initialSizeRef.current.width + deltaX;
-              newHeight = initialSizeRef.current.height + deltaY;
-              break;
-          }
-
-          const minSize = 100;
-          const maxWidth = previewBounds.width;
-          const maxHeight = previewBounds.height;
-
-          newWidth = Math.min(maxWidth, Math.max(minSize, newWidth));
-          newHeight = Math.min(maxHeight, Math.max(minSize, newHeight));
-
-          setSize({
-            width: `${newWidth}px`,
-            height: `${newHeight}px`
-          });
-        } else if (isDragging) {
-          const deltaX = e.clientX - initialMouseRef.current.x; // Calculate the change in X position
-          const deltaY = e.clientY - initialMouseRef.current.y; // Calculate the change in Y position
-
-          let newX = initialPosRef.current.x + deltaX; // Calculate the new X position
-          let newY = initialPosRef.current.y + deltaY; // Calculate the new Y position
-
-          // Boundary checks to keep the media within the d_bg_preview container
-          const minX = 0; // Minimum X position
-          const minY = 0; // Minimum Y position
-          const maxX = previewBounds.width - containerBounds.width; // Maximum X position
-          const maxY = previewBounds.height - containerBounds.height; // Maximum Y position
-
-          // Ensure the new position is within the bounds
-          newX = Math.min(maxX, Math.max(minX, newX));
-          newY = Math.min(maxY, Math.max(minY, newY));
-
-          setPosition({
-            x: newX, // Update the X position
-            y: newY  // Update the Y position
-          });
-        }
-      }
-    };
-
-    const handleMouseUp = () => {
-      setResizeDirection(null);
-      setIsDragging(false);
-    };
-
-    if (resizeDirection || isDragging) {
-      document.addEventListener('mousemove', handleMouseMove);
-      document.addEventListener('mouseup', handleMouseUp);
-    }
-
-    return () => {
-      document.removeEventListener('mousemove', handleMouseMove);
-      document.removeEventListener('mouseup', handleMouseUp);
-    };
-  }, [resizeDirection, isDragging]);
-
   const cornerIconStyle = {
     position: 'absolute',
     fontSize: '16px',
@@ -477,16 +782,28 @@ export default function MediaComponent({ uploadedMedia, onMediaUpload }) {
     borderRadius: '50%',
     padding: '4px',
     cursor: 'pointer',
-    zIndex: 2
+    zIndex: 2,
+    width: '30px',
+    height: '30px',
   };
 
   const handleFillClick = () => {
     setDisplayMode('fill');
-    setSize({
-      width: '100%',
-      height: '100%'
-    });
-    setPosition({ x: 0, y: 0 });
+    if (containerRef.current && previewContainerRef.current) {
+      const previewBounds = previewContainerRef.current.getBoundingClientRect();
+      const naturalSize = getNaturalMediaSize();
+
+      // Calculate the new height based on the aspect ratio
+      const newWidth = previewBounds.width;
+      const aspectRatio = naturalSize.width / naturalSize.height;
+      const newHeight = newWidth / aspectRatio;
+
+      setSize({
+        width: `${newWidth}px`,
+        height: `${newHeight}px`
+      });
+      setPosition({ x: 0, y: (previewBounds.height - newHeight) / 2 }); // Center vertically
+    }
   };
 
   const handleFitClick = () => {
@@ -537,6 +854,7 @@ export default function MediaComponent({ uploadedMedia, onMediaUpload }) {
     transform: `translate(${position.x}px, ${position.y}px)`,
     cursor: isDragging ? 'grabbing' : 'grab',
     border: isSelected ? '2px solid white' : 'none',
+    overflow: 'hidden' // Ensure overflow is hidden
   });
 
   const getMediaContentStyle = () => ({
@@ -545,6 +863,162 @@ export default function MediaComponent({ uploadedMedia, onMediaUpload }) {
     objectFit: displayMode === 'fill' ? 'cover' : 'contain',
     pointerEvents: 'none'
   });
+
+  const handleRotateLeft = () => {
+    setRotationAngle((prevAngle) => (prevAngle + 5) % 360);
+    console.log(setRotationAngle);
+  };
+
+  const handleRotateRight = () => {
+    setRotationAngle((prevAngle) => (prevAngle - 5 + 360) % 360);
+  };
+
+  const handleMirrorToggle = () => {
+    setIsMirrored((prev) => !prev);
+  };
+
+  const handleFlipVerticalToggle = () => {
+    setIsFlippedVertically((prev) => !prev);
+  };
+
+  const handleResizeStart = (e, direction) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setResizeDirection(direction);
+    if (direction === 'topLeft' || direction === 'bottomRight') {
+      e.target.style.cursor = 'nw-resize';
+    } else {
+      e.target.style.cursor = 'ne-resize';
+    }
+
+    const container = containerRef.current;
+    if (container) {
+      initialSizeRef.current = {
+        width: container.offsetWidth,
+        height: container.offsetHeight
+      };
+      initialMouseRef.current = {
+        x: e.clientX,
+        y: e.clientY
+      };
+    }
+  };
+
+  const handleDragStart = (e) => {
+    e.preventDefault();
+    setIsDragging(true);
+
+    initialPosRef.current = {
+      x: position.x,
+      y: position.y
+    };
+    initialMouseRef.current = {
+      x: e.clientX,
+      y: e.clientY
+    };
+  };
+
+  useEffect(() => {
+    const handleMouseMove = (e) => {
+      if (resizeDirection || isDragging) {
+        const previewBounds = previewContainerRef.current.getBoundingClientRect(); // Get the dimensions of the preview container
+        const containerBounds = containerRef.current.getBoundingClientRect(); // Get the dimensions of the media container
+
+        if (resizeDirection) {
+          const deltaX = e.clientX - initialMouseRef.current.x;
+          const deltaY = e.clientY - initialMouseRef.current.y;
+
+          let newWidth = initialSizeRef.current.width;
+          let newHeight = initialSizeRef.current.height;
+
+          switch (resizeDirection) {
+            case 'topLeft':
+              newWidth = initialSizeRef.current.width - deltaX;
+              newHeight = initialSizeRef.current.height - deltaY;
+              break;
+            case 'topRight':
+              newWidth = initialSizeRef.current.width + deltaX;
+              newHeight = initialSizeRef.current.height - deltaY;
+              break;
+            case 'bottomLeft':
+              newWidth = initialSizeRef.current.width - deltaX;
+              newHeight = initialSizeRef.current.height + deltaY;
+              break;
+            case 'bottomRight':
+              newWidth = initialSizeRef.current.width + deltaX;
+              newHeight = initialSizeRef.current.height + deltaY;
+              break;
+          }
+
+          const minSize = 100; // Minimum size for width and height
+          const maxWidth = previewBounds.width; // Maximum width
+          const maxHeight = previewBounds.height; // Maximum height
+
+          newWidth = Math.min(maxWidth, Math.max(minSize, newWidth));
+          newHeight = Math.min(maxHeight, Math.max(minSize, newHeight));
+
+          setSize({
+            width: `${newWidth}px`,
+            height: `${newHeight}px`
+          });
+        } else if (isDragging) {
+          const deltaX = e.clientX - initialMouseRef.current.x; // Calculate the change in X position
+          const deltaY = e.clientY - initialMouseRef.current.y; // Calculate the change in Y position
+
+          let newX = initialPosRef.current.x + deltaX; // Calculate the new X position
+          let newY = initialPosRef.current.y + deltaY; // Calculate the new Y position
+
+          // Allow dragging outside the preview bounds in all directions
+          setPosition({
+            x: newX, // Update the X position
+            y: newY  // Update the Y position
+          });
+        }
+      }
+    };
+
+    const handleMouseUp = () => {
+      setResizeDirection(null);
+      setIsDragging(false);
+    };
+
+    if (resizeDirection || isDragging) {
+      document.addEventListener('mousemove', handleMouseMove);
+      document.addEventListener('mouseup', handleMouseUp);
+    }
+
+    return () => {
+      document.removeEventListener('mousemove', handleMouseMove);
+      document.removeEventListener('mouseup', handleMouseUp);
+    };
+  }, [resizeDirection, isDragging]);
+
+  const formatDuration = (ms) => {
+    const minutes = Math.floor(ms / 60000);
+    const seconds = Math.floor((ms % 60000) / 1000);
+    const milliseconds = Math.floor((ms % 1000) / 10);
+
+    return `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}.${milliseconds.toString().padStart(2, '0')}`;
+  };
+
+  // Function to handle duration change
+  const changeDuration = (amount) => {
+    setDurationMs((prev) => {
+      const newDuration = prev + amount;
+      // Ensure duration doesn't go below 0
+      return Math.max(0, newDuration);
+    });
+  };
+
+  // Function to set duration directly (for preset buttons)
+  const setDurationSeconds = (seconds) => {
+    setDurationMs(seconds * 1000);
+  };
+
+  // Preset durations in seconds
+  const presets = [1, 2, 4, 6, 10, 15];
+
+  
 
   return (
     <div>
@@ -579,37 +1053,8 @@ export default function MediaComponent({ uploadedMedia, onMediaUpload }) {
                         <Tab icon={<ImStopwatch color='white' size={21} />} aria-label="stopwatch" />
                         <Tab icon={<BiSolidHourglassBottom color='white' size={21} />} aria-label="hourglass" />
                       </Tabs>
-                    </div>
-                  </div>
-                  <div className='d-flex align-items-center justify-content-center' style={{ height: '442px' }}>
-                    <div className="text-center mb-3  justify-content-between align-items-center p-4  ">
-                      <div className="d-flex gap-3 justify-content-center my-4">
-                        <button
-                          className={`btn ${displayMode === 'fill' ? 'btn-primary' : 'btn-dark'} btn-sm px-5 py-2 d-flex align-items-center`}
-                          onClick={handleFillClick}
-                        >
-                          <img src={Fill} alt="" className='me-2' />Fill
-                        </button>
-
-                        <button
-                          className={`btn ${displayMode === 'fit' ? 'btn-primary' : 'btn-dark'} btn-sm px-5 py-2 d-flex align-items-center`}
-                          onClick={handleFitClick}
-                        >
-                          <img src={Fit} alt="" className='me-2' />Fit
-                        </button>
-                      </div>
-                      <h5>Flip and Rotate</h5>
-
-                      <div className="d-flex align-items-center justify-content-center gap-2 my-2">
-                        <button className="btn btn-dark btn-md"><IoRefreshOutline size={22} />
-                        </button>
-                        <button className="btn btn-dark btn-md"><GoMirror size={22} /></button>
-                        <button className="btn btn-dark btn-md"><LuFlipVertical2 size={22} /></button>
-                        <div className='btn btn-dark btn-md d-flex align-items-center'>
-                          <span className="text-white mx-2">-</span>
-                          <span className="text-white">0°</span>
-                          <span className="text-white mx-2">+</span>
-                        </div>
+                      <div className="tab-content k_tab_spacing d-flex align-items-center justify-content-center" style={{ height: '415px' }} >
+                        {tabContent}
                       </div>
                     </div>
                   </div>
@@ -656,7 +1101,7 @@ export default function MediaComponent({ uploadedMedia, onMediaUpload }) {
         </div>
         <div className="col-xl-9 col-12 text-center">
           <div className="d-flex justify-content-center">
-            <div className="d_bg_preview" ref={previewContainerRef} > {/* Prevent overflow to hide images outside the container */}
+            <div className="d_bg_preview" ref={previewContainerRef}>
               {media && (
                 <div
                   ref={containerRef}
@@ -666,9 +1111,15 @@ export default function MediaComponent({ uploadedMedia, onMediaUpload }) {
                 >
                   {mediaType === 'image' ? (
                     <img
+                      id="uploadedImage"
                       src={mediaBlobUrl}
                       alt="Selected Media"
-                      style={{ ...getMediaContentStyle(), maxWidth: '100%', display: mediaBlobUrl ? 'block' : 'none' }} // Ensure the image does not exceed the container width
+                      style={{
+                        ...getMediaContentStyle(),
+                        maxWidth: '100%',
+                        display: mediaBlobUrl ? 'block' : 'none',
+                        transform: `rotate(${rotationAngle}deg) scaleX(${isMirrored ? -1 : 1}) scaleY(${isFlippedVertically ? -1 : 1})` // Apply transformations
+                      }}
                       draggable={false} // Prevent default drag behavior
                     />
                   ) : mediaType === 'video' ? (
@@ -686,7 +1137,7 @@ export default function MediaComponent({ uploadedMedia, onMediaUpload }) {
                     <>
                       <CgCompressLeft
                         className="corner-icon"
-                        style={{ ...cornerIconStyle, left: '-8px', top: '-8px' }}
+                        style={{ left: '-8px', top: '-8px' }}
                         onMouseDown={(e) => handleResizeStart(e, 'topLeft')} // Handle resizing from the top left
                       />
                       <FaCompressAlt
@@ -831,6 +1282,6 @@ export default function MediaComponent({ uploadedMedia, onMediaUpload }) {
           </div>
         </Modal.Body>
       </Modal>
-    </div >
+    </div>
   );
 }

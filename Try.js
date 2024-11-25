@@ -1,7 +1,4 @@
-
-// Complete working resize functionality 
-
-
+// Fill and fit button working complete 
 import React, { useState, useEffect, useRef } from 'react';
 import '../CSS/newmedia.css';
 import d_m1 from "../Assets/denisha_img/cloud.svg";
@@ -63,6 +60,12 @@ export default function MediaComponent({ uploadedMedia, onMediaUpload }) {
   const initialSizeRef = useRef(null);
   const initialPosRef = useRef(null);
   const initialMouseRef = useRef(null);
+  const previewContainerRef = useRef(null);
+  const [isSelected, setIsSelected] = useState(false);
+  const [displayMode, setDisplayMode] = useState('fit');
+  const [rotationAngle, setRotationAngle] = useState(0);
+  const [isMirrored, setIsMirrored] = useState(false);
+  const [isFlippedVertically, setIsFlippedVertically] = useState(false);
 
   const thumbnailWidth = 132;
 
@@ -334,22 +337,24 @@ export default function MediaComponent({ uploadedMedia, onMediaUpload }) {
     setDraggedThumbnails(allThumbnails);
   };
 
-  // Toggle the border and size on click
-  const handleMediaClick = () => {
-    setIsClicked(!isClicked);
+  const handleMediaClick = (e) => {
+    e.stopPropagation();
+    setIsSelected(true);
   };
 
+  useEffect(() => {
+    const handleClickOutside = (e) => {
+      if (containerRef.current && !containerRef.current.contains(e.target)) {
+        setIsSelected(false);
+      }
+    };
 
-  // const cornerIconStyle = {
-  //   position: 'absolute',
-  //   fontSize: '16px',
-  //   color: 'black',
-  //   backgroundColor: 'white',
-  //   borderRadius: '50%',
-  //   padding: '4px',
-  // };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, []);
 
-  // Handle resize start
   const handleResizeStart = (e, direction) => {
     e.preventDefault();
     e.stopPropagation();
@@ -368,12 +373,10 @@ export default function MediaComponent({ uploadedMedia, onMediaUpload }) {
     }
   };
 
-  // Handle drag start
   const handleDragStart = (e) => {
     e.preventDefault();
-    if (!isClicked) return;
-
     setIsDragging(true);
+
     initialPosRef.current = {
       x: position.x,
       y: position.y
@@ -384,52 +387,72 @@ export default function MediaComponent({ uploadedMedia, onMediaUpload }) {
     };
   };
 
-  // Handle mouse move for both resize and drag
   useEffect(() => {
     const handleMouseMove = (e) => {
-      if (resizeDirection) {
-        const deltaX = e.clientX - initialMouseRef.current.x;
-        const deltaY = e.clientY - initialMouseRef.current.y;
+      if (resizeDirection || isDragging) {
+        const previewBounds = previewContainerRef.current.getBoundingClientRect(); // Get the dimensions of the preview container
+        const containerBounds = containerRef.current.getBoundingClientRect(); // Get the dimensions of the media container
 
-        let newWidth = initialSizeRef.current.width;
-        let newHeight = initialSizeRef.current.height;
 
-        switch (resizeDirection) {
-          case 'topLeft':
-            newWidth = initialSizeRef.current.width - deltaX;
-            newHeight = initialSizeRef.current.height - deltaY;
-            break;
-          case 'topRight':
-            newWidth = initialSizeRef.current.width + deltaX;
-            newHeight = initialSizeRef.current.height - deltaY;
-            break;
-          case 'bottomLeft':
-            newWidth = initialSizeRef.current.width - deltaX;
-            newHeight = initialSizeRef.current.height + deltaY;
-            break;
-          case 'bottomRight':
-            newWidth = initialSizeRef.current.width + deltaX;
-            newHeight = initialSizeRef.current.height + deltaY;
-            break;
+        if (resizeDirection) {
+          const deltaX = e.clientX - initialMouseRef.current.x;
+          const deltaY = e.clientY - initialMouseRef.current.y;
+
+          let newWidth = initialSizeRef.current.width;
+          let newHeight = initialSizeRef.current.height;
+
+          switch (resizeDirection) {
+            case 'topLeft':
+              newWidth = initialSizeRef.current.width - deltaX;
+              newHeight = initialSizeRef.current.height - deltaY;
+              break;
+            case 'topRight':
+              newWidth = initialSizeRef.current.width + deltaX;
+              newHeight = initialSizeRef.current.height - deltaY;
+              break;
+            case 'bottomLeft':
+              newWidth = initialSizeRef.current.width - deltaX;
+              newHeight = initialSizeRef.current.height + deltaY;
+              break;
+            case 'bottomRight':
+              newWidth = initialSizeRef.current.width + deltaX;
+              newHeight = initialSizeRef.current.height + deltaY;
+              break;
+          }
+
+          const minSize = 100;
+          const maxWidth = previewBounds.width;
+          const maxHeight = previewBounds.height;
+
+          newWidth = Math.min(maxWidth, Math.max(minSize, newWidth));
+          newHeight = Math.min(maxHeight, Math.max(minSize, newHeight));
+
+          setSize({
+            width: `${newWidth}px`,
+            height: `${newHeight}px`
+          });
+        } else if (isDragging) {
+          const deltaX = e.clientX - initialMouseRef.current.x; // Calculate the change in X position
+          const deltaY = e.clientY - initialMouseRef.current.y; // Calculate the change in Y position
+
+          let newX = initialPosRef.current.x + deltaX; // Calculate the new X position
+          let newY = initialPosRef.current.y + deltaY; // Calculate the new Y position
+
+          // Boundary checks to keep the media within the d_bg_preview container
+          const minX = 0; // Minimum X position
+          const minY = 0; // Minimum Y position
+          const maxX = previewBounds.width - containerBounds.width; // Maximum X position
+          const maxY = previewBounds.height - containerBounds.height; // Maximum Y position
+
+          // Ensure the new position is within the bounds
+          newX = Math.min(maxX, Math.max(minX, newX));
+          newY = Math.min(maxY, Math.max(minY, newY));
+
+          setPosition({
+            x: newX, // Update the X position
+            y: newY  // Update the Y position
+          });
         }
-
-        // Enforce minimum size
-        const minSize = 100;
-        newWidth = Math.max(minSize, newWidth);
-        newHeight = Math.max(minSize, newHeight);
-
-        setSize({
-          width: `${newWidth}px`,
-          height: `${newHeight}px`
-        });
-      } else if (isDragging) {
-        const deltaX = e.clientX - initialMouseRef.current.x;
-        const deltaY = e.clientY - initialMouseRef.current.y;
-
-        setPosition({
-          x: initialPosRef.current.x + deltaX,
-          y: initialPosRef.current.y + deltaY
-        });
       }
     };
 
@@ -460,6 +483,83 @@ export default function MediaComponent({ uploadedMedia, onMediaUpload }) {
     zIndex: 2
   };
 
+  const handleFillClick = () => {
+    setDisplayMode('fill');
+    setSize({
+      width: '100%',
+      height: '100%'
+    });
+    setPosition({ x: 0, y: 0 });
+  };
+
+  const handleFitClick = () => {
+    setDisplayMode('fit');
+    if (containerRef.current && previewContainerRef.current) {
+      const previewBounds = previewContainerRef.current.getBoundingClientRect();
+      const naturalSize = getNaturalMediaSize();
+
+      const scale = Math.min(
+        previewBounds.width / naturalSize.width,
+        previewBounds.height / naturalSize.height
+      );
+
+      const newWidth = naturalSize.width * scale;
+      const newHeight = naturalSize.height * scale;
+
+      const newX = (previewBounds.width - newWidth) / 2;
+      const newY = (previewBounds.height - newHeight) / 2;
+
+      setSize({
+        width: `${newWidth}px`,
+        height: `${newHeight}px`
+      });
+      setPosition({ x: newX, y: newY });
+    }
+  };
+
+  const getNaturalMediaSize = () => {
+    if (mediaType === 'image') {
+      const img = new Image();
+      img.src = mediaBlobUrl;
+      return {
+        width: img.naturalWidth || 800,
+        height: img.naturalHeight || 600
+      };
+    } else if (mediaType === 'video') {
+      return {
+        width: videoRef.current?.videoWidth || 800,
+        height: videoRef.current?.videoHeight || 600
+      };
+    }
+    return { width: 800, height: 600 };
+  };
+
+  const getMediaStyle = () => ({
+    width: size.width,
+    height: size.height,
+    transform: `translate(${position.x}px, ${position.y}px)`,
+    cursor: isDragging ? 'grabbing' : 'grab',
+    border: isSelected ? '2px solid white' : 'none',
+  });
+
+  const getMediaContentStyle = () => ({
+    width: '100%',
+    height: '100%',
+    objectFit: displayMode === 'fill' ? 'cover' : 'contain',
+    pointerEvents: 'none'
+  });
+
+  const handleRotateRight = () => {
+    setRotationAngle((prevAngle) => prevAngle + 90);
+  };
+
+  const handleMirrorToggle = () => {
+    setIsMirrored((prev) => !prev);
+  };
+
+  const handleFlipVerticalToggle = () => {
+    setIsFlippedVertically((prev) => !prev);
+  };
 
   return (
     <div>
@@ -499,21 +599,31 @@ export default function MediaComponent({ uploadedMedia, onMediaUpload }) {
                   <div className='d-flex align-items-center justify-content-center' style={{ height: '442px' }}>
                     <div className="text-center mb-3  justify-content-between align-items-center p-4  ">
                       <div className="d-flex gap-3 justify-content-center my-4">
-                        <button className="btn btn-dark btn-sm px-5 py-2 d-flex align-items-center">
-                          <img src={Fill} alt="" className='me-2 ' />Fill
+                        <button
+                          className={`btn ${displayMode === 'fill' ? 'btn-primary' : 'btn-dark'} btn-sm px-5 py-2 d-flex align-items-center`}
+                          onClick={handleFillClick}
+                        >
+                          <img src={Fill} alt="" className='me-2' />Fill
                         </button>
 
-                        <button className="btn btn-dark btn-sm px-5 py-2 d-flex align-items-center">
+                        <button
+                          className={`btn ${displayMode === 'fit' ? 'btn-primary' : 'btn-dark'} btn-sm px-5 py-2 d-flex align-items-center`}
+                          onClick={handleFitClick}
+                        >
                           <img src={Fit} alt="" className='me-2' />Fit
                         </button>
                       </div>
                       <h5>Flip and Rotate</h5>
 
                       <div className="d-flex align-items-center justify-content-center gap-2 my-2">
-                        <button className="btn btn-dark btn-md"><IoRefreshOutline size={22} />
+                        <button className="btn btn-dark btn-md" onClick={handleRotateRight}><IoRefreshOutline size={22} />
                         </button>
-                        <button className="btn btn-dark btn-md"><GoMirror size={22} /></button>
-                        <button className="btn btn-dark btn-md"><LuFlipVertical2 size={22} /></button>
+                        <button className="btn btn-dark btn-md" onClick={handleMirrorToggle}>
+                          <GoMirror size={22} />
+                        </button>
+                        <button className="btn btn-dark btn-md" onClick={handleFlipVerticalToggle}>
+                          <LuFlipVertical2 size={22} />
+                        </button>
                         <div className='btn btn-dark btn-md d-flex align-items-center'>
                           <span className="text-white mx-2">-</span>
                           <span className="text-white">0°</span>
@@ -522,13 +632,6 @@ export default function MediaComponent({ uploadedMedia, onMediaUpload }) {
                       </div>
                     </div>
                   </div>
-
-                  {/* <div className="d_bg_overlayer" onClick={() => document.getElementById('fileInput').click()}>
-                  <img src={d_m1} alt="Upload Icon" />
-                  <p className='mb-0'>Click to upload</p>
-                  <p className='mb-0 text-secondary'>or drag & drop file here</p>
-                  <input type="file" id="fileInput" style={{ display: 'none' }} accept="image/*,video/*" onChange={handleUpload} />
-                </div> */}
                 </div>
               ) : (
                 <div className="d_uploaded_media border p-2 overflow-hidden" >
@@ -542,13 +645,16 @@ export default function MediaComponent({ uploadedMedia, onMediaUpload }) {
                             className="col-4 d-flex justify-content-center position-relative"
                             key={file.name}
                             style={{ marginBottom: '15px' }}
-                            onClick={() => handleMediaSelect(reversedIndex)}
+                            onClick={() => {
+                              handleMediaSelect(reversedIndex);
+                              setIsSelected(true); // Set isSelected to true on click
+                            }}
                           >
                             {file.type.startsWith('image/') ? (
                               <img
                                 src={URL.createObjectURL(file)}
                                 alt="Uploaded"
-                                style={{ width: '132px', height: '150px', objectFit: 'cover' }}
+                                style={{ width: '132px', height: '150px', objectFit: 'cover', border: isSelected ? '2px solid blue' : 'none' }} // Add border conditionally
                               />
                             ) : file.type.startsWith('video/') ? (
                               <video controls={false} style={{ width: '132px', height: '150px', objectFit: 'cover' }}>
@@ -558,82 +664,6 @@ export default function MediaComponent({ uploadedMedia, onMediaUpload }) {
                             ) : (
                               <p>Unsupported media type</p>
                             )}
-                            <button
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                setMediaToDeleteIndex(reversedIndex);
-                                setShowModal(true);
-                              }}
-                              style={{
-                                position: 'absolute',
-                                top: '5px',
-                                right: '5px',
-                                background: 'none',
-                                border: 'none',
-                                cursor: 'pointer',
-                                display: 'none'
-                              }}
-                              className="delete-icon"
-                            >
-                              <img src="path/to/delete-icon.svg" alt="Delete" style={{ width: '20px', height: '20px' }} />
-                            </button>
-
-                            <div
-                              className="hover-overlay"
-                              style={{
-                                position: 'absolute',
-                                top: 0,
-                                left: 0,
-                                right: 0,
-                                bottom: 0,
-                                backgroundColor: 'rgba(0, 0, 0, 0.5)',
-                                display: 'flex',
-                                flexDirection: 'column',
-                                justifyContent: 'space-between',
-                                paddingRight: '10px',
-                                opacity: 0,
-                                transition: 'opacity 0.3s'
-                              }}
-                              onMouseEnter={(e) => { e.currentTarget.style.opacity = 1; }}
-                              onMouseLeave={(e) => { e.currentTarget.style.opacity = 0; }}
-                            >
-                              <button
-                                onClick={(e) => {
-                                  e.stopPropagation();
-                                  setMediaToDeleteIndex(reversedIndex);
-                                  setShowModal(true);
-                                }}
-                                style={{
-                                  background: 'none',
-                                  border: 'none',
-                                  color: 'white',
-                                  cursor: 'pointer',
-                                  float: 'right',
-                                  fontSize: '22px',
-                                  paddingTop: '6px',
-                                  display: 'flex',
-                                  justifyContent: 'end',
-                                  alignItems: 'baseline'
-                                }}
-                              >
-                                <RiDeleteBin6Line />
-                              </button>
-                              <button
-                                style={{
-                                  background: 'none',
-                                  border: 'none',
-                                  color: 'white',
-                                  cursor: 'pointer',
-                                  float: 'left',
-                                  fontSize: '18px',
-                                  display: 'flex',
-                                  paddingLeft: '10px',
-                                  alignItems: 'baseline'
-                                }}
-                              >
-                                10:13
-                              </button>
-                            </div>
                           </div>
                         );
                       })}
@@ -641,66 +671,62 @@ export default function MediaComponent({ uploadedMedia, onMediaUpload }) {
                 </div>
               )}
             </div>
-
-          )
-          }
+          )}
         </div>
         <div className="col-xl-9 col-12 text-center">
           <div className="d-flex justify-content-center">
-            <div className="d_bg_preview" onClick={handleMediaClick} style={{ position: 'relative', display: 'inline-block' }}>
+            <div className="d_bg_preview" ref={previewContainerRef} > {/* Prevent overflow to hide images outside the container */}
               {media && (
                 <div
                   ref={containerRef}
-                  style={{
-                    position: 'relative',
-                    width: size.width,
-                    height: size.height,
-                    transform: `translate(${position.x}px, ${position.y}px)`,
-                    cursor: isDragging ? 'grabbing' : isClicked ? 'grab' : 'default',
-                    border: isClicked ? '2px solid white' : 'none',
-                    borderRadius: '2px',
-                  }}
-                  onMouseDown={handleDragStart}
+                  style={getMediaStyle()} // Get the current style for the media container
+                  onClick={() => setIsSelected(true)} // Set the media as selected on click
+                  onMouseDown={handleDragStart} // Start dragging on mouse down
                 >
                   {mediaType === 'image' ? (
                     <img
                       src={mediaBlobUrl}
                       alt="Selected Media"
-                      style={{ width: '100%', height: '100%', objectFit: 'contain' }}
-                      draggable={false}
+                      style={{
+                        ...getMediaContentStyle(),
+                        maxWidth: '100%',
+                        display: mediaBlobUrl ? 'block' : 'none',
+                        transform: `rotate(${rotationAngle}deg) scaleX(${isMirrored ? -1 : 1}) scaleY(${isFlippedVertically ? -1 : 1})`
+                      }}
+                      draggable={false} // Prevent default drag behavior
                     />
                   ) : mediaType === 'video' ? (
                     <video
-                      id="videoPreview"
+                      ref={videoRef}
                       controls={false}
-                      style={{ width: '100%', height: '100%', objectFit: 'contain' }}
+                      style={getMediaContentStyle()} // Get the style for the media content
                     >
                       <source src={mediaBlobUrl} type={media?.type} />
                       Your browser does not support the video tag.
                     </video>
                   ) : null}
 
-                  {isClicked && (
+                  {isSelected && (
                     <>
                       <CgCompressLeft
                         className="corner-icon"
                         style={{ ...cornerIconStyle, left: '-8px', top: '-8px' }}
-                        onMouseDown={(e) => handleResizeStart(e, 'topLeft')}
+                        onMouseDown={(e) => handleResizeStart(e, 'topLeft')} // Handle resizing from the top left
                       />
                       <FaCompressAlt
                         className="corner-icon"
                         style={{ ...cornerIconStyle, right: '-8px', top: '-8px' }}
-                        onMouseDown={(e) => handleResizeStart(e, 'topRight')}
+                        onMouseDown={(e) => handleResizeStart(e, 'topRight')} // Handle resizing from the top right
                       />
                       <FaCompressAlt
                         className="corner-icon"
                         style={{ ...cornerIconStyle, left: '-8px', bottom: '-8px' }}
-                        onMouseDown={(e) => handleResizeStart(e, 'bottomLeft')}
+                        onMouseDown={(e) => handleResizeStart(e, 'bottomLeft')} // Handle resizing from the bottom left
                       />
                       <CgCompressLeft
                         className="corner-icon"
                         style={{ ...cornerIconStyle, right: '-8px', bottom: '-8px' }}
-                        onMouseDown={(e) => handleResizeStart(e, 'bottomRight')}
+                        onMouseDown={(e) => handleResizeStart(e, 'bottomRight')} // Handle resizing from the bottom right
                       />
                     </>
                   )}
@@ -832,3 +858,4 @@ export default function MediaComponent({ uploadedMedia, onMediaUpload }) {
     </div >
   );
 }
+// Upr no code rotate, flip horizontal, verticle Working 
