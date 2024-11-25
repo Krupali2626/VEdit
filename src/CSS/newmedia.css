@@ -110,3 +110,261 @@
   right: 0;
   transition: opacity 0.3s;
 }
+
+.d_uploaded_media {
+  position: relative;
+  cursor: pointer;
+}
+
+.d_uploaded_media .d_bg_overlayer {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  background: rgba(0, 0, 0, 0.5);
+  opacity: 0;
+  transition: opacity 0.3s;
+}
+
+.d_uploaded_media:hover .d_bg_overlayer {
+  opacity: 1;
+}
+
+.d_uploaded_media .row {
+  position: relative;
+  z-index: 1;
+  .media-container {
+    position: relative;
+    transition: transform 0.3s ease, width 0.3s ease, height 0.3s ease;
+  }
+
+  .media-container.fill {
+    overflow: hidden;
+  }
+
+  .media-container.fill img,
+  .media-container.fill video {
+    min-width: 100%;
+    min-height: 100%;
+    object-fit: cover;
+  }
+}
+.media-container {
+  position: relative;
+  transition: transform 0.3s ease, width 0.3s ease, height 0.3s ease;
+}
+
+.media-container.fill {
+  overflow: hidden;
+}
+
+.media-container.fill img,
+.media-container.fill video {
+  min-width: 100%;
+  min-height: 100%;
+  object-fit: cover;
+}
+.d_bg_preview {
+  overflow: hidden; /* Hide overflow content */
+  position: relative; /* Ensure positioning context for absolute children */
+}
+
+.k_tab_spacing {
+  padding: 25px 12px;
+}
+
+.custom-range {
+  -webkit-appearance: none; /* Remove default styling */
+  width: 100%; /* Full width */
+  height: 8px; /* Height of the track */
+  background: #ddd; /* Track color */
+  border-radius: 5px; /* Rounded corners */
+  outline: none; /* Remove outline */
+}
+
+.custom-range::-webkit-slider-thumb {
+  -webkit-appearance: none; /* Remove default styling */
+  appearance: none; /* Remove default styling */
+  width: 20px; /* Width of the thumb */
+  height: 20px; /* Height of the thumb */
+  border-radius: 50%; /* Round thumb */
+  background: #007bff; /* Thumb color */
+  cursor: pointer; /* Pointer cursor on hover */
+}
+
+.custom-range::-moz-range-thumb {
+  width: 20px; /* Width of the thumb */
+  height: 20px; /* Height of the thumb */
+  border-radius: 50%; /* Round thumb */
+  background: #007bff; /* Thumb color */
+  cursor: pointer; /* Pointer cursor on hover */
+}
+
+.slider-container {
+  width: 370px;
+  margin: auto;
+}
+
+.slider-label {
+  margin: 10px 0 5px;
+  font-size: 14px;
+}
+
+/* .slider {
+  -webkit-appearance: none;
+  width: 100%;
+  height: 8px;
+  background: #444;
+  border-radius: 5px;
+  outline: none;
+} */
+
+.slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 16px;
+  height: 16px;
+  background: #fff;
+  border-radius: 50%;
+  cursor: pointer;
+}
+
+.slider-value {
+  text-align: right;
+  font-size: 14px;
+  margin-top: 5px;
+}
+
+.slider::-webkit-slider-thumb {
+  -webkit-appearance: none; /* Override default styling */
+  appearance: none; /* Override default styling */
+  width: 10px; /* Set the width of the thumb */
+  height: 10px; /* Set the height of the thumb */
+  background: #fff; /* Set the color of the thumb */
+  border-radius: 50%; /* Make the thumb circular */
+  cursor: pointer; /* Change cursor to pointer */
+}
+
+.slider::-moz-range-thumb {
+  width: 10px; /* Set the width of the thumb */
+  height: 10px; /* Set the height of the thumb */
+  background: #4CAF50; /* Set the color of the thumb */
+  border-radius: 50%; /* Make the thumb circular */
+  cursor: pointer; /* Change cursor to pointer */
+}
+
+.corner-icon-container {
+  position: relative;
+  width: 100%;
+  height: 100%;
+}
+
+.corner-icon {
+  position: absolute;
+  font-size: 16px;
+  color: black;
+  background-color: white;
+  border-radius: 50%;
+  padding: 4px;
+  cursor: pointer;
+  z-index: 2;
+  width: 30px;
+  height: 30px;
+  box-shadow: 0 0 5px rgba(0, 0, 0, 0.5); /* Optional shadow for better visibility */
+}
+
+/* slider */
+.method1 {
+  position: relative;
+  width: 100%;
+  height: 15px;
+  margin-bottom: 1rem;
+}
+
+.method1 ::-webkit-slider-runnable-track {
+  border-radius: 5px;
+  background: #7d7d7d; /* Gray background */
+  height: 4px;
+}
+
+.method1 ::-moz-range-track {
+  background: #7d7d7d; /* Gray background for Firefox */
+  height: 4px;
+}
+
+.method1 ::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 16px; /* Thumb size */
+  height: 16px; /* Thumb size */
+  border-radius: 50%;
+  background: white; /* Thumb color */
+  cursor: pointer;
+  margin-top: -5px; /* Center the thumb */
+  border: 2px solid #7d7d7d; /* Border around the thumb */
+}
+
+.method1 ::-moz-range-thumb {
+  width: 16px; /* Thumb size for Firefox */
+  height: 16px; /* Thumb size for Firefox */
+  border-radius: 50%;
+  background: white; /* Thumb color */
+  cursor: pointer;
+  border: 2px solid #7d7d7d; /* Border around the thumb */
+}
+
+/* .slider {
+  -webkit-appearance: none;
+  width: 100%;
+  height: 4px;
+  background: #444;
+  border-radius: 5px;
+  outline: none;
+  position: absolute;
+  z-index: 1;
+  margin-left: 4px;
+  padding-top: 3px;
+} */
+/* .slider {
+  -webkit-appearance: none;
+  width: 100%;
+  height: 4px;
+  background: #444;
+  border-radius: 5px;
+  outline: none;
+} */
+.slider-progress {
+  position: absolute;
+  left: 0; /* Start from the left */
+  z-index: 1;
+  top: 0px;
+  height: 4px;
+  background-color: white; /* Green progress color */
+  border-radius: 5px;
+}
+.slider {
+  -webkit-appearance: none;
+  width: 100%;
+  background: #444;
+  border-radius: 5px;
+  outline: none;
+  position: absolute;
+  z-index: 1;
+  margin-left: 4px;
+  /* padding-top: 3px; */
+}
+
+.slider-background {
+  position: absolute;
+  left: 4px;
+  top: 0px;
+  height: 4px;
+  width: 100%;
+  border-radius: 5px;
+  background-color: #7d7d7d; /* Gray background */
+}
