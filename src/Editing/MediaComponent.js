@@ -127,144 +127,233 @@ export default function MediaComponent({ uploadedMedia, onMediaUpload }) {
       case 1:
         setTabContent(
           <div className="slider-container">
-            <div className="d-flex justify-content-between align-items-center">
+            <div className="d-flex justify-content-between align-items-center pb-2 ">
               <div className="slider-label">Opacity</div>
               <div className="slider-value" id="opacityValue">100%</div>
             </div>
-            <input
-              type="range"
-              className="slider"
-              min={0}
-              max={100}
-              defaultValue={100}
-              style={{
-                background: 'linear-gradient(90deg, #2D2C2C 0%, #F0F0F0 100%)',
-                height: '2px',
-                width: '100%',
-                appearance: 'none',
-              }}
-              onChange={(e) => {
-                const value = e.target.value;
-                document.getElementById('opacityValue').innerText = `${value}%`;
-                updateImageFilter(); // Call to update the filter
-              }}
-            />
+            <div style={{ position: 'relative', width: '100%' }}>
+              <input
+                type="range"
+                className="slider"
+                min={0}
+                max={100}
+                defaultValue={100}
+                style={{
+                  background: 'linear-gradient(90deg, #2D2C2C 0%, #F0F0F0 100%)',
+                  height: '2px',
+                  width: '100%',
+                  appearance: 'none',
+                }}
+                onChange={(e) => {
+                  const value = e.target.value;
+                  document.getElementById('opacityValue').innerText = `${value}%`;
+                  updateImageFilter(); // Call to update the filter
+                }}
+              />
+              <div className="marker" style={{ left: '50%' }}></div> {/* Center marker */}
+            </div>       
 
-            <div className="d-flex justify-content-between align-items-center">
+            <div className="d-flex justify-content-between align-items-center pt-3">
               <div className="slider-label">Brightness</div>
-              <div className="slider-value" id="brightnessValue">10</div>
+              <div className="slider-value" id="brightnessValue">0</div>
             </div>
-            <input
-              type="range"
-              className="slider"
-              min={-100}
-              max={100}
-              defaultValue={0}
-              style={{
-                background: 'linear-gradient(90deg, #2D2C2C 0%, #eb4034 100%)',
-                height: '2px',
-                width: '100%',
-              }}
-              onChange={(e) => {
-                const value = e.target.value;
-                document.getElementById('brightnessValue').innerText = value;
-                updateImageFilter(); // Call to update the filter
-              }}
-            />
+            <div style={{ position: 'relative', width: '100%' }}>
+              {/* {/ Top line positioned above the slider, centered at 0 /} */}
+              <div style={{
+                position: 'absolute',
+                top: '7px',
+                left: '51%',
+                transform: 'translateX(-50%)',
+                width: '2px',
+                height: '6px',
+                background: 'white',
+              }} />
 
-            <div className="d-flex justify-content-between align-items-center">
+              <input
+                type="range"
+                className="slider"
+                min={-100}
+                max={100}
+                defaultValue={0}
+                style={{
+                  background: 'linear-gradient(90deg, #2D2C2C 0%, #F0F0F0 100%)',
+                  height: '2px',
+                  width: '100%',
+                  position: 'relative',
+                  zIndex: 1
+                }}
+                onChange={(e) => {
+                  const value = e.target.value;
+                  document.getElementById('brightnessValue').innerText = value;
+
+                  const imageElement = document.getElementById('uploadedImage');
+                  if (imageElement) {
+                    imageElement.style.filter = `brightness(${(parseInt(value) + 100)}%)`;
+                    if (value == -100) {
+                      imageElement.style.filter = 'grayscale(100%)';
+                    }
+                  }
+                }}
+              />
+              {/* {/ Bottom line positioned below the slider, centered at 0 /} */}
+              <div style={{
+                position: 'absolute',
+                bottom: '-3px',
+                left: '51%',
+                transform: 'translateX(-50%)',
+                width: '2px',
+                height: '6px',
+                background: 'white',
+              }} />
+            </div>
+
+            <div className="d-flex justify-content-between align-items-center pb-2 pt-3 ">
               <div className="slider-label">Contrast</div>
-              <div className="slider-value" id="contrastValue">10</div>
+              <div className="slider-value" id="contrastValue">0</div>
             </div>
-            <input
-              type="range"
-              className="slider"
-              min={-100}
-              max={100}
-              defaultValue={0}
-              style={{
-                background: 'linear-gradient(90deg, #2D2C2C 0%, #F0F0F0 100%)',
-                height: '2px',
-                width: '100%',
-              }}
-              onChange={(e) => {
-                const value = e.target.value;
-                document.getElementById('contrastValue').innerText = value;
-                updateImageFilter(); // Call to update the filter
-              }}
-            />
+            <div style={{ position: 'relative', width: '100%' }}>
+            <div style={{
+                position: 'absolute',
+                top: '6px',
+                left: '51%',
+                transform: 'translateX(-50%)',
+                width: '2px',
+                height: '6px',
+                background: 'white',
+              }} />
+              <input
+                type="range"
+                className="slider"
+                min={-100}
+                max={100}
+                defaultValue={0}
+                style={{
+                  background: 'linear-gradient(90deg, #2D2C2C 0%, #F0F0F0 100%)',
+                  height: '2px',
+                  width: '100%',
+                }}
+                onChange={(e) => {
+                  const value = e.target.value;
+                  document.getElementById('contrastValue').innerText = value;
+                  updateImageFilter(); // Call to update the filter
+                }}
+              />
+              <div className="marker" style={{ left: '50%' }}></div>
+              <div style={{
+                position: 'absolute',
+                bottom: '3px',
+                left: '51%',
+                transform: 'translateX(-50%)',
+                width: '2px',
+                height: '6px',
+                background: 'white',
+              }} />
+            </div>
 
-            <div className="d-flex justify-content-between align-items-center">
+
+
+            <div className="d-flex justify-content-between align-items-center pb-2 pt-3">
               <div className="slider-label">Saturation</div>
-              <div className="slider-value" id="saturationValue">100</div>
+              <div className="slider-value" id="saturationValue">0</div>
             </div>
-            <input
-              type="range"
-              min={-100}
-              max={100}
-              defaultValue={0}
-              style={{
-                background: 'linear-gradient(90deg, #791515 0%, #474444 100%)',
-                height: '2px',
-                width: '100%',
-              }}
-              onChange={(e) => {
-                const value = e.target.value;
-                document.getElementById('saturationValue').innerText = value;
-                updateImageFilter(); // Call to update the filter
-              }}
-            />
+            <div style={{ position: 'relative', width: '100%' }}>
+              <div style={{
+                position: 'absolute',
+                top: '6px',
+                left: '51%',
+                transform: 'translateX(-50%)',
+                width: '2px',
+                height: '6px',
+                background: 'white',
+              }} />
+              <input
+                type="range"
+                className="slider"
+                min={-100}
+                max={100}
+                defaultValue={0}
+                style={{
+                  background: 'linear-gradient(90deg, #474444 0%, #791515 100%)',
+                  height: '2px',
+                  width: '100%',
+                }}
+                onChange={(e) => {
+                  const value = e.target.value;
+                  document.getElementById('saturationValue').innerText = value;
+                  updateImageFilter(); // Call to update the filter
+                }}
+              />
+              <div className="marker" style={{ left: '50%' }}></div>
 
-            <div className="d-flex justify-content-between align-items-center">
+              <div style={{
+                position: 'absolute',
+                bottom: '3px',
+                left: '51%',
+                transform: 'translateX(-50%)',
+                width: '2px',
+                height: '6px',
+                background: 'white',
+              }} />
+            </div>
+
+            <div className="d-flex justify-content-between align-items-center pb-2 pt-3">
               <div className="slider-label">Hue</div>
               <div className="slider-value" id="hueValue">0</div>
             </div>
-            <input
-              type="range"
-              className="slider"
-              min={-180}
-              max={180}
-              defaultValue={0}
-              style={{
-                background: 'linear-gradient(90deg, #7D37B4 0%, #2DA77B 50%, #6D5E25 75%, #B74E4E 100%)',
-                height: '2px',
-                width: '100%',
-              }}
-              onChange={(e) => {
-                const value = e.target.value;
-                document.getElementById('hueValue').innerText = value;
-                updateImageFilter(); // Call to update the filter
-              }}
-            />
+            <div style={{ position: 'relative', width: '100%' }}>
+              <input
+                type="range"
+                className="slider"
+                min={-180}
+                max={180}
+                defaultValue={0}
+                style={{
+                  background: 'linear-gradient(90deg, #B74E4E 0%, #6D5E25 50%, #2DA77B 75%, #7D37B4 100%)',
+                  height: '2px',
+                  width: '100%',
+                }}
+                onChange={(e) => {
+                  const value = e.target.value;
+                  document.getElementById('hueValue').innerText = value;
+                  updateImageFilter(); // Call to update the filter
+                }}
+              />
+              <div className="marker" style={{ left: '50%' }}></div>
 
-            <div className="d-flex justify-content-between align-items-center">
+             
+            </div>
+
+            <div className="d-flex justify-content-between align-items-center pb-2 pt-3">
               <div className="slider-label">Blur</div>
               <div className="slider-value" id="blurValue">0</div>
             </div>
-            <input
-              type="range"
-              className="slider"
-              min={0}
-              max={10}
-              defaultValue={0}
-              style={{
-                background: 'rgba(46, 46, 46, 1)',
-                height: '2px',
-                width: '100%'
-              }}
-              onChange={(e) => {
-                const value = e.target.value;
-                document.getElementById('blurValue').innerText = value;
-                updateImageFilter(); // Call to update the filter
-              }}
-            />
-          </div>
+            <div style={{ position: 'relative', width: '100%' }}>
+              <input
+                type="range"
+                className="slider"
+                min={0}
+                max={10}
+                defaultValue={0}
+                style={{
+                  background: 'rgba(46, 46, 46, 1)',
+                  height: '2px',
+                  width: '100%',
+                }}
+                onChange={(e) => {
+                  const value = e.target.value;
+                  document.getElementById('blurValue').innerText = value;
+                  updateImageFilter(); // Call to update the filter
+                }}
+              />
+              <div className="marker" style={{ left: '50%' }}></div> {/* Center marker */}
+            </div>
+          </div >
         );
         break;
       case 2:
         setTabContent(
           <div className="slider-container d-flex flex-column align-items-center">
-            <div className="d-flex justify-content-between align-items-center w-100">
+            <div className="d-flex justify-content-between align-items-center pb-2 pt-3 w-100">
               <div className="slider-label">Speed</div>
               <div className="slider-value" id="speedValue" style={{ color: 'white' }}>0.60x</div>
             </div>
