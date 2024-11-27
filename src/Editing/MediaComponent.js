@@ -698,30 +698,31 @@ export default function MediaComponent({ uploadedMedia, onMediaUpload }) {
     if (index < 0 || index >= allMedia.length) return;
     const fileName = allMedia[index].name;
     setAllMedia((prev) => {
-      const newMedia = prev.filter((_, i) => i !== index);
-      if (newMedia.length === 0) {
-        setMedia(null);
-        setMediaType('');
-        setMediaBlobUrl(null);
-        setCurrentMediaIndex(null);
-        setHasMedia(false);
-      } else {
-        if (currentMediaIndex === index) {
-          setMedia(null);
-          setMediaType('');
-          setMediaBlobUrl(null);
-          setCurrentMediaIndex(null);
+        const newMedia = prev.filter((_, i) => i !== index);
+        if (newMedia.length === 0) {
+            // If no media left, reset media-related states
+            setMedia(null);
+            setMediaType('');
+            setMediaBlobUrl(null);
+            setCurrentMediaIndex(null);
+            setHasMedia(false); // Indicate no media is present
         } else {
-          const newIndex = Math.min(index, newMedia.length - 1);
-          handleMediaSelect(newIndex);
+            if (currentMediaIndex === index) {
+                setMedia(null);
+                setMediaType('');
+                setMediaBlobUrl(null);
+                setCurrentMediaIndex(null);
+            } else {
+                const newIndex = Math.min(index, newMedia.length - 1);
+                handleMediaSelect(newIndex);
+            }
         }
-      }
-      return newMedia;
+        return newMedia;
     });
     setThumbnails((prev) => {
-      const newThumbnails = { ...prev };
-      delete newThumbnails[fileName];
-      return newThumbnails;
+        const newThumbnails = { ...prev };
+        delete newThumbnails[fileName];
+        return newThumbnails;
     });
     setDeletedMediaNames((prev) => [...prev, fileName]);
   };
@@ -854,7 +855,7 @@ export default function MediaComponent({ uploadedMedia, onMediaUpload }) {
     transform: `translate(${position.x}px, ${position.y}px)`,
     cursor: isDragging ? 'grabbing' : 'grab',
     border: isSelected ? '2px solid white' : 'none',
-    overflow: 'hidden' // Ensure overflow is hidden
+    overflow: 'hidden' 
   });
 
   const getMediaContentStyle = () => ({
@@ -1018,7 +1019,14 @@ export default function MediaComponent({ uploadedMedia, onMediaUpload }) {
   // Preset durations in seconds
   const presets = [1, 2, 4, 6, 10, 15];
 
-  
+  // Function to handle deletion of the selected media
+  const handleDeleteSelectedMedia = () => {
+    if (currentMediaIndex !== null) {
+        const fileName = allMedia[currentMediaIndex].name; // Get the name of the currently selected media
+        setMediaToDeleteIndex(currentMediaIndex); // Set the index of the media to delete
+        setShowModal(true); // Open the delete modal
+    }
+  };
 
   return (
     <div>
@@ -1176,7 +1184,9 @@ export default function MediaComponent({ uploadedMedia, onMediaUpload }) {
             <div className="d_timeline_left_icons d-flex align-items-center">
               <img className="mx-2" src={t11} alt="Icon 1" />
               <img className="mx-2" src={t1} alt="Icon 2" onClick={handleThumbnailCopy} style={{ cursor: 'pointer' }} />
-              <img className="mx-2" src={t2} alt="Icon 3" />
+              <div className="mx-2" onClick={handleDeleteSelectedMedia}>
+                <img src={t2} alt="Icon 3" />
+              </div>
             </div>
             <div className="d_timeline_time_display">
               <span>{`${Math.floor(displayTime / 3600)}:${Math.floor((displayTime % 3600) / 60).toString().padStart(2, '0')}:${(displayTime % 60).toString().padStart(2, '0')} / 0:08:20`}</span>
