@@ -70,6 +70,7 @@ export default function VESidebar() {
   const [activeMenu, setActiveMenu] = useState('');
   const [uploadedMedia, setUploadedMedia] = useState([]);
   const [activeComponent, setActiveComponent] = useState('default');
+  const [allMedia, setAllMedia] = useState([]);
 
   const toggleSidebar = () => {
     setIsOpen(!isOpen);
@@ -143,7 +144,7 @@ export default function VESidebar() {
   };
   const [media, setMedia] = useState(null);
   const [mediaType, setMediaType] = useState('');
-  const [allMedia, setAllMedia] = useState([]);
+  // const [allMedia, setAllMedia] = useState([]);
   const videoRef = useRef(null);
   const [hasMedia, setHasMedia] = useState(false);
   const [isPlaying, setIsPlaying] = useState(false);
@@ -175,6 +176,7 @@ export default function VESidebar() {
   const [isMirrored, setIsMirrored] = useState(false);
   const [isFlippedVertically, setIsFlippedVertically] = useState(false);
   const [durationMs, setDurationMs] = useState(6030);
+  const [uploadTime, setUploadTime] = useState(null);
 
   const thumbnailWidth = 132;
 
@@ -555,65 +557,29 @@ export default function VESidebar() {
   const handleUpload = async (event) => {
     const file = event.target.files[0];
     if (file) {
-      const fileType = file.type.split('/')[0];
-      const fileURL = URL.createObjectURL(file);
+        const uploadDate = new Date(); // Get the current date and time
+        const uploadTime = uploadDate.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }); // Format to HH:MM
+        console.log("Upload Time:", uploadTime); // Log the upload time
+        setUploadTime(uploadTime); // Store the formatted upload time
 
-      if (allMedia.some(media => media.name === file.name)) return;
+        const fileType = file.type.split('/')[0];
+        const fileURL = URL.createObjectURL(file);
 
-      setAllMedia((prev) => [...prev, file]);
-      onMediaUpload(file);
+        if (allMedia.some(media => media.name === file.name)) return;
 
-      setMedia(file);
-      setMediaType(fileType);
-      setMediaBlobUrl(fileURL);
+        setAllMedia((prev) => [...prev, file]);
+        setUploadedMedia((prev) => [...prev, file]);
 
-      // Set default tab content to case 0 after upload
-      setTabContent(
-        <div className='d-flex align-items-center justify-content-center' style={{ height: '442px' }}>
-          <div className="text-center mb-3 justify-content-between align-items-center p-4">
-            <div className="d-flex gap-3 justify-content-center my-4">
-              <button
-                className={`btn btn-dark btn-sm px-5 py-2 d-flex align-items-center`}
-                onClick={handleFillClick}
-              >
-                <img src={Fill} alt="" className='me-2' />Fill
-              </button>
+        setMedia(file);
+        setMediaType(fileType);
+        setMediaBlobUrl(fileURL);
 
-              <button
-                className={`btn btn-dark btn-sm px-5 py-2 d-flex align-items-center`}
-                onClick={handleFitClick}
-              >
-                <img src={Fit} alt="" className='me-2' />Fit
-              </button>
-            </div>
-            <h5>Flip and Rotate</h5>
-
-            <div className="d-flex align-items-center justify-content-center gap-2 my-2">
-              <button className="btn btn-dark btn-md" onClick={handleRotateIcon}>
-                <IoRefreshOutline size={22} />
-              </button>
-              <button className="btn btn-dark btn-md" onClick={handleMirrorToggle}>
-                <GoMirror size={22} />
-              </button>
-              <button className="btn btn-dark btn-md" onClick={handleFlipVerticalToggle}>
-                <LuFlipVertical2 size={22} />
-              </button>
-              <div className='btn btn-dark btn-md d-flex align-items-center'>
-                <span className="text-white mx-2" onClick={handleRotateLeft}>-</span>
-                <span className="text-white">{rotationAngle}°</span> {/* Display the rotation angle here */}
-                <span className="text-white mx-2" onClick={handleRotateRight}>+</span>
-              </div>
-            </div>
-          </div>
-        </div>
-      );
-
-      if (fileType === 'video') {
-        generateThumbnails(file);
-      } else if (fileType === 'image') {
-        await generateImageThumbnail(file, fileURL);
-      }
-      setRotationAngle(0); // Reset rotation angle to 0 on new upload
+        if (fileType === 'video') {
+            generateThumbnails(file);
+        } else if (fileType === 'image') {
+            await generateImageThumbnail(file, fileURL);
+        }
+        setRotationAngle(0); // Reset rotation angle to 0 on new upload
     }
   };
 
@@ -1384,7 +1350,9 @@ export default function VESidebar() {
                   <MediaComponent 
                     allMedia={allMedia} 
                     deletedMediaNames={deletedMediaNames} 
-                    handleMediaSelect={handleMediaSelect} 
+                    handleMediaSelect={handleMediaSelect}
+                    handleDeleteMedia={handleDeleteMedia}
+                    uploadTime={uploadTime} // Pass the upload time as a prop
                   />
                 ) : activeComponent === 'Merge' ? (
                   <MergeComponent />
