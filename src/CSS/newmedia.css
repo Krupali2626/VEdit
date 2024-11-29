@@ -27,11 +27,11 @@
   height: 460px;
   width: 70%;
   text-align: center;
-  background-color: #3c3b3d38;
+  background-color: #3c3b3d5c;
 }
 
 .d_timeline_bg_icon {
-  background-color: #312f3338;
+  background-color: #3c3b3d5c;
   height: 340px;
 }
 
@@ -95,12 +95,7 @@
   transform: scale(0.8); /* Scale down to 80% */
 }
 
-@media (max-width: 768px) {
-  .a_main {
-    margin-left: 0rem;
-    margin-top: 4rem !important;
-  }
-}
+
 
 .video-container:hover .hover-overlay {
   opacity: 1 !important; /* Show overlay on hover */
@@ -367,4 +362,22 @@
   width: 100%;
   border-radius: 5px;
   background-color: #7d7d7d; /* Gray background */
+}
+@media (max-width: 992px) {
+  .a_main{
+    margin-top: 1rem !important;
+  }
+  .d_bg_preview {
+    height: 409px;
+    width: 78%;
+    text-align: center;
+    background-color: #3c3b3d5c;
+}
+}
+@media (max-width: 576px) {
+ 
+  .d_bg_preview {
+    height: 270px;
+    width: 93%;
+  }
 }

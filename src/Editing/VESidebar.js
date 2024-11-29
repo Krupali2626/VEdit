@@ -63,10 +63,11 @@ import { LuFlipVertical2 } from "react-icons/lu";
 import { CgCompressLeft } from "react-icons/cg";
 import { FaCompressAlt } from "react-icons/fa";
 import AccessTimeIcon from '@mui/icons-material/AccessTime';
+import { useMediaQuery } from 'react-responsive';
 
 export default function VESidebar() {
   const [isOpen, setIsOpen] = useState(false);
-  const [isMobile, setIsMobile] = useState(window.innerWidth <= 768);
+  const isMobile = useMediaQuery({ query: '(max-width: 991px)' }); // Check if the screen width is below 992px
   const [activeMenu, setActiveMenu] = useState('');
   const [uploadedMedia, setUploadedMedia] = useState([]);
   const [activeComponent, setActiveComponent] = useState('default');
@@ -76,29 +77,6 @@ export default function VESidebar() {
     setIsOpen(!isOpen);
   };
 
-  const handleResize = () => {
-    setIsMobile(window.innerWidth <= 768);
-    if (window.innerWidth > 768) {
-      setIsOpen(true);
-    } else {
-      setIsOpen(false);
-    }
-  };
-
-  // const handleMenuClick = (menu) => {
-  //     setActiveMenu(menu);
-  // };
-
-  const handleMediaUpload = (file) => {
-    setUploadedMedia((prevMedia) => [...prevMedia, file]); // Store all uploaded media
-  };
-
-  useEffect(() => {
-    window.addEventListener('resize', handleResize);
-    return () => {
-      window.removeEventListener('resize', handleResize);
-    };
-  }, []);
   const handleMenuClick = (menu) => {
     setActiveMenu(menu);
     switch (menu) {
@@ -142,9 +120,13 @@ export default function VESidebar() {
         setActiveComponent('default');
     }
   };
+
+  const handleMediaUpload = (file) => {
+    setUploadedMedia((prevMedia) => [...prevMedia, file]); // Store all uploaded media
+  };
+
   const [media, setMedia] = useState(null);
   const [mediaType, setMediaType] = useState('');
-  // const [allMedia, setAllMedia] = useState([]);
   const videoRef = useRef(null);
   const [hasMedia, setHasMedia] = useState(false);
   const [isPlaying, setIsPlaying] = useState(false);
@@ -177,7 +159,7 @@ export default function VESidebar() {
   const [isFlippedVertically, setIsFlippedVertically] = useState(false);
   const [durationMs, setDurationMs] = useState(6030);
   const [uploadTime, setUploadTime] = useState(null);
-
+  const [isWide, setIsWide] = useState(false);
   const thumbnailWidth = 132;
 
   const [value, setValue] = React.useState(0);
@@ -191,8 +173,8 @@ export default function VESidebar() {
 
   const handleChange = (event, newValue) => {
     setValue(newValue);
-    console.log(value,"value");
-    
+    console.log(value, "value");
+
     switch (newValue) {
       case 0:
         setTabContent(
@@ -200,10 +182,11 @@ export default function VESidebar() {
             <div className="text-center mb-3 justify-content-between align-items-center p-4">
               <div className="d-flex gap-3 justify-content-center my-4">
                 <button
-                  className={`btn btn-dark btn-sm px-5 py-2 d-flex align-items-center`}
+                  className="btn btn-dark btn-sm px-5 py-2 d-flex align-items-center"
                   onClick={handleFillClick}
                 >
-                  <img src={Fill} alt="" className='me-2' />Fill
+                  <img src={Fill} alt="" className="me-2" />
+                  Fill
                 </button>
 
                 <button
@@ -269,7 +252,6 @@ export default function VESidebar() {
               <div className="slider-value" id="brightnessValue">0</div>
             </div>
             <div style={{ position: 'relative', width: '100%' }}>
-              {/* {/ Top line positioned above the slider, centered at 0 /} */}
               <div style={{
                 position: 'absolute',
                 top: '7px',
@@ -306,7 +288,6 @@ export default function VESidebar() {
                   }
                 }}
               />
-              {/* {/ Bottom line positioned below the slider, centered at 0 /} */}
               <div style={{
                 position: 'absolute',
                 bottom: '-3px',
@@ -559,29 +540,29 @@ export default function VESidebar() {
   const handleUpload = async (event) => {
     const file = event.target.files[0];
     if (file) {
-        const uploadDate = new Date(); // Get the current date and time
-        const uploadTime = uploadDate.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }); // Format to HH:MM
-        console.log("Upload Time:", uploadTime); // Log the upload time
-        setUploadTime(uploadTime); // Store the formatted upload time
+      const uploadDate = new Date(); // Get the current date and time
+      const uploadTime = uploadDate.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }); // Format to HH:MM
+      console.log("Upload Time:", uploadTime); // Log the upload time
+      setUploadTime(uploadTime); // Store the formatted upload time
 
-        const fileType = file.type.split('/')[0];
-        const fileURL = URL.createObjectURL(file);
+      const fileType = file.type.split('/')[0];
+      const fileURL = URL.createObjectURL(file);
 
-        if (allMedia.some(media => media.name === file.name)) return;
+      if (allMedia.some(media => media.name === file.name)) return;
 
-        setAllMedia((prev) => [...prev, file]);
-        setUploadedMedia((prev) => [...prev, file]);
+      setAllMedia((prev) => [...prev, file]);
+      setUploadedMedia((prev) => [...prev, file]);
 
-        setMedia(file);
-        setMediaType(fileType);
-        setMediaBlobUrl(fileURL);
+      setMedia(file);
+      setMediaType(fileType);
+      setMediaBlobUrl(fileURL);
 
-        if (fileType === 'video') {
-            generateThumbnails(file);
-        } else if (fileType === 'image') {
-            await generateImageThumbnail(file, fileURL);
-        }
-        setRotationAngle(0); // Reset rotation angle to 0 on new upload
+      if (fileType === 'video') {
+        generateThumbnails(file);
+      } else if (fileType === 'image') {
+        await generateImageThumbnail(file, fileURL);
+      }
+      setRotationAngle(0); // Reset rotation angle to 0 on new upload
     }
   };
 
@@ -709,7 +690,6 @@ export default function VESidebar() {
     setDisplayTime(newDisplayTime);
   };
 
-  // 111111111111111111111
   const handleMediaSelect = (index) => {
     if (index < 0 || index >= allMedia.length) return;
     const file = allMedia[index];
@@ -870,23 +850,26 @@ export default function VESidebar() {
     width: '30px',
     height: '30px',
   };
+
   const handleFillClick = () => {
     setDisplayMode('fill');
+    setIsWide(true); // Add `w-100` class
+
     if (containerRef.current && previewContainerRef.current) {
-        const previewBounds = previewContainerRef.current.getBoundingClientRect();
-        const naturalSize = getNaturalMediaSize();
+      const previewBounds = previewContainerRef.current.getBoundingClientRect();
+      const naturalSize = getNaturalMediaSize();
 
-        // Set width and height to match the preview container's dimensions
-        const newWidth = previewBounds.width; // Use the width of the preview container
-        const newHeight = previewBounds.height; // Use the height of the preview container
+      // Set width and height to match the preview container's dimensions
+      const newWidth = previewBounds.width; // Use the width of the preview container
+      const newHeight = previewBounds.height; // Use the height of the preview container
 
-        // Set the size to fill the width and height
-        setSize({
-            width: `${newWidth}px`, // Set width to match the preview container
-            height: `${newHeight}px` // Set height to match the preview container
-        });
-        setPosition({ x: 0, y: 0 }); // Center the image
-    } 
+      // Set the size to fill the width and height
+      setSize({
+        width: `${newWidth}px`, // Set width to match the preview container
+        height: `${newHeight}px`, // Set height to match the preview container
+      });
+      setPosition({ x: 0, y: 0 }); // Center the image
+    }
   };
 
   const handleFitClick = () => {
@@ -1145,8 +1128,10 @@ export default function VESidebar() {
   const [isPreviewVisible, setIsPreviewVisible] = useState(false);
 
   const handlePreviewToggle = () => {
-    setIsPreviewVisible((prev) => !prev); // Toggle the visibility
+    setIsPreviewVisible((prev) => !prev);
   };
+
+  const [videoProgress, setVideoProgress] = useState(0);
 
   return (
     <>
@@ -1156,11 +1141,7 @@ export default function VESidebar() {
             <div className="row w-100">
               <div className="col-12 text-end my-3 d-flex align-items-center justify-content-between">
                 <div className="d-flex align-items-center">
-                  {isMobile && (
-                    <div className="hamburger mb-1 me-2" onClick={toggleSidebar}>
-                      <HiOutlineMenu className='border' />
-                    </div>
-                  )}
+
                   <h4 className="mb-0">LOGO</h4>
                 </div>
                 <div className='d-flex'>
@@ -1179,7 +1160,7 @@ export default function VESidebar() {
         </div>
       </div>
       <div className="row w-100 ">
-        <div className="col-auto p-0">
+        <div className={`col-auto p-0 ${isMobile ? 'd-none' : ''}`}>
           <div className={`fixed-sidebar dE_sidebar d-flex flex-column align-items-center ${isOpen ? 'open' : 'closed'}`}>
             {(isOpen || !isMobile) && (
               <>
@@ -1274,8 +1255,99 @@ export default function VESidebar() {
             )}
           </div>
         </div>
-        <div className="col a_main px-0">
-
+        <div className={`col a_main px-0 ${isMobile ? 'd-flex flex-column' : ''}`}>
+          {isMobile && (
+            <div className="dE_sidebar d-flex flex-row justify-content-around align-items-center">
+              {/* Sidebar content for mobile view in a single row */}
+              <div className="d-flex justify-content-center align-items-center">
+                <label className='bg_round' htmlFor="media-upload">
+                  <div className='dE_plus'>
+                    <HiOutlinePlus />
+                  </div>
+                  <input
+                    type="file"
+                    id="media-upload"
+                    onChange={(e) => handleMediaUpload(e.target.files[0])}
+                    multiple
+                    style={{ display: 'none' }}
+                  />
+                </label>
+              </div>
+              <div className="bg_square" onClick={() => handleMenuClick('Media')}>
+                <div className={`d-flex flex-column justify-content-center align-items-center ${activeMenu === 'Media' ? 'd_active' : ''}`}>
+                  <img src={m1} alt="" className='dE_menu' />
+                  <span>Media</span>
+                </div>
+              </div>
+              <div className="bg_square" onClick={() => handleMenuClick('Merge')}>
+                <div className={`d-flex flex-column justify-content-center align-items-center ${activeMenu === 'Merge' ? 'd_active' : ''}`}>
+                  <img src={m2} alt="" className='dE_menu' />
+                  <span>Merge</span>
+                </div>
+              </div>
+              <div className="bg_square" onClick={() => handleMenuClick('Ratio')}>
+                <div className={`d-flex flex-column justify-content-center align-items-center ${activeMenu === 'Ratio' ? 'd_active' : ''}`}>
+                  <img src={m3} alt="" className='dE_menu' />
+                  <span>Ratio</span>
+                </div>
+              </div>
+              <div className="bg_square" onClick={() => handleMenuClick('Text')}>
+                <div className={`d-flex flex-column justify-content-center align-items-center ${activeMenu === 'Text' ? 'd_active' : ''}`}>
+                  <img src={m4} alt="" className='dE_menu' />
+                  <span>Text</span>
+                </div>
+              </div>
+              {/* Add more items as needed */}
+              <div className="bg_square" onClick={() => handleMenuClick('Music')}>
+                <div className={`d-flex flex-column justify-content-center align-items-center ${activeMenu === 'Music' ? 'd_active' : ''}`}>
+                  <img src={m5} alt="" className='dE_menu' />
+                  <span>Music</span>
+                </div>
+              </div>
+              <div className="bg_square" onClick={() => handleMenuClick('Videos')}>
+                <div className={`d-flex flex-column justify-content-center align-items-center ${activeMenu === 'Videos' ? 'd_active' : ''}`}>
+                  <img src={m6} alt="" className='dE_menu' />
+                  <span>Videos</span>
+                </div>
+              </div>
+              <div className="bg_square" onClick={() => handleMenuClick('Images')}>
+                <div className={`d-flex flex-column justify-content-center align-items-center ${activeMenu === 'Images' ? 'd_active' : ''}`}>
+                  <img src={m7} alt="" className='dE_menu' />
+                  <span>Images</span>
+                </div>
+              </div>
+              <div className="bg_square" onClick={() => handleMenuClick('Background')}>
+                <div className={`d-flex flex-column justify-content-center align-items-center ${activeMenu === 'Background' ? 'd_active' : ''}`}>
+                  <img src={m8} alt="" className='dE_menu' />
+                  <span>Background</span>
+                </div>
+              </div>
+              <div className="bg_square" onClick={() => handleMenuClick('Filter')}>
+                <div className={`d-flex flex-column justify-content-center align-items-center ${activeMenu === 'Filter' ? 'd_active' : ''}`}>
+                  <img src={m9} alt="" className='dE_menu' />
+                  <span>Filter</span>
+                </div>
+              </div>
+              <div className="bg_square" onClick={() => handleMenuClick('Animation')}>
+                <div className={`d-flex flex-column justify-content-center align-items-center ${activeMenu === 'Animation' ? 'd_active' : ''}`}>
+                  <img src={m10} alt="" className='dE_menu' />
+                  <span>Animation</span>
+                </div>
+              </div>
+              <div className="bg_square" onClick={() => handleMenuClick('Element')}>
+                <div className={`d-flex flex-column justify-content-center align-items-center ${activeMenu === 'Element' ? 'd_active' : ''}`}>
+                  <img src={m11} alt="" className='dE_menu' />
+                  <span>Element</span>
+                </div>
+              </div>
+              <div className="bg_square" onClick={() => handleMenuClick('Zoom')}>
+                <div className={`d-flex flex-column justify-content-center align-items-center ${activeMenu === 'Zoom' ? 'd_active' : ''}`}>
+                  <img src={m12} alt="" className='dE_menu' />
+                  <span>Zoom</span>
+                </div>
+              </div>
+            </div>
+          )}
           <div>
             <div className="row w-100">
               <div className="col-xl-3 d-xl-block d-none px-0">
@@ -1355,9 +1427,9 @@ export default function VESidebar() {
                     </div>
                   )
                 ) : activeComponent === 'Media' ? (
-                  <MediaComponent 
-                    allMedia={allMedia} 
-                    deletedMediaNames={deletedMediaNames} 
+                  <MediaComponent
+                    allMedia={allMedia}
+                    deletedMediaNames={deletedMediaNames}
                     handleMediaSelect={handleMediaSelect}
                     handleDeleteMedia={handleDeleteMedia}
                     uploadTime={uploadTime} // Pass the upload time as a prop
@@ -1397,7 +1469,10 @@ export default function VESidebar() {
                         onClick={() => setIsSelected(true)} // Set the media as selected on click
                         onMouseDown={handleDragStart} // Start dragging on mouse down
                       >
-                        <div style={{ position: 'relative', display: 'inline-block' }}>
+                        <div
+                          ref={containerRef}
+                          className={`d_width ${isWide ? 'w-100' : ''}`}
+                          style={{ position: 'relative', display: 'inline-block' }}>
                           {mediaType === 'image' ? (
                             <img
                               id="uploadedImage"
@@ -1405,7 +1480,7 @@ export default function VESidebar() {
                               alt="Selected Media"
                               style={{
                                 ...getMediaContentStyle(),
-                                
+
                                 maxWidth: '100%',
                                 display: mediaBlobUrl ? 'block' : 'none',
                                 transform: `rotate(${rotationAngle}deg) scaleX(${isMirrored ? -1 : 1}) scaleY(${isFlippedVertically ? -1 : 1})` // Apply transformations
@@ -1413,17 +1488,35 @@ export default function VESidebar() {
                               draggable={false} // Prevent default drag behavior
                             />
                           ) : mediaType === 'video' ? (
-                            <video
-                              ref={videoRef}
-                              controls={false}
-                              style={{
-                                ...getMediaContentStyle(),
-                                transform: `rotate(${rotationAngle}deg) scaleX(${isMirrored ? -1 : 1}) scaleY(${isFlippedVertically ? -1 : 1})` // Apply transformations
-                              }} // Ensure transformations are applied here as well
-                            >
-                              <source src={mediaBlobUrl} type={media?.type} />
-                              Your browser does not support the video tag.
-                            </video>
+                            <div style={{ position: 'relative', width: '100%', height: 'auto' }}>
+                              <video
+                                ref={videoRef}
+                                style={{ width: '100%', height: 'auto' }}
+                                onTimeUpdate={() => {
+                                  const currentTime = videoRef.current.currentTime;
+                                  const duration = videoRef.current.duration;
+                                  setVideoProgress((currentTime / duration) * 100);
+                                }}
+                              >
+                                <source src={mediaBlobUrl} type={media?.type} />
+                                Your browser does not support the video tag.
+                              </video>
+                              <div className="video-controls" style={{ position: 'absolute', bottom: '10px', left: '0', right: '0', display: 'flex', alignItems: 'center', backgroundColor: 'rgba(0, 0, 0, 0.7)', padding: '10px' }}>
+                                <button onClick={handlePlayPause} style={{ color: 'white' }}>
+                                  {isPlaying ? 'Pause' : 'Play'}
+                                </button>
+                                <input
+                                  type="range"
+                                  value={videoProgress}
+                                  onChange={(e) => {
+                                    const newTime = (e.target.value / 100) * videoRef.current.duration;
+                                    videoRef.current.currentTime = newTime;
+                                  }}
+                                  style={{ flex: 1, margin: '0 10px' }}
+                                />
+                                <span style={{ color: 'white' }}>{`${Math.floor(videoRef.current.currentTime)} / ${Math.floor(videoRef.current.duration)}`}</span>
+                              </div>
+                            </div>
                           ) : null}
 
                           {/* Display the current rotation angle */}
@@ -1480,7 +1573,7 @@ export default function VESidebar() {
               </div>
             </div>
             <div className="row mt-3 w-100">
-              <div className="d_timeline_bg_icon px-0" style={{ overflow: 'auto', width: '100%' }}>
+              <div className="d_timeline_bg_icon  px-0" style={{ overflow: 'auto', width: '100%' }}>
                 <div className="d_timeline_icon_row p-2 d-flex justify-content-between align-items-center">
                   <div className="d_timeline_left_icons d-flex align-items-center">
                     <img className="mx-2" src={t11} alt="Icon 1" />
@@ -1493,10 +1586,11 @@ export default function VESidebar() {
                   <div className="d_timeline_right_icons d-flex align-items-center">
                     <img src={t3} alt="Icon 4" className={`zoom-icon mx-2`} />
                     <img className="mx-2" src={t4} alt="Icon 5" />
-                    <img className="ms-2" src={t5} alt="Icon 6" />
-                    <img className="me-2" src={t6} alt="Icon 6" onClick={handlePreviewToggle} style={{ cursor: 'pointer' }} />
-
-                    
+                    <div>
+                      <img className="ms-2" src={t5} alt="Icon 6" />
+                      <img className="me-2" src={t6} alt="Icon 6" onClick={handlePreviewToggle} style={{ cursor: 'pointer' }} />
+                      <img className="mx-2" src={t7} alt="Icon 6" onClick={handlePreviewToggle} style={{ cursor: 'pointer' }} />
+                    </div>
                   </div>
                 </div>
                 <div style={{ width: '100%', height: '30px', position: 'relative' }}>
@@ -1566,7 +1660,50 @@ export default function VESidebar() {
                   </div>
                 </div>
               </div>
+            
+
             </div>
+            {isPreviewVisible && (
+              <div className="full-width-preview">
+                <button onClick={handlePreviewToggle} style={{ position: 'absolute', right: '10px', top: '10px' }}>
+                  Minimize
+                </button>
+                {/* Render your full-width preview content here */}
+                {mediaType === 'video' ? (
+                  <div style={{ position: 'relative', width: '100%', height: 'auto' }}>
+                    <video
+                      ref={videoRef}
+                      style={{ width: '100%', height: 'auto' }}
+                      onTimeUpdate={() => {
+                        const currentTime = videoRef.current.currentTime;
+                        const duration = videoRef.current.duration;
+                        setVideoProgress((currentTime / duration) * 100);
+                      }}
+                    >
+                      <source src={mediaBlobUrl} type={media?.type} />
+                      Your browser does not support the video tag.
+                    </video>
+                    <div className="video-controls" style={{ position: 'absolute', bottom: '10px', left: '0', right: '0', display: 'flex', alignItems: 'center', backgroundColor: 'rgba(0, 0, 0, 0.7)', padding: '10px' }}>
+                      <button onClick={handlePlayPause} style={{ color: 'white' }}>
+                        {isPlaying ? 'Pause' : 'Play'}
+                      </button>
+                      <input
+                        type="range"
+                        value={videoProgress}
+                        onChange={(e) => {
+                          const newTime = (e.target.value / 100) * videoRef.current.duration;
+                          videoRef.current.currentTime = newTime;
+                        }}
+                        style={{ flex: 1, margin: '0 10px' }}
+                      />
+                      <span style={{ color: 'white' }}>{`${Math.floor(videoRef.current.currentTime)} / ${Math.floor(videoRef.current.duration)}`}</span>
+                    </div>
+                  </div>
+                ) : (
+                  <img src={mediaBlobUrl} alt="Preview" style={{ width: '100%', height: 'auto' }} />
+                )}
+              </div>
+            )}
             <Modal show={showModal} className='d_dwnld_model' onHide={() => setShowModal(false)} centered>
               <Modal.Header>
                 <Modal.Title>Delete file</Modal.Title>
@@ -1594,7 +1731,7 @@ export default function VESidebar() {
             </Modal>
           </div>
         </div>
-        </div>
+      </div>
     </>
   );
 }

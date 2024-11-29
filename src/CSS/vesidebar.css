@@ -140,6 +140,69 @@ body {
 }
 
 
+@media (max-width: 991px) {
+  .dE_sidebar {
+    position: fixed;
+    /* Fix the sidebar at the bottom */
+    bottom: 0;
+    /* Align to the bottom */
+    left: 0;
+    right: 0;
+    height: auto;
+    /* Allow height to adjust */
+    padding: 10px;
+    /* Add some padding */
+    background-color: black;
+    /* Background color for visibility */
+    z-index: 1000;
+    /* Ensure it stays above other content */
+    display: flex;
+    /* Use flexbox for layout */
+    flex-direction: row;
+    /* Arrange items in a row */
+    overflow-x: auto;
+    /* Allow horizontal scrolling */
+    white-space: nowrap;
+    /* Prevent items from wrapping to the next line */
+  }
+
+  .bg_square {
+    flex: 0 0 auto;
+    /* Prevent items from growing and allow them to maintain their width */
+    margin: 5px;
+    /* Add some margin between items */
+    text-align: center;
+    /* Center text */
+  }
+
+  /* Optional: Add styles for scrollbar */
+  .dE_sidebar::-webkit-scrollbar {
+    height: 3px;
+    /* Height of the scrollbar */
+  }
+
+  .dE_sidebar::-webkit-scrollbar-thumb {
+    background: #888;
+    /* Color of the scrollbar thumb */
+    border-radius: 0px;
+    /* Rounded corners for the scrollbar thumb */
+  }
+
+  .dE_sidebar::-webkit-scrollbar-thumb:hover {
+    background: #555;
+    /* Color of the scrollbar thumb on hover */
+  }
+
+  .fixed-navbar {
+    position: relative;
+    /* Change position to relative for mobile */
+  }
+
+  .a_main {
+    margin-left: 0px !important;
+  }
+}
+
 @media (max-width: 768px) {
   .d_dwnld img {
     margin-right: 0px !important;
@@ -177,28 +240,50 @@ body {
 
   .bg_square {
     flex: 1;
-    margin: 5px;
+    margin: 5px 10px;
   }
 
+  .bg_square span {
+    font-size: 12px;
+  }
+
+  .bg_square .dE_menu {
+    height: 22px;
+    width: 22px;
+
+  }
+
+  /* 
   .dE_plus {
     font-size: 20px;
-  }
+  } */
 
   .d_dwnld {
     font-size: 16px;
     padding: 4px 10px;
   }
 
+  
   .bg_round {
     margin: 0px;
-    width: 32px;
-    height: 32px;
+    width: 40px;
+    height: 40px;
   }
-  .fixed-sidebar{
-  padding-top: 72px !important;
-  margin-top: 0px;
-  padding-left: 0px !important;
-  padding-right: 0px !important;
-  padding-bottom: 0px !important;
+  .fixed-sidebar {
+    padding-top: 72px !important;
+    margin-top: 0px;
+    padding-left: 0px !important;
+    padding-right: 0px !important;
+    padding-bottom: 0px !important;
+  }
+}
+
+@media (max-width: 425px) {
+  .a_main{
+    margin-top: 1rem !important;
+  }
+  .d_bg_preview {
+    height: 290px;
+    width: 93%;
   }
 }
