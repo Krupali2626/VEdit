@@ -1,0 +1,72 @@
+* {
+    margin: 0;
+    padding: 0;
+  }
+  
+  /* RatioComponent.css */
+  .ratio-container {
+    display: flex;
+    justify-content: center;
+    margin: 20px 0;
+  }
+  
+  .ratio-button {
+    display: flex;
+    flex-direction: column; /* Stack icon and text */
+    align-items: center; /* Center align items */
+    color: white;
+    border: none;
+    padding: 10px;
+    margin: 0 5px;
+    cursor: pointer;
+    border-radius: 5px;
+  }
+  
+  /* Individual button sizes and background colors */
+  .button-original {
+    background-color: #333; /* Original button color */
+    width: 52px; /* Width for Original */
+    height: 52px; /* Height for Original */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+  
+  .button-4-5 {
+    background-color: #333; /* Color for 4:5 */
+    width: 52px; /* Width for 4:5 */
+    height: 58px; /* Height for 4:5 */
+  }
+  
+  .button-9-18 {
+    background-color: #333; /* Color for 9:18 */
+    width: 90px; /* Width for 9:18 */
+    height: 70px; /* Height for 9:18 */
+  }
+  
+  .button-16-9 {
+    background-color: #333; /* Color for 16:9 */
+    width: 110px; /* Width for 16:9 */
+    height: 50px; /* Height for 16:9 */
+  }
+  
+  .button-9-16 {
+    background-color: #333; /* Color for 9:16 */
+    width: 95px; /* Width for 9:16 */
+    height: 75px; /* Height for 9:16 */
+  }
+  
+  .ratio-values {
+    display: flex;
+    justify-content: center;
+    margin-top: 10px;
+  }
+  
+  .ratio-value {
+    margin: 0 10px;
+    color: white;
+  }
+  
+  .ratio-button span {
+    margin-top: 5px; /* Space between icon and text */
+  }
