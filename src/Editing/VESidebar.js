@@ -191,6 +191,8 @@ export default function VESidebar() {
 
   const handleChange = (event, newValue) => {
     setValue(newValue);
+    console.log(value,"value");
+    
     switch (newValue) {
       case 0:
         setTabContent(
@@ -868,24 +870,23 @@ export default function VESidebar() {
     width: '30px',
     height: '30px',
   };
-
   const handleFillClick = () => {
     setDisplayMode('fill');
     if (containerRef.current && previewContainerRef.current) {
-      const previewBounds = previewContainerRef.current.getBoundingClientRect();
-      const naturalSize = getNaturalMediaSize();
+        const previewBounds = previewContainerRef.current.getBoundingClientRect();
+        const naturalSize = getNaturalMediaSize();
 
-      // Calculate the new height based on the aspect ratio
-      const newWidth = previewBounds.width;
-      const aspectRatio = naturalSize.width / naturalSize.height;
-      const newHeight = newWidth / aspectRatio;
+        // Set width and height to match the preview container's dimensions
+        const newWidth = previewBounds.width; // Use the width of the preview container
+        const newHeight = previewBounds.height; // Use the height of the preview container
 
-      setSize({
-        width: `${newWidth}px`,
-        height: `${newHeight}px`
-      });
-      setPosition({ x: 0, y: (previewBounds.height - newHeight) / 2 }); // Center vertically
-    }
+        // Set the size to fill the width and height
+        setSize({
+            width: `${newWidth}px`, // Set width to match the preview container
+            height: `${newHeight}px` // Set height to match the preview container
+        });
+        setPosition({ x: 0, y: 0 }); // Center the image
+    } 
   };
 
   const handleFitClick = () => {
@@ -912,6 +913,7 @@ export default function VESidebar() {
       setPosition({ x: newX, y: newY });
     }
   };
+
 
   const getNaturalMediaSize = () => {
     if (mediaType === 'image') {
@@ -1138,6 +1140,12 @@ export default function VESidebar() {
 
   const onMediaUpload = (file) => {
     console.log("Media uploaded:", file);
+  };
+
+  const [isPreviewVisible, setIsPreviewVisible] = useState(false);
+
+  const handlePreviewToggle = () => {
+    setIsPreviewVisible((prev) => !prev); // Toggle the visibility
   };
 
   return (
@@ -1380,6 +1388,7 @@ export default function VESidebar() {
               </div>
               <div className="col-xl-9 col-12 text-center">
                 <div className="d-flex justify-content-center">
+                  {/* aeshad */}
                   <div className="d_bg_preview" ref={previewContainerRef}>
                     {media && (
                       <div
@@ -1396,6 +1405,7 @@ export default function VESidebar() {
                               alt="Selected Media"
                               style={{
                                 ...getMediaContentStyle(),
+                                
                                 maxWidth: '100%',
                                 display: mediaBlobUrl ? 'block' : 'none',
                                 transform: `rotate(${rotationAngle}deg) scaleX(${isMirrored ? -1 : 1}) scaleY(${isFlippedVertically ? -1 : 1})` // Apply transformations
@@ -1484,8 +1494,9 @@ export default function VESidebar() {
                     <img src={t3} alt="Icon 4" className={`zoom-icon mx-2`} />
                     <img className="mx-2" src={t4} alt="Icon 5" />
                     <img className="ms-2" src={t5} alt="Icon 6" />
-                    <img className="me-2" src={t6} alt="Icon 6" />
-                    <img className="mx-2" src={t7} alt="Icon 6" />
+                    <img className="me-2" src={t6} alt="Icon 6" onClick={handlePreviewToggle} style={{ cursor: 'pointer' }} />
+
+                    
                   </div>
                 </div>
                 <div style={{ width: '100%', height: '30px', position: 'relative' }}>
@@ -1583,7 +1594,7 @@ export default function VESidebar() {
             </Modal>
           </div>
         </div>
-      </div>
+        </div>
     </>
   );
 }
